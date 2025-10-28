@@ -1,0 +1,16 @@
+# Ignore everything
+*
+
+# Don't ignore this file
+!.gitignore
+
+# Allow Git to see the build directory itself
+!build/
+
+# Inside build/, ignore everything...
+build/*
+
+# ...except the specific files you want to track
+!build/compare.C
+!build/compare2.C
+
