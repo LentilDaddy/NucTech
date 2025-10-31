@@ -1,5 +1,5 @@
 
-//root -l -b -q 'compare.C++("15.5mmCu_30MeV_UF6_1millevents.root")'
+//root -l -b -q 'compare.C++()'
 
 //small change to test commti
 #include <TROOT.h>
@@ -40,6 +40,7 @@ struct HistogramDecoration {
 
 void compare() // No arguments needed
 {
+    gROOT->SetBatch(kTRUE);
     // Automatically find all .root files in the current directory
     std::vector<std::string> files;
     for (const auto& entry : fs::directory_iterator(".")) {
