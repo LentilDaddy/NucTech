@@ -15,7 +15,8 @@ wait
 
 # Merge all ROOT output files safely using TChain (avoids hadd limits)
 # root -l -b -q -e '{ TChain c("IndividualHits"); c.Add("out_*.root"); c.Merge("out.root"); }'
-root -l -b -q -e '{ TChain c("IndividualHits"); c.Add("out_*.root"); }'
+# root -l -b -q -e '{ TChain c("IndividualHits"); c.Add("out_*.root"); }' #creates a temprary chain called c.
+#don't bother with chain as it undoes the chain once root is exited. Might as well add them to a chain inside the compare.C macro.
 
 
 # rm out_*.root
