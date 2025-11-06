@@ -8,7 +8,14 @@
 //why does it take so long to run
 //is label being redefined
 //problem is only with scatter.png plot 
+//figure out how to create tchains only for exisiting files
+//use SetBranchAddress instead of Draw(?)
+//batch processing?
+//ask for help with profiling in ROOT 
+//in parallel on Viking instead
 
+#include <TSystem.h>
+#include <TPluginManager.h> 
 #include <TROOT.h>
 #include <TFile.h>
 #include <TTree.h>
@@ -27,6 +34,7 @@
 #include <string>
 #include <regex>
 #include <cmath>
+#include <omp.h>
 
 struct HistogramDecoration {
    int lineWidth;
@@ -50,8 +58,10 @@ void compare()
 
     std::vector<std::pair<std::string, TChain*>> chains;
 
-    std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "PF5", "UF6", "Vacuum"};
-    std::vector<std::string> energies = {"20MeV", "22MeV", "25MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
+    // std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "PF5", "UF6", "Vacuum"};
+    std::vector<std::string> mediums = {"SF6"};
+    // std::vector<std::string> energies = {"20MeV", "22MeV", "25MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
+    std::vector<std::string> energies = {"22MeV", "25MeV", "28MeV", "30MeV", "35MeV"};
 
     // create one TChain per (medium, energy) and add matching files immediately
     for (const auto &m : mediums) {
@@ -63,71 +73,7 @@ void compare()
             chains.push_back({label, ch});
         }
     }
-
-
-    // std::vector<std::pair<std::string, TChain*>> chains;
-
-    // chains.push_back({"SF6",    new TChain("IndividualHits")});
-
-    // chains.push_back({"C3F8",   new TChain("IndividualHits")});
-    // chains.push_back({"CF4",    new TChain("IndividualHits")});
-    // chains.push_back({"PF5",    new TChain("IndividualHits")});
-    // chains.push_back({"UF6",    new TChain("IndividualHits")});
-    // chains.push_back({"Vacuum", new TChain("IndividualHits")});
-
-    // // Add files to each chain (adjust the wildcard patterns as needed)
-    // chains[0].second->Add("SF6_*20MeV_*.root");
-    // chains[1].second->Add("SF6_*22MeV_*.root");
-    // chains[2].second->Add("SF6_*25MeV_*.root");
-    // chains[3].second->Add("SF6_*28MeV_*.root");
-    // chains[4].second->Add("SF6_*30MeV_*.root");
-    // chains[5].second->Add("SF6_*35MeV_*.root");
-    // chains[6].second->Add("SF6_*40MeV_*.root");
-    // chains[7].second->Add("SF6_*45MeV_*.root");
-    // chains[8].second->Add("SF6_*50MeV_*.root");
-    // chains[9].second->Add("C3F8_*20MeV_*.root");
-    // chains[10].second->Add("C3F8_*22MeV_*.root");
-    // chains[11].second->Add("C3F8_*25MeV_*.root");
-    // chains[12].second->Add("C3F8_*28MeV_*.root");
-    // chains[13].second->Add("C3F8_*30MeV_*.root");
-    // chains[14].second->Add("C3F8_*35MeV_*.root");
-    // chains[15].second->Add("C3F8_*40MeV_*.root");
-    // chains[16].second->Add("C3F8_*45MeV_*.root");
-    // chains[17].second->Add("C3F8_*50MeV_*.root");
-    // chains[18].second->Add("CF4_*20MeV_*.root");
-    // chains[19].second->Add("CF4_*22MeV_*.root");
-    // chains[20].second->Add("CF4_*25MeV_*.root");
-    // chains[21].second->Add("CF4_*28MeV_*.root");
-    // chains[22].second->Add("CF4_*30MeV_*.root");
-    // chains[23].second->Add("CF4_*35MeV_*.root");
-    // chains[24].second->Add("CF4_*40MeV_*.root");
-    // chains[25].second->Add("CF4_*45MeV_*.root");
-    // chains[26].second->Add("CF4_*50MeV_*.root");
-    // chains[27].second->Add("PF5_*20MeV_*.root");
-    // chains[28].second->Add("PF5_*22MeV_*.root");
-    // chains[29].second->Add("PF5_*25MeV_*.root");
-    // chains[30].second->Add("PF5_*28MeV_*.root");
-    // chains[31].second->Add("PF5_*30MeV_*.root");
-    // chains[32].second->Add("PF5_*35MeV_*.root");
-    // chains[33].second->Add("PF5_*40MeV_*.root");
-    // chains[34].second->Add("PF5_*45MeV_*.root");
-    // chains[35].second->Add("PF5_*50MeV_*.root");
-    // chains[36].second->Add("UF6_*20MeV_*.root");
-    // chains[37].second->Add("UF6_*22MeV_*.root");
-    // chains[38].second->Add("UF6_*25MeV_*.root");
-    // chains[39].second->Add("UF6_*28MeV_*.root");
-    // chains[40].second->Add("UF6_*30MeV_*.root");
-    // chains[41].second->Add("UF6_*35MeV_*.root");
-    // chains[42].second->Add("UF6_*40MeV_*.root");
-    // chains[43].second->Add("UF6_*45MeV_*.root");
-    // chains[44].second->Add("UF6_*50MeV_*.root");
-    // chains[45].second->Add("Vacuum_*20MeV_*.root");
     
-    // chains[1].second->Add("C3F8_*.root");
-    // chains[2].second->Add("CF4_*.root");
-    // chains[3].second->Add("PF5_*.root");
-    // chains[4].second->Add("UF6_*.root");
-    // chains[5].second->Add("Vacuum_*.root");
 
     //===============================
     // Decorations and setup
@@ -154,110 +100,64 @@ void compare()
     std::vector<double> usefulPhotonIntegrals;
     double globalMax = 0.0;
 
-    //===============================
-    // Loop over each TChain
-    //===============================
-    for (size_t i=0; i<chains.size(); i++) { //what is chains.size()? Number of chains ?
-        TChain *t = chains[i].second;
-        std::string label = chains[i].first;
+//===============================
+// Loop over each TChain (parallelized)
+//===============================
+#pragma omp parallel for schedule(dynamic)
+for (size_t i = 0; i < chains.size(); i++) {
+    TChain *t = chains[i].second;
+    std::string label = chains[i].first;
 
-        if (!t || t->GetEntries() == 0) {
-            std::cout << "Warning: Chain " << label << " is empty!" << std::endl;
-            continue;
-        }
+    if (!t || t->GetEntries() == 0) {
+        #pragma omp critical
+        std::cout << "Warning: Chain " << label << " is empty!" << std::endl;
+        continue;
+    }
 
-        t->SetBranchStatus("*", 0);
-        t->SetBranchStatus("HitZ", 1);
-        t->SetBranchStatus("HitEdep", 1);
-        t->SetBranchStatus("HitPDG", 1);
-        t->SetBranchStatus("HitParentID", 1);
-        t->SetBranchStatus("HitKineticEnergy", 1);
+    // Local (thread-private) histograms
+    TH1D *h = new TH1D(TString::Format("h_thread_%zu", i),
+                       "Photon Depth", 100, Decoration.xMin, Decoration.xMax);
+    TH2D *h2 = new TH2D(TString::Format("h2_thread_%zu", i),
+                        "Photon Energy vs Depth", 100, photonDecoration.xMin, photonDecoration.xMax, 200, 0, 50);
 
-        TString hname = TString::Format("h_%zu", i);
-        TString h2name = TString::Format("h2_photonEnergy_depth_%zu", i);
+    // Disable global ROOT directory writing for safety
+    h->SetDirectory(nullptr);
+    h2->SetDirectory(nullptr);
 
-        TString drawCmd_numPhotons = TString::Format("HitZ >> %s(100, %g, %g)",
-                                     hname.Data(), Decoration.xMin, Decoration.xMax);
-        TString drawCmd_photonEnergy = TString::Format(
-            "HitKineticEnergy:HitZ >> %s(100, %g, %g, 200, 0, 50)",
-            h2name.Data(), photonDecoration.xMin, photonDecoration.xMax);
+    // Use SetBranchAddress instead of Draw (faster and thread-safe)
+    Double_t z, Edep, kineticE;
+    Int_t pdg, parentID;
+    t->SetBranchAddress("HitZ", &z);
+    t->SetBranchAddress("HitEdep", &Edep);
+    t->SetBranchAddress("HitPDG", &pdg);
+    t->SetBranchAddress("HitParentID", &parentID);
+    t->SetBranchAddress("HitKineticEnergy", &kineticE);
 
-        TString weight_numPhotons = "HitPDG==1 && HitKineticEnergy>15 && HitKineticEnergy<22 ? 1 : 0";
-        TString weight_photon = "HitPDG==1 && HitKineticEnergy>0 ? 1 : 0";
+    Long64_t nentries = t->GetEntries();
+    for (Long64_t j = 0; j < nentries; ++j) {
+        t->GetEntry(j);
+        if (pdg == 1 && kineticE > 15 && kineticE < 22)
+            h->Fill(z);
+        if (pdg == 1 && kineticE > 0)
+            h2->Fill(z, kineticE);
+    }
 
-        // Fill histograms from chain
-        t->Draw(drawCmd_numPhotons, weight_numPhotons, "goff");
-        t->Draw(drawCmd_photonEnergy, weight_photon, "goff");
+    double integral = h->Integral(0, 100);
 
-        TH1D *h = (TH1D*)gDirectory->Get(hname);
-        TH2D *h2 = (TH2D*)gDirectory->Get(h2name);
-        if (!h || !h2) {
-            std::cout << "Error: could not retrieve histograms for " << label << std::endl;
-            continue;
-        }
-
+    // Safely push results into shared vectors
+    #pragma omp critical
+    {
         h->SetLineColor(colors[i % nColors]);
         h->SetLineWidth(Decoration.lineWidth);
         h->GetXaxis()->SetTitle(Decoration.xTitle);
         h->GetYaxis()->SetTitle(Decoration.yTitle);
 
-        double thisMax = h->GetMaximum();
-        if (thisMax > globalMax) globalMax = thisMax;
-
         histos.push_back(h);
         h2_histos.push_back(h2);
-        usefulPhotonIntegrals.push_back(h->Integral(0,100));
-
+        usefulPhotonIntegrals.push_back(integral);
         legend->AddEntry(h, label.c_str(), "l");
     }
-
-    // //===============================
-    // // Draw 1D comparison
-    // //===============================
-    // bool firstDraw = true;
-    // for (size_t i=0; i<histos.size(); i++) {
-    //     TH1D *h = histos[i];
-    //     h->GetYaxis()->SetRangeUser(0.5, globalMax * 1.2);
-    //     if (firstDraw) {
-    //         gPad->SetLogy();
-    //         h->Draw("C");
-    //         firstDraw = false;
-    //     } else {
-    //         h->Draw("C same");
-    //     }
-    // }
-
-    // legend->Draw();
-    // c1->SaveAs("compare_energy_deposition.png");
-
-    // //===============================
-    // // Draw all 2D histograms
-    // //===============================
-    // int n2D = h2_histos.size();
-    // if (n2D > 0) {
-    //     int nCols = std::ceil(std::sqrt(n2D));
-    //     int nRows = std::ceil((double)n2D / nCols);
-
-    //     TCanvas *c2 = new TCanvas("c2", "Photon Energy vs Depth (All Chains)", 1200, 800);
-    //     c2->Divide(nCols, nRows);
-
-    //     for (int i = 0; i < n2D; ++i) {
-    //         c2->cd(i+1);
-    //         gPad->SetRightMargin(0.15);
-    //         gPad->SetLogz();
-    //         h2_histos[i]->GetXaxis()->SetTitle(photonDecoration.xTitle);
-    //         h2_histos[i]->GetYaxis()->SetTitle(photonDecoration.yTitle);
-    //         h2_histos[i]->Draw("COLZ");
-
-    //         TLatex label;
-    //         label.SetNDC();
-    //         label.SetTextSize(0.04);
-    //         label.DrawLatex(0.15, 0.93, chains[i].first.c_str());
-    //     }
-
-    //     c2->Update();
-    //     c2->SaveAs("photon_energy_depth_all.png");
-    // }
+}
 
     //===============================
     // Scatter plot of useful photons vs beam energy
@@ -271,6 +171,7 @@ void compare()
 
     int idxSF6=0, idxC3F8=0, idxCF4=0, idxPF5=0, idxUF6=0, idxVacuum=0;
 
+//also in parallel but ensure threads are caught up here.
     for (size_t i=0; i<chains.size(); i++) {
         std::string label = chains[i].first;
         double beamEnergy = 0.0;
@@ -312,9 +213,10 @@ void compare()
     gVacuum->SetMarkerColor(kGreen);gVacuum->SetMarkerStyle(26);
 
     // Find Y max for plot
+    //Not in parallel I think
     double YMax = -1e9;
     for (auto g : {gSF6, gC3F8, gCF4, gPF5, gUF6, gVacuum}) {
-        int n = g->GetN();
+        int n = g->GetN(); //number of points in each graph
         for (int i = 0; i < n; ++i) {
             double x, y;
             g->GetPoint(i, x, y);
@@ -322,6 +224,7 @@ void compare()
         }
     }
 
+    //rest should be serial
     TMultiGraph *mg = new TMultiGraph();
     mg->Add(gSF6, "P");
     mg->Add(gC3F8, "P");
@@ -346,4 +249,9 @@ void compare()
     scatterLegend->Draw();
     c3->Update();
     c3->SaveAs("scatter.png");
+}
+
+int main() {
+    compare();
+    return 0;
 }
