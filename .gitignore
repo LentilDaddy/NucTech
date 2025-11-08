@@ -26,3 +26,16 @@ src/*
 !src/NucTechDetectorConstruction.cc
 !src/NucTechTechRunAction.cc
 !src/NucTechSteppingAction.cc
+!src/NucTechActionInitialization.cc
+
+
+# Allow Git to see the include directory itself
+!include/
+
+# Inside src/, ignore everything...
+include/*
+
+# ...except the specific files you want to track
+!include/NucTechDetectorConstruction.hh
+!include/NucTechTechRunAction.hh
+!include/NucTechSteppingAction.hh

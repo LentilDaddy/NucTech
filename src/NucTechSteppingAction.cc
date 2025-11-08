@@ -12,28 +12,23 @@
 
 
 // NucTechSteppingAction::NucTechSteppingAction(G4double foilThickness)
-//     : fV_hitEdep(), fV_hitPos(), fV_hitTime(), fEdepDetector2(0), 
-//     fFoilThickness(foilThickness), fV_hitPDG(), fPrimariesDetector1(), fV_KineticEnergy(), fV_hitParentID(),
+//     : fV_hitEdep(), fV_hitPos(), fV_hitTime(),
+//     fFoilThickness(foilThickness), fV_hitPDG(), fV_KineticEnergy(), fV_hitParentID(),
 //     fV_hitMomentum()
 // {}
 
-NucTechSteppingAction::NucTechSteppingAction(G4double foilThickness)
-    : fV_hitEdep(), fV_hitPos(), fV_hitTime(),
-    fFoilThickness(foilThickness), fV_hitPDG(), fV_KineticEnergy(), fV_hitParentID(),
-    fV_hitMomentum()
+NucTechSteppingAction::NucTechSteppingAction()
+    : fV_hitEdep(), fV_hitPos(), fV_hitPDG(), fV_KineticEnergy()
 {}
 
 void NucTechSteppingAction::BeginOfEventAction() {
   fV_hitEdep.clear();
   fV_hitPos.clear();
-  fV_hitMomentum.clear();
-  fV_hitTime.clear();
+  // fV_hitMomentum.clear();
+  // fV_hitTime.clear();
   fV_hitPDG.clear();
-  // fEdepDetector2 = 0;
-  // fPrimariesDetector1 = 0;
-  // fPrimariesDetector1.clear();
   fV_KineticEnergy.clear();
-  fV_hitParentID.clear();
+  // fV_hitParentID.clear();
 }
 
 void NucTechSteppingAction::EndOfEventAction() {
@@ -50,7 +45,7 @@ void NucTechSteppingAction::EndOfEventAction() {
 // Fill the total event energy into the first ntuple ("EnergySpectrum")
   mgr->FillNtupleDColumn(1, 0, Edep_event / MeV);
   // mgr->FillNtupleDColumn(1, 1, fEdepDetector2 / MeV); // Assuming column 1 in ntuple 1
-  mgr->FillNtupleDColumn(1, 1, fFoilThickness / mm); // Assuming column 2 is for thickness
+  // mgr->FillNtupleDColumn(1, 1, fFoilThickness / mm); // Assuming column 2 is for thickness
   // mgr->FillNtupleIColumn(1, 2, fPrimariesDetector1.size());
   mgr->AddNtupleRow(1);
 
@@ -59,21 +54,21 @@ void NucTechSteppingAction::EndOfEventAction() {
   for (std::size_t i = 0; i < fV_hitEdep.size(); i++) {
     auto energy = fV_hitEdep[i] / MeV;
     auto position = fV_hitPos[i];
-    auto time = fV_hitTime[i] / ns;
+    // auto time = fV_hitTime[i] / ns;
     auto kinEnergy = fV_KineticEnergy[i] / MeV;
     auto momentum = fV_hitMomentum[i];
 
-    mgr->FillNtupleDColumn(2, 0, energy);
+    // mgr->FillNtupleDColumn(2, 0, energy);
     // mgr->FillNtupleDColumn(2, 1, position.x() / cm);
     // mgr->FillNtupleDColumn(2, 2, position.y() / cm);
-    mgr->FillNtupleDColumn(2, 1, position.z() / cm);
+    mgr->FillNtupleDColumn(2, 0, position.z() / cm);
     // mgr->FillNtupleDColumn(2, 2, momentum.x() / (MeV));
     // mgr->FillNtupleDColumn(2, 3, momentum.y() / (MeV));
-    mgr->FillNtupleDColumn(2, 2, momentum.z() / (MeV));
-    mgr->FillNtupleDColumn(2, 3, time / ns);
-    mgr->FillNtupleIColumn(2, 4, fV_hitPDG[i]); // Assuming column 5 is for PDG code
-    mgr->FillNtupleDColumn(2, 5, kinEnergy);
-    mgr->FillNtupleIColumn(2, 6, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
+    // mgr->FillNtupleDColumn(2, 2, momentum.z() / (MeV));
+    // mgr->FillNtupleDColumn(2, 3, time / ns);
+    mgr->FillNtupleIColumn(2, 1, fV_hitPDG[i]); // Assuming column 5 is for PDG code
+    mgr->FillNtupleDColumn(2, 2, kinEnergy);
+    // mgr->FillNtupleIColumn(2, 6, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
     mgr->AddNtupleRow(2);
   }
 }
@@ -124,14 +119,14 @@ if (currentName != "Detector1" &&
   const G4ThreeVector hitPos = postStepPoint->GetPosition();
   fV_hitPos.push_back(hitPos);
 
-  const G4ThreeVector hitMomentum = postStepPoint->GetMomentum();
-  fV_hitMomentum.push_back(hitMomentum);
+  // const G4ThreeVector hitMomentum = postStepPoint->GetMomentum();
+  // fV_hitMomentum.push_back(hitMomentum);
 
     // Store the hit time
-  const G4double hitTime = step->GetPostStepPoint()->GetGlobalTime();
-  fV_hitTime.push_back(hitTime);
+  // const G4double hitTime = step->GetPostStepPoint()->GetGlobalTime();
+  // fV_hitTime.push_back(hitTime);
 
-  const G4double kinEnergy = step->GetPostStepPoint()->GetKineticEnergy();
+  const G4float kinEnergy = step->GetPostStepPoint()->GetKineticEnergy();
   fV_KineticEnergy.push_back(kinEnergy);
 
     // Store PDG code
@@ -139,7 +134,7 @@ if (currentName != "Detector1" &&
   const G4ParticleDefinition* pd = track->GetDefinition();
   // int pdgCode = track->GetDefinition()->GetPDGEncoding();
   int particleType = 2; // default: other
-  int ParentID = track->GetParentID();
+  // int ParentID = track->GetParentID();
 
   // fV_hitPDG.push_back(pdgCode);
 
@@ -149,22 +144,6 @@ if (currentName != "Detector1" &&
     particleType = 1;
   }
   fV_hitPDG.push_back(particleType);
-  fV_hitParentID.push_back(ParentID);
-
-  // // Accumulate energy for Detector2 only
-  // if (postStepPoint->GetPhysicalVolume()->GetName() == "Detector2") {
-  //   fEdepDetector2 += Edep;
-  // }
-
-  // if (postStepPoint->GetStepStatus() == fGeomBoundary &&
-  //     postStepPoint->GetPhysicalVolume()->GetName() == "Detector1") {
-  //     if (track->GetParentID() == 0) {
-  //         // fPrimariesDetector1++;
-  //         fPrimariesDetector1.insert(track->GetTrackID());
-  //     }
-  // }
-
-
-  // std::cout << "Number of electrons crossing into Detector1: " << nElectronsDetector1 << std::endl; This is wrong!
+  // fV_hitParentID.push_back(ParentID);
 
 }
