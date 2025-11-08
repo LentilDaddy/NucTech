@@ -27,7 +27,7 @@
 #include <string>
 #include <regex>
 #include <cmath>
-#include <omp.h>
+// #include <omp.h>
 
 struct HistogramDecoration {
    int lineWidth;
@@ -62,7 +62,7 @@ void compare()
     // std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "PF5", "UF6", "Vacuum"};
     std::vector<std::string> mediums = {"SF6"};
     // std::vector<std::string> energies = {"20MeV", "22MeV", "25MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
-    std::vector<std::string> energies = {"22MeV", "25MeV", "28MeV", "30MeV", "35MeV"};
+    std::vector<std::string> energies = {"40MeV"};
 
     // create one TChain per (medium, energy) and add matching files immediately
     for (const auto &m : mediums) {
