@@ -36,7 +36,7 @@ void NucTechActionInitialization::Build() const
     // G4double foilThickness = detector->GetFoilThickness();
 
     // Use unique_ptr for steppingAction and eventAction
-    auto steppingAction = std::make_unique<NucTechSteppingAction>(foilThickness);
+    // auto steppingAction = std::make_unique<NucTechSteppingAction>(foilThickness);
     auto eventAction = std::make_unique<NucTechEventAction>(steppingAction.get());
 
     // Transfer ownership to SetUserAction
