@@ -52,11 +52,11 @@ void NucTechSteppingAction::EndOfEventAction() {
 
   // Then record the individual hit energy and coordinates of this event
   for (std::size_t i = 0; i < fV_hitEdep.size(); i++) {
-    auto energy = fV_hitEdep[i] / MeV;
+    // auto energy = fV_hitEdep[i] / MeV;
     auto position = fV_hitPos[i];
     // auto time = fV_hitTime[i] / ns;
     auto kinEnergy = fV_KineticEnergy[i] / MeV;
-    auto momentum = fV_hitMomentum[i];
+    // auto momentum = fV_hitMomentum[i];
 
     // mgr->FillNtupleDColumn(2, 0, energy);
     // mgr->FillNtupleDColumn(2, 1, position.x() / cm);

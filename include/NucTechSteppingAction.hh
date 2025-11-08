@@ -12,7 +12,7 @@
 class NucTechSteppingAction: public NucTechVSteppingAction
 {
 public:
-  // NucTechSteppingAction();
+  NucTechSteppingAction();
   // NucTechSteppingAction(G4double foilThickness);
   virtual void BeginOfEventAction();
   virtual void UserSteppingAction(const G4Step*);

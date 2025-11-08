@@ -37,6 +37,7 @@ void NucTechActionInitialization::Build() const
 
     // Use unique_ptr for steppingAction and eventAction
     // auto steppingAction = std::make_unique<NucTechSteppingAction>(foilThickness);
+    auto steppingAction = std::make_unique<NucTechSteppingAction>();
     auto eventAction = std::make_unique<NucTechEventAction>(steppingAction.get());
 
     // Transfer ownership to SetUserAction
