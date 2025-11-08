@@ -21,11 +21,11 @@ public:
 private:
   // These are used to remember quantities from call to call of
   // UserSteppingAction
-  std::vector<G4double> fV_hitEdep;
+  std::vector<G4float> fV_hitEdep;
   std::vector<G4ThreeVector> fV_hitPos;
   // std::vector<G4ThreeVector> fV_hitMomentum;
   // std::vector<G4double> fV_hitTime;
-  std::vector<G4double> fV_KineticEnergy;
+  std::vector<G4float> fV_KineticEnergy;
   // G4double fEdepDetector2;
   // G4double fFoilThickness;
   std::vector<int> fV_hitPDG;
