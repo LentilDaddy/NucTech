@@ -1,15 +1,8 @@
 //root -l -b -q 'compare.C++()'
+//compiled version in Makefile
 
-//currently plotting points at beam energies that don't exist for SF6
-//also points potentially not in order? They are randomly placed
-//no UF6 points. Maybe file name pattern inconsistent?
-//only need to plot scatter.png
-//what label is being used?
 //why does it take so long to run
-//is label being redefined
-//problem is only with scatter.png plot 
 //figure out how to create tchains only for exisiting files
-//use SetBranchAddress instead of Draw(?)
 //batch processing?
 //ask for help with profiling in ROOT 
 //in parallel on Viking instead
@@ -53,13 +46,12 @@ void compare()
     gROOT->SetBatch(kTRUE);
 
 
-    // --- Simple OpenMP test to confirm multithreading works ---
-    #pragma omp parallel
-    {
-        int tid = omp_get_thread_num();
-        #pragma omp critical
-        std::cout << "Hello from thread " << tid << std::endl;
-    }
+    // #pragma omp parallel
+    // {
+    //     int tid = omp_get_thread_num();
+    //     #pragma omp critical
+    //     std::cout << "Hello from thread " << tid << std::endl;
+    // }
 
     //===============================
     // Define TChains for each medium
@@ -77,7 +69,6 @@ void compare()
         for (const auto &e : energies) {
             std::string label = m + "_" + e; //does this mean it has to be in this order?
             TChain *ch = new TChain("IndividualHits");
-            // pattern: MEDIUM_*ENERGY_*.root (matches your previous usage)
             ch->Add(TString::Format("%s_*%s_*.root", m.c_str(), e.c_str()).Data());
             chains.push_back({label, ch});
         }
@@ -109,7 +100,6 @@ void compare()
     std::vector<double> usefulPhotonIntegrals;
     // double globalMax = 0.0;
 
-#pragma omp parallel for schedule(dynamic)
 for (size_t i = 0; i < chains.size(); i++) {
     TChain *t = chains[i].second;
     std::string label = chains[i].first;
@@ -119,7 +109,6 @@ for (size_t i = 0; i < chains.size(); i++) {
         continue;
     }
 
-    // Local (thread-private) histograms
     TH1D *h = new TH1D(TString::Format("h_thread_%zu", i),
                        "Photon Depth", 100, Decoration.xMin, Decoration.xMax);
     TH2D *h2 = new TH2D(TString::Format("h2_thread_%zu", i),
@@ -129,7 +118,6 @@ for (size_t i = 0; i < chains.size(); i++) {
     h->SetDirectory(nullptr);
     h2->SetDirectory(nullptr);
 
-    // Use SetBranchAddress instead of Draw (faster and thread-safe)
     Double_t z, Edep, kineticE;
     Int_t pdg, parentID;
     t->SetBranchAddress("HitZ", &z);
@@ -178,14 +166,12 @@ for (size_t i = 0; i < chains.size(); i++) {
         std::string label = chains[i].first;
         double beamEnergy = 0.0;
 
-        // For simplicity here, assume beam energy encoded in pattern name like "30MeV"
+
         std::regex energyRegex(R"((\d+(?:\.\d+)?)\s*MeV)");
         std::smatch match;
         if (std::regex_search(label, match, energyRegex)) {
             beamEnergy = std::stod(match[1].str());
         } else {
-            //beamEnergy = (i+1)*10; // fallback dummy value
-            // return; // Skip if no energy found
             continue;
 
         }

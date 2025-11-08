@@ -14,3 +14,15 @@ build/*
 !build/compare.C
 !build/compare2.C
 !build/submit.sh
+
+
+# Allow Git to see the src directory itself
+!src/
+
+# Inside src/, ignore everything...
+src/*
+
+# ...except the specific files you want to track
+!src/NucTechDetectorConstruction.cc
+!src/NucTechTechRunAction.cc
+!src/NucTechSteppingAction.cc
