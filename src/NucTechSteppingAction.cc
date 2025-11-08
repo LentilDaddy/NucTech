@@ -63,15 +63,15 @@ void NucTechSteppingAction::EndOfEventAction() {
     // mgr->FillNtupleDColumn(2, 1, position.x() / cm);
     // mgr->FillNtupleDColumn(2, 2, position.y() / cm);
     // mgr->FillNtupleFColumn(2, 0, position.z() / cm);
-    mgr->FillNtupleFColumn(2, 0, z);
+    mgr->FillNtupleFColumn(1, 0, z);
     // mgr->FillNtupleDColumn(2, 2, momentum.x() / (MeV));
     // mgr->FillNtupleDColumn(2, 3, momentum.y() / (MeV));
     // mgr->FillNtupleDColumn(2, 2, momentum.z() / (MeV));
     // mgr->FillNtupleDColumn(2, 3, time / ns);
-    mgr->FillNtupleIColumn(2, 1, fV_hitPDG[i]); // Assuming column 5 is for PDG code
-    mgr->FillNtupleFColumn(2, 2, kinEnergy);
+    mgr->FillNtupleIColumn(1, 1, fV_hitPDG[i]); // Assuming column 5 is for PDG code
+    mgr->FillNtupleFColumn(1, 2, kinEnergy);
     // mgr->FillNtupleIColumn(2, 6, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
-    mgr->AddNtupleRow(2);
+    mgr->AddNtupleRow(1);
   }
 }
 
