@@ -39,7 +39,7 @@ G4Element* elU = nist->FindOrBuildElement("U");  // Uranium
 G4int ncomponents, natoms;
 G4String name;
 // define a material from elements.   case 1: chemical molecule
-G4double medium_density = 1.000*g/cm3; //keep the same because we will be changing pressure anyway.
+G4double medium_density = 1.339*g/cm3; //keep the same because we will be changing pressure anyway.
 // G4double medium_density = 0.001*g/cm3; //keep the same because we will be changing pressure anyway.
 G4Material* SF6 = new G4Material(name="SF6", medium_density, ncomponents=2);
 SF6->AddElement(elS, natoms=1);
@@ -65,7 +65,7 @@ C3F8->AddElement(elF, natoms=8);
   //G4Material *foil = nist->FindOrBuildMaterial("G4_Au");
   G4Material *foil = nist->FindOrBuildMaterial("G4_Cu"); //swap target to tungsten
   // G4Material *medium = nist->FindOrBuildMaterial("G4_WATER");
-  G4Material *medium = UF6;
+  G4Material *medium = SF6;
 
 
   // Compute the mixture density as the mass-weighted sum:
@@ -105,7 +105,7 @@ C3F8->AddElement(elF, natoms=8);
     
   // G4double det_halfX = 150. * cm;
   // G4double det_halfY = 150. * cm;
-  G4double dzMid = 11 * mm; // foil thickness
+  G4double dzMid = 19.1 * mm; // foil thickness
   G4double det_halfDepth = 50. * cm;
 
 
@@ -129,21 +129,21 @@ C3F8->AddElement(elF, natoms=8);
                     0,              // Copy number
                     checkOverlaps); // Overlap checking
 
-  /***** Slices in detector *****/
+//   /***** Slices in detector *****/
 
-G4double sliceHalfThickness = 0.5 * mm;
-G4VSolid* sliceSolid = new G4Tubs("SliceSolid", 0.*cm, det_radius, sliceHalfThickness, 0.*deg, 360.*deg);
+// G4double sliceHalfThickness = 0.5 * mm;
+// G4VSolid* sliceSolid = new G4Tubs("SliceSolid", 0.*cm, det_radius, sliceHalfThickness, 0.*deg, 360.*deg);
 
-G4LogicalVolume* sliceLogical =
-    new G4LogicalVolume(sliceSolid, medium, "SliceLogical");
+// G4LogicalVolume* sliceLogical =
+//     new G4LogicalVolume(sliceSolid, medium, "SliceLogical");
 
 
-new G4PVReplica("SlicePhysical",   // name
-                sliceLogical,      // logical volume of slice
-                det_logical,       // mother volume (Detector1)
-                kZAxis,            // replicate along Z (the cylinder axis). kZAxis is predefined in G4PhysicalConstants.hh
-                3000,              // number of slices (Detector1 half-depth × 2 / 1 mm)
-                1.0 * mm);         // slice thickness
+// new G4PVReplica("SlicePhysical",   // name
+//                 sliceLogical,      // logical volume of slice
+//                 det_logical,       // mother volume (Detector1)
+//                 kZAxis,            // replicate along Z (the cylinder axis). kZAxis is predefined in G4PhysicalConstants.hh
+//                 3000,              // number of slices (Detector1 half-depth × 2 / 1 mm)
+//                 1.0 * mm);         // slice thickness
 
   // Foil layer ---
   // G4double dzMid = 50 * mm; // full thickness of the mix layer. Surely this is just the foil thickness?

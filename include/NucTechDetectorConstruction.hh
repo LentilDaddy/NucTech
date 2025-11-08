@@ -14,7 +14,7 @@ public:
 
   virtual G4VPhysicalVolume *Construct() override;
 
-  G4double GetFoilThickness() const { return fFoilThickness; } // <-- Add this
+  // G4double GetFoilThickness() const { return fFoilThickness; } // <-- Add this
 
 private:
   void DefineMaterials();
@@ -22,7 +22,7 @@ private:
 
   G4bool fCheckOverlaps;
   G4UserLimits *fStepLimit;
-  G4double fFoilThickness; // <-- Add this
+  // G4double fFoilThickness; // <-- Add this
 };
 
 #endif // NUCTECH_DETECTOR_CONSTRUCTION_HH

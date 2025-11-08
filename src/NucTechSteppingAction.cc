@@ -39,7 +39,7 @@ void NucTechSteppingAction::EndOfEventAction() {
   G4AnalysisManager *mgr = G4AnalysisManager::Instance();
 
   // Store the total nergy deposited in the event
-  const G4double Edep_event =
+  const G4float Edep_event =
       std::accumulate(fV_hitEdep.begin(), fV_hitEdep.end(), 0.);
 
 // Fill the total event energy into the first ntuple ("EnergySpectrum")
@@ -107,7 +107,7 @@ if (currentName != "Detector1" &&
 
 
   // Store the energy deposited in the phantom
-  const G4double Edep = step->GetTotalEnergyDeposit();
+  const G4float Edep = step->GetTotalEnergyDeposit();
 
   if (Edep < 0.) { //changed from <= to < to include 0 energy deposits
     return;
