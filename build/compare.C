@@ -118,12 +118,10 @@ for (size_t i = 0; i < chains.size(); i++) {
     h->SetDirectory(nullptr);
     h2->SetDirectory(nullptr);
 
-    Double_t z, Edep, kineticE;
-    Int_t pdg, parentID;
+    Float_t z, kineticE;
+    Int_t pdg;
     t->SetBranchAddress("HitZ", &z);
-    t->SetBranchAddress("HitEdep", &Edep);
     t->SetBranchAddress("HitPDG", &pdg);
-    t->SetBranchAddress("HitParentID", &parentID);
     t->SetBranchAddress("HitKineticEnergy", &kineticE);
 
     Long64_t nentries = t->GetEntries();
