@@ -42,12 +42,12 @@ void NucTechSteppingAction::EndOfEventAction() {
   const G4float Edep_event =
       std::accumulate(fV_hitEdep.begin(), fV_hitEdep.end(), 0.);
 
-// Fill the total event energy into the first ntuple ("EnergySpectrum")
-  mgr->FillNtupleFColumn(1, 0, Edep_event / MeV);
-  // mgr->FillNtupleDColumn(1, 1, fEdepDetector2 / MeV); // Assuming column 1 in ntuple 1
-  // mgr->FillNtupleDColumn(1, 1, fFoilThickness / mm); // Assuming column 2 is for thickness
-  // mgr->FillNtupleIColumn(1, 2, fPrimariesDetector1.size());
-  mgr->AddNtupleRow(1);
+// // Fill the total event energy into the first ntuple ("EnergySpectrum")
+//   mgr->FillNtupleFColumn(1, 0, Edep_event / MeV);
+//   // mgr->FillNtupleDColumn(1, 1, fEdepDetector2 / MeV); // Assuming column 1 in ntuple 1
+//   // mgr->FillNtupleDColumn(1, 1, fFoilThickness / mm); // Assuming column 2 is for thickness
+//   // mgr->FillNtupleIColumn(1, 2, fPrimariesDetector1.size());
+//   mgr->AddNtupleRow(1);
 
 
   // Then record the individual hit energy and coordinates of this event
