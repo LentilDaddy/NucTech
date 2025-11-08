@@ -147,7 +147,7 @@ new G4PVReplica("SlicePhysical",   // name
 
   // Foil layer ---
   // G4double dzMid = 50 * mm; // full thickness of the mix layer. Surely this is just the foil thickness?
-  fFoilThickness = dzMid; // save for use in action initialization
+  // fFoilThickness = dzMid; // save for use in action initialization
 
   // Solid for the slice: same XY extents as the detector, but only dzMid thick
   // G4VSolid *midLayerSolid =
