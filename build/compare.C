@@ -62,11 +62,12 @@ void compare()
     // std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "PF5", "UF6", "Vacuum"};
     std::vector<std::string> mediums = {"SF6","C3F8","CF4"};
     // std::vector<std::string> energies = {"20MeV", "22MeV", "25MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
-    std::vector<std::string> energies = {"25MeV"};
+    // std::vector<std::string> energies = {"25MeV"};
+    std::vector<std::string> foilThicknesses = {"10mm", "11mm", "12mm", "13mm", "14mm", "15mm", "16mm", "17mm", "18mm", "19mm", "20mm"};
 
     // create one TChain per (medium, energy) and add matching files immediately
     for (const auto &m : mediums) {
-        for (const auto &e : energies) {
+        for (const auto &e : foilThicknesses) {
             std::string label = m + "_" + e; //does this mean it has to be in this order?
             TChain *ch = new TChain("IndividualHits");
             ch->Add(TString::Format("%s_*%s_*.root", m.c_str(), e.c_str()).Data());
@@ -97,12 +98,8 @@ void compare()
 
     std::vector<TH1D*> histos;
     std::vector<TH2D*> h2_histos;
-    std::vector<double> usefulPhotonIntegrals100;
-    std::vector<double> usefulPhotonIntegrals10;
-    std::vector<double> usefulPhotonIntegrals20;
-    std::vector<double> usefulPhotonIntegrals30;
-    std::vector<double> usefulPhotonIntegrals40;
-    std::vector<double> usefulPhotonIntegrals50;
+    std::vector<double> usefulPhotonIntegrals;
+
     // double globalMax = 0.0;
 
 for (size_t i = 0; i < chains.size(); i++) {
@@ -138,12 +135,8 @@ for (size_t i = 0; i < chains.size(); i++) {
             h2->Fill(z, kineticE);
     }
 
-    double integral100 = h->Integral(0, 100); //repeat over different lengths
-    double integral10 = h->Integral(0, 10); //repeat over different lengths
-    double integral20 = h->Integral(0, 20); //repeat over different lengths
-    double integral30 = h->Integral(0, 30); //repeat over different lengths
-    double integral40 = h->Integral(0, 40); //repeat over different lengths
-    double integral50 = h->Integral(0, 50); //repeat over different lengths
+    double integral = h->Integral(0, 20); 
+
 
     {
         h->SetLineColor(colors[i % nColors]);
@@ -153,12 +146,8 @@ for (size_t i = 0; i < chains.size(); i++) {
 
         histos.push_back(h);
         h2_histos.push_back(h2);
-        usefulPhotonIntegrals100.push_back(integral100);
-        usefulPhotonIntegrals10.push_back(integral10);
-        usefulPhotonIntegrals20.push_back(integral20);
-        usefulPhotonIntegrals30.push_back(integral30);
-        usefulPhotonIntegrals40.push_back(integral40);
-        usefulPhotonIntegrals50.push_back(integral50);
+        usefulPhotonIntegrals.push_back(integral);
+
         legend->AddEntry(h, label.c_str(), "l");
     }
 }
@@ -177,78 +166,37 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     for (size_t i=0; i<chains.size(); i++) {
         std::string label = chains[i].first;
-        double beamEnergy = 0.0;
+        double foilThickness = 0.0;
+        std::regex foilThicknessRegex(R"((\d+(?:\.\d+)?)\s*mm)");
 
-
-        std::regex energyRegex(R"((\d+(?:\.\d+)?)\s*MeV)");
         std::smatch match;
-        if (std::regex_search(label, match, energyRegex)) {
-            beamEnergy = std::stod(match[1].str());
+        if (std::regex_search(label, match, foilThicknessRegex)) {
+            foilThickness = std::stod(match[1].str());
         } else {
             continue;
 
         }
 
-        double usefulPhotons100 = (i < usefulPhotonIntegrals100.size()) ? usefulPhotonIntegrals100[i] : 0; //make sure index is valid
-        double usefulPhotons10 = (i < usefulPhotonIntegrals10.size()) ? usefulPhotonIntegrals10[i] : 0; //make sure index is valid
-        double usefulPhotons20 = (i < usefulPhotonIntegrals20.size()) ? usefulPhotonIntegrals20[i] : 0; //make sure index is valid
-        double usefulPhotons30 = (i < usefulPhotonIntegrals30.size()) ? usefulPhotonIntegrals30[i] : 0; //make sure index is valid
-        double usefulPhotons40 = (i < usefulPhotonIntegrals40.size()) ? usefulPhotonIntegrals40[i] : 0; //make sure index is valid
-        double usefulPhotons50 = (i < usefulPhotonIntegrals50.size()) ? usefulPhotonIntegrals50[i] : 0; //make sure index is valid
-        usefulPhotons100 = usefulPhotons100 / 1e6; 
-        usefulPhotons10 = usefulPhotons10 / 1e6; 
-        usefulPhotons20 = usefulPhotons20 / 1e6; 
-        usefulPhotons30 = usefulPhotons30 / 1e6; 
-        usefulPhotons40 = usefulPhotons40 / 1e6; 
-        usefulPhotons50 = usefulPhotons50 / 1e6; 
+        double usefulPhotons = (i < usefulPhotonIntegrals.size()) ? usefulPhotonIntegrals[i] : 0; //make sure index is valid
+        usefulPhotons = usefulPhotons / 1e6;
 
-        if (label.find("SF6") != std::string::npos){ //swap beam energy for lengths
-            gSF6->SetPoint(idxSF6++, 10, usefulPhotons10);
-            gSF6->SetPoint(idxSF6++, 20, usefulPhotons20);
-            gSF6->SetPoint(idxSF6++, 30, usefulPhotons30);
-            gSF6->SetPoint(idxSF6++, 40, usefulPhotons40);
-            gSF6->SetPoint(idxSF6++, 50, usefulPhotons50);
-            gSF6->SetPoint(idxSF6++, 100, usefulPhotons100);
+        if (label.find("SF6") != std::string::npos){ 
+            gSF6->SetPoint(idxSF6++, foilThickness, usefulPhotons);
         }
         else if (label.find("C3F8") != std::string::npos){
-            gC3F8->SetPoint(idxC3F8++, 10, usefulPhotons10);
-            gC3F8->SetPoint(idxC3F8++, 20, usefulPhotons20);
-            gC3F8->SetPoint(idxC3F8++, 30, usefulPhotons30);
-            gC3F8->SetPoint(idxC3F8++, 40, usefulPhotons40);
-            gC3F8->SetPoint(idxC3F8++, 50, usefulPhotons50);
-            gC3F8->SetPoint(idxC3F8++, 100, usefulPhotons100);
+            gC3F8->SetPoint(idxC3F8++, foilThickness, usefulPhotons);
         }
         else if (label.find("CF4") != std::string::npos){
-            gCF4->SetPoint(idxCF4++, 10, usefulPhotons10);
-            gCF4->SetPoint(idxCF4++, 20, usefulPhotons20);
-            gCF4->SetPoint(idxCF4++, 30, usefulPhotons30);
-            gCF4->SetPoint(idxCF4++, 40, usefulPhotons40);
-            gCF4->SetPoint(idxCF4++, 50, usefulPhotons50);
-            gCF4->SetPoint(idxCF4++, 100, usefulPhotons100);
+            gCF4->SetPoint(idxCF4++, foilThickness, usefulPhotons);
         }
         else if (label.find("PF5") != std::string::npos){
-            gPF5->SetPoint(idxPF5++, 10, usefulPhotons10);
-            gPF5->SetPoint(idxPF5++, 20, usefulPhotons20);
-            gPF5->SetPoint(idxPF5++, 30, usefulPhotons30);
-            gPF5->SetPoint(idxPF5++, 40, usefulPhotons40);
-            gPF5->SetPoint(idxPF5++, 50, usefulPhotons50);
-            gPF5->SetPoint(idxPF5++, 100, usefulPhotons100);
+            gPF5->SetPoint(idxPF5++, foilThickness, usefulPhotons);
         }
         else if (label.find("UF6") != std::string::npos){
-            gUF6->SetPoint(idxUF6++, 10, usefulPhotons10);
-            gUF6->SetPoint(idxUF6++, 20, usefulPhotons20);
-            gUF6->SetPoint(idxUF6++, 30, usefulPhotons30);
-            gUF6->SetPoint(idxUF6++, 40, usefulPhotons40);
-            gUF6->SetPoint(idxUF6++, 50, usefulPhotons50);
-            gUF6->SetPoint(idxUF6++, 100, usefulPhotons100);
+            gUF6->SetPoint(idxUF6++, foilThickness, usefulPhotons);
         }
         else if (label.find("Vacuum") != std::string::npos){
-            gVacuum->SetPoint(idxVacuum++, 10, usefulPhotons10);
-            gVacuum->SetPoint(idxVacuum++, 20, usefulPhotons20);
-            gVacuum->SetPoint(idxVacuum++, 30, usefulPhotons30);
-            gVacuum->SetPoint(idxVacuum++, 40, usefulPhotons40);
-            gVacuum->SetPoint(idxVacuum++, 50, usefulPhotons50);
-            gVacuum->SetPoint(idxVacuum++, 100, usefulPhotons100);
+            gVacuum->SetPoint(idxVacuum++, foilThickness, usefulPhotons);
         }
     }
 
@@ -288,13 +236,13 @@ for (size_t i = 0; i < chains.size(); i++) {
     scatterLegend->AddEntry(gUF6, "UF6_3.630g/cm3", "p");
     scatterLegend->AddEntry(gVacuum, "Vacuum", "p");
 
-    TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Detector Length [25MeV beam]", 600, 500);
-    mg->SetTitle("#Useful photons (15-22MeV) per Primary Electron vs Detector Length;Detector Length (cm);#Useful photons per Primary Electron");
+    TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Foil Thickness", 600, 500);
+    mg->SetTitle("Total #Useful photons (15-22MeV) in Detector per Primary Electron with 25MeV Beam vs Foil Thickness;Foil Thickness (mm);#Useful photons per Primary Electron");
     mg->Draw("AP");
-    mg->GetXaxis()->SetLimits(0, 110);
+    mg->GetXaxis()->SetLimits(9, 21);
     scatterLegend->Draw();
     c3->Update();
-    c3->SaveAs("Photons_DetectorLength.png");
+    c3->SaveAs("Photons_FoilThickness.png");
 }
 
 int main() {
