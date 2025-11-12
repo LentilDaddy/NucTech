@@ -26,7 +26,7 @@ G4VPhysicalVolume *NucTechDetectorConstruction::Construct() {
 
   // Materials
   G4NistManager *nist = G4NistManager::Instance();
-  G4Material *world_mat = nist->FindOrBuildMaterial("G4_AIR");
+  G4Material *world_mat = nist->FindOrBuildMaterial("G4_Galactic");
   G4Material *vacuum = nist->FindOrBuildMaterial("G4_Galactic");
 
   
@@ -105,8 +105,8 @@ C3F8->AddElement(elF, natoms=8);
     
   // G4double det_halfX = 150. * cm;
   // G4double det_halfY = 150. * cm;
-  G4double dzMid = 19.1 * mm; // foil thickness
-  G4double det_halfDepth = 50. * cm;
+  G4double dzMid = 10. * mm; // foil thickness
+  G4double det_halfDepth = 10. * cm;
 
 
   G4VSolid *det_solid =
@@ -128,30 +128,6 @@ C3F8->AddElement(elF, natoms=8);
                     false,          // Not a parameterized volume
                     0,              // Copy number
                     checkOverlaps); // Overlap checking
-
-//   /***** Slices in detector *****/
-
-// G4double sliceHalfThickness = 0.5 * mm;
-// G4VSolid* sliceSolid = new G4Tubs("SliceSolid", 0.*cm, det_radius, sliceHalfThickness, 0.*deg, 360.*deg);
-
-// G4LogicalVolume* sliceLogical =
-//     new G4LogicalVolume(sliceSolid, medium, "SliceLogical");
-
-
-// new G4PVReplica("SlicePhysical",   // name
-//                 sliceLogical,      // logical volume of slice
-//                 det_logical,       // mother volume (Detector1)
-//                 kZAxis,            // replicate along Z (the cylinder axis). kZAxis is predefined in G4PhysicalConstants.hh
-//                 3000,              // number of slices (Detector1 half-depth × 2 / 1 mm)
-//                 1.0 * mm);         // slice thickness
-
-  // Foil layer ---
-  // G4double dzMid = 50 * mm; // full thickness of the mix layer. Surely this is just the foil thickness?
-  // fFoilThickness = dzMid; // save for use in action initialization
-
-  // Solid for the slice: same XY extents as the detector, but only dzMid thick
-  // G4VSolid *midLayerSolid =
-  //new G4Box("Detector2", det_halfX, det_halfY, dzMid / 2);
 
   G4VSolid *midLayerSolid =
     new G4Tubs("Detector2", 0.*cm, det_radius, dzMid / 2, 0.*deg, 360.*deg);  
