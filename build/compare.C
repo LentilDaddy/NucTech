@@ -132,7 +132,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     Long64_t nentries = t->GetEntries();
     for (Long64_t j = 0; j < nentries; ++j) {
         t->GetEntry(j);
-        if (pdg == 1 && kineticE >= 15 && kineticE =< 22)
+        if (pdg == 1 && kineticE >= 15 && kineticE <= 22)
             h->Fill(z);
         if (pdg == 1 && kineticE >= 0)
             h2->Fill(z, kineticE);
@@ -202,48 +202,54 @@ for (size_t i = 0; i < chains.size(); i++) {
         usefulPhotons40 = usefulPhotons40 / 1e6; 
         usefulPhotons50 = usefulPhotons50 / 1e6; 
 
-        if (label.find("SF6") != std::string::npos) //swap beam energy for lengths
+        if (label.find("SF6") != std::string::npos){ //swap beam energy for lengths
             gSF6->SetPoint(idxSF6++, 10, usefulPhotons10);
             gSF6->SetPoint(idxSF6++, 20, usefulPhotons20);
             gSF6->SetPoint(idxSF6++, 30, usefulPhotons30);
             gSF6->SetPoint(idxSF6++, 40, usefulPhotons40);
             gSF6->SetPoint(idxSF6++, 50, usefulPhotons50);
             gSF6->SetPoint(idxSF6++, 100, usefulPhotons100);
-        else if (label.find("C3F8") != std::string::npos)
-            gC3F8->SetPoint(idxC3F8++, 10, usefulPhotons);
+        }
+        else if (label.find("C3F8") != std::string::npos){
+            gC3F8->SetPoint(idxC3F8++, 10, usefulPhotons10);
             gC3F8->SetPoint(idxC3F8++, 20, usefulPhotons20);
             gC3F8->SetPoint(idxC3F8++, 30, usefulPhotons30);
             gC3F8->SetPoint(idxC3F8++, 40, usefulPhotons40);
             gC3F8->SetPoint(idxC3F8++, 50, usefulPhotons50);
             gC3F8->SetPoint(idxC3F8++, 100, usefulPhotons100);
-        else if (label.find("CF4") != std::string::npos)
-            gCF4->SetPoint(idxCF4++, 10, usefulPhotons);
+        }
+        else if (label.find("CF4") != std::string::npos){
+            gCF4->SetPoint(idxCF4++, 10, usefulPhotons10);
             gCF4->SetPoint(idxCF4++, 20, usefulPhotons20);
             gCF4->SetPoint(idxCF4++, 30, usefulPhotons30);
             gCF4->SetPoint(idxCF4++, 40, usefulPhotons40);
             gCF4->SetPoint(idxCF4++, 50, usefulPhotons50);
             gCF4->SetPoint(idxCF4++, 100, usefulPhotons100);
-        else if (label.find("PF5") != std::string::npos)
-            gPF5->SetPoint(idxPF5++, 10, usefulPhotons);
+        }
+        else if (label.find("PF5") != std::string::npos){
+            gPF5->SetPoint(idxPF5++, 10, usefulPhotons10);
             gPF5->SetPoint(idxPF5++, 20, usefulPhotons20);
             gPF5->SetPoint(idxPF5++, 30, usefulPhotons30);
             gPF5->SetPoint(idxPF5++, 40, usefulPhotons40);
             gPF5->SetPoint(idxPF5++, 50, usefulPhotons50);
             gPF5->SetPoint(idxPF5++, 100, usefulPhotons100);
-        else if (label.find("UF6") != std::string::npos)
-            gUF6->SetPoint(idxUF6++, 10, usefulPhotons);
+        }
+        else if (label.find("UF6") != std::string::npos){
+            gUF6->SetPoint(idxUF6++, 10, usefulPhotons10);
             gUF6->SetPoint(idxUF6++, 20, usefulPhotons20);
             gUF6->SetPoint(idxUF6++, 30, usefulPhotons30);
             gUF6->SetPoint(idxUF6++, 40, usefulPhotons40);
             gUF6->SetPoint(idxUF6++, 50, usefulPhotons50);
             gUF6->SetPoint(idxUF6++, 100, usefulPhotons100);
-        else if (label.find("Vacuum") != std::string::npos)
-            gVacuum->SetPoint(idxVacuum++, 10, usefulPhotons);
+        }
+        else if (label.find("Vacuum") != std::string::npos){
+            gVacuum->SetPoint(idxVacuum++, 10, usefulPhotons10);
             gVacuum->SetPoint(idxVacuum++, 20, usefulPhotons20);
             gVacuum->SetPoint(idxVacuum++, 30, usefulPhotons30);
             gVacuum->SetPoint(idxVacuum++, 40, usefulPhotons40);
             gVacuum->SetPoint(idxVacuum++, 50, usefulPhotons50);
             gVacuum->SetPoint(idxVacuum++, 100, usefulPhotons100);
+        }
     }
 
     // Style graphs
@@ -282,13 +288,13 @@ for (size_t i = 0; i < chains.size(); i++) {
     scatterLegend->AddEntry(gUF6, "UF6_3.630g/cm3", "p");
     scatterLegend->AddEntry(gVacuum, "Vacuum", "p");
 
-    TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Detector Length", 600, 500);
+    TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Detector Length [25MeV beam]", 600, 500);
     mg->SetTitle("#Useful photons (15-22MeV) per Primary Electron vs Detector Length;Detector Length (cm);#Useful photons per Primary Electron");
     mg->Draw("AP");
     mg->GetXaxis()->SetLimits(0, 110);
     scatterLegend->Draw();
     c3->Update();
-    c3->SaveAs("scatter.png");
+    c3->SaveAs("Photons_DetectorLength.png");
 }
 
 int main() {
