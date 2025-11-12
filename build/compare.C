@@ -60,9 +60,9 @@ void compare()
     std::vector<std::pair<std::string, TChain*>> chains;
 
     // std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "PF5", "UF6", "Vacuum"};
-    std::vector<std::string> mediums = {"SF6"};
+    std::vector<std::string> mediums = {"SF6","C3F8","CF4"};
     // std::vector<std::string> energies = {"20MeV", "22MeV", "25MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
-    std::vector<std::string> energies = {"40MeV"};
+    std::vector<std::string> energies = {"25MeV"};
 
     // create one TChain per (medium, energy) and add matching files immediately
     for (const auto &m : mediums) {
@@ -97,7 +97,12 @@ void compare()
 
     std::vector<TH1D*> histos;
     std::vector<TH2D*> h2_histos;
-    std::vector<double> usefulPhotonIntegrals;
+    std::vector<double> usefulPhotonIntegrals100;
+    std::vector<double> usefulPhotonIntegrals10;
+    std::vector<double> usefulPhotonIntegrals20;
+    std::vector<double> usefulPhotonIntegrals30;
+    std::vector<double> usefulPhotonIntegrals40;
+    std::vector<double> usefulPhotonIntegrals50;
     // double globalMax = 0.0;
 
 for (size_t i = 0; i < chains.size(); i++) {
@@ -127,13 +132,18 @@ for (size_t i = 0; i < chains.size(); i++) {
     Long64_t nentries = t->GetEntries();
     for (Long64_t j = 0; j < nentries; ++j) {
         t->GetEntry(j);
-        if (pdg == 1 && kineticE > 15 && kineticE < 22)
+        if (pdg == 1 && kineticE >= 15 && kineticE =< 22)
             h->Fill(z);
-        if (pdg == 1 && kineticE > 0)
+        if (pdg == 1 && kineticE >= 0)
             h2->Fill(z, kineticE);
     }
 
-    double integral = h->Integral(0, 100);
+    double integral100 = h->Integral(0, 100); //repeat over different lengths
+    double integral10 = h->Integral(0, 10); //repeat over different lengths
+    double integral20 = h->Integral(0, 20); //repeat over different lengths
+    double integral30 = h->Integral(0, 30); //repeat over different lengths
+    double integral40 = h->Integral(0, 40); //repeat over different lengths
+    double integral50 = h->Integral(0, 50); //repeat over different lengths
 
     {
         h->SetLineColor(colors[i % nColors]);
@@ -143,7 +153,12 @@ for (size_t i = 0; i < chains.size(); i++) {
 
         histos.push_back(h);
         h2_histos.push_back(h2);
-        usefulPhotonIntegrals.push_back(integral);
+        usefulPhotonIntegrals100.push_back(integral100);
+        usefulPhotonIntegrals10.push_back(integral10);
+        usefulPhotonIntegrals20.push_back(integral20);
+        usefulPhotonIntegrals30.push_back(integral30);
+        usefulPhotonIntegrals40.push_back(integral40);
+        usefulPhotonIntegrals50.push_back(integral50);
         legend->AddEntry(h, label.c_str(), "l");
     }
 }
@@ -174,20 +189,61 @@ for (size_t i = 0; i < chains.size(); i++) {
 
         }
 
-        double usefulPhotons = (i < usefulPhotonIntegrals.size()) ? usefulPhotonIntegrals[i] : 0; // what does this mean
+        double usefulPhotons100 = (i < usefulPhotonIntegrals100.size()) ? usefulPhotonIntegrals100[i] : 0; //make sure index is valid
+        double usefulPhotons10 = (i < usefulPhotonIntegrals10.size()) ? usefulPhotonIntegrals10[i] : 0; //make sure index is valid
+        double usefulPhotons20 = (i < usefulPhotonIntegrals20.size()) ? usefulPhotonIntegrals20[i] : 0; //make sure index is valid
+        double usefulPhotons30 = (i < usefulPhotonIntegrals30.size()) ? usefulPhotonIntegrals30[i] : 0; //make sure index is valid
+        double usefulPhotons40 = (i < usefulPhotonIntegrals40.size()) ? usefulPhotonIntegrals40[i] : 0; //make sure index is valid
+        double usefulPhotons50 = (i < usefulPhotonIntegrals50.size()) ? usefulPhotonIntegrals50[i] : 0; //make sure index is valid
+        usefulPhotons100 = usefulPhotons100 / 1e6; 
+        usefulPhotons10 = usefulPhotons10 / 1e6; 
+        usefulPhotons20 = usefulPhotons20 / 1e6; 
+        usefulPhotons30 = usefulPhotons30 / 1e6; 
+        usefulPhotons40 = usefulPhotons40 / 1e6; 
+        usefulPhotons50 = usefulPhotons50 / 1e6; 
 
-        if (label.find("SF6") != std::string::npos)
-            gSF6->SetPoint(idxSF6++, beamEnergy, usefulPhotons);
+        if (label.find("SF6") != std::string::npos) //swap beam energy for lengths
+            gSF6->SetPoint(idxSF6++, 10, usefulPhotons10);
+            gSF6->SetPoint(idxSF6++, 20, usefulPhotons20);
+            gSF6->SetPoint(idxSF6++, 30, usefulPhotons30);
+            gSF6->SetPoint(idxSF6++, 40, usefulPhotons40);
+            gSF6->SetPoint(idxSF6++, 50, usefulPhotons50);
+            gSF6->SetPoint(idxSF6++, 100, usefulPhotons100);
         else if (label.find("C3F8") != std::string::npos)
-            gC3F8->SetPoint(idxC3F8++, beamEnergy, usefulPhotons);
+            gC3F8->SetPoint(idxC3F8++, 10, usefulPhotons);
+            gC3F8->SetPoint(idxC3F8++, 20, usefulPhotons20);
+            gC3F8->SetPoint(idxC3F8++, 30, usefulPhotons30);
+            gC3F8->SetPoint(idxC3F8++, 40, usefulPhotons40);
+            gC3F8->SetPoint(idxC3F8++, 50, usefulPhotons50);
+            gC3F8->SetPoint(idxC3F8++, 100, usefulPhotons100);
         else if (label.find("CF4") != std::string::npos)
-            gCF4->SetPoint(idxCF4++, beamEnergy, usefulPhotons);
+            gCF4->SetPoint(idxCF4++, 10, usefulPhotons);
+            gCF4->SetPoint(idxCF4++, 20, usefulPhotons20);
+            gCF4->SetPoint(idxCF4++, 30, usefulPhotons30);
+            gCF4->SetPoint(idxCF4++, 40, usefulPhotons40);
+            gCF4->SetPoint(idxCF4++, 50, usefulPhotons50);
+            gCF4->SetPoint(idxCF4++, 100, usefulPhotons100);
         else if (label.find("PF5") != std::string::npos)
-            gPF5->SetPoint(idxPF5++, beamEnergy, usefulPhotons);
+            gPF5->SetPoint(idxPF5++, 10, usefulPhotons);
+            gPF5->SetPoint(idxPF5++, 20, usefulPhotons20);
+            gPF5->SetPoint(idxPF5++, 30, usefulPhotons30);
+            gPF5->SetPoint(idxPF5++, 40, usefulPhotons40);
+            gPF5->SetPoint(idxPF5++, 50, usefulPhotons50);
+            gPF5->SetPoint(idxPF5++, 100, usefulPhotons100);
         else if (label.find("UF6") != std::string::npos)
-            gUF6->SetPoint(idxUF6++, beamEnergy, usefulPhotons);
+            gUF6->SetPoint(idxUF6++, 10, usefulPhotons);
+            gUF6->SetPoint(idxUF6++, 20, usefulPhotons20);
+            gUF6->SetPoint(idxUF6++, 30, usefulPhotons30);
+            gUF6->SetPoint(idxUF6++, 40, usefulPhotons40);
+            gUF6->SetPoint(idxUF6++, 50, usefulPhotons50);
+            gUF6->SetPoint(idxUF6++, 100, usefulPhotons100);
         else if (label.find("Vacuum") != std::string::npos)
-            gVacuum->SetPoint(idxVacuum++, beamEnergy, usefulPhotons);
+            gVacuum->SetPoint(idxVacuum++, 10, usefulPhotons);
+            gVacuum->SetPoint(idxVacuum++, 20, usefulPhotons20);
+            gVacuum->SetPoint(idxVacuum++, 30, usefulPhotons30);
+            gVacuum->SetPoint(idxVacuum++, 40, usefulPhotons40);
+            gVacuum->SetPoint(idxVacuum++, 50, usefulPhotons50);
+            gVacuum->SetPoint(idxVacuum++, 100, usefulPhotons100);
     }
 
     // Style graphs
@@ -219,17 +275,17 @@ for (size_t i = 0; i < chains.size(); i++) {
     mg->SetMaximum(YMax * 1.1);
 
     TLegend *scatterLegend = new TLegend(0.1, 0.78, 0.3, 0.88);
-    scatterLegend->AddEntry(gSF6, "SF6", "p");
-    scatterLegend->AddEntry(gC3F8, "C3F8", "p");
-    scatterLegend->AddEntry(gCF4, "CF4", "p");
+    scatterLegend->AddEntry(gSF6, "SF6_1.339g/cm3", "p");
+    scatterLegend->AddEntry(gC3F8, "C3F8_1.352g/cm3", "p");
+    scatterLegend->AddEntry(gCF4, "CF4_1.603g/cm3", "p");
     scatterLegend->AddEntry(gPF5, "PF5", "p");
-    scatterLegend->AddEntry(gUF6, "UF6", "p");
+    scatterLegend->AddEntry(gUF6, "UF6_3.630g/cm3", "p");
     scatterLegend->AddEntry(gVacuum, "Vacuum", "p");
 
-    TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Beam Energy", 600, 500);
-    mg->SetTitle("#Useful photons (15-22MeV) vs beam energy;Beam energy (MeV);#Useful photons");
+    TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Detector Length", 600, 500);
+    mg->SetTitle("#Useful photons (15-22MeV) per Primary Electron vs Detector Length;Detector Length (cm);#Useful photons per Primary Electron");
     mg->Draw("AP");
-    mg->GetXaxis()->SetLimits(19, 51);
+    mg->GetXaxis()->SetLimits(0, 110);
     scatterLegend->Draw();
     c3->Update();
     c3->SaveAs("scatter.png");
