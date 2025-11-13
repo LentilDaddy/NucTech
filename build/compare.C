@@ -27,7 +27,6 @@
 #include <string>
 #include <regex>
 #include <cmath>
-// #include <omp.h>
 
 struct HistogramDecoration {
    int lineWidth;
@@ -73,10 +72,6 @@ void compare()
     //===============================
     HistogramDecoration Decoration = {
        1, kBlack, "Depth (cm)", "#photons in range 15-22 MeV", nullptr, 0., 100., 0., 0.
-    };
-
-    HistogramDecoration photonDecoration = {
-       1, kBlack, "Depth (cm)", "Photon Energy (MeV)", nullptr, 0., 100., 0., 0.
     };
 
     int colors[] = {kRed, kSpring+5, kBlack, kMagenta+2, kViolet-2, kBlue-7,
