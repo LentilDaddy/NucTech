@@ -45,14 +45,6 @@ void compare()
 {
     gROOT->SetBatch(kTRUE);
 
-
-    // #pragma omp parallel
-    // {
-    //     int tid = omp_get_thread_num();
-    //     #pragma omp critical
-    //     std::cout << "Hello from thread " << tid << std::endl;
-    // }
-
     //===============================
     // Define TChains for each medium
     //===============================
@@ -60,17 +52,17 @@ void compare()
     std::vector<std::pair<std::string, TChain*>> chains;
 
     // std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "PF5", "UF6", "Vacuum"};
-    std::vector<std::string> mediums = {"SF6","C3F8","CF4"};
+    std::vector<std::string> mediums = {"SF6"};
     // std::vector<std::string> energies = {"20MeV", "22MeV", "25MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
     // std::vector<std::string> energies = {"25MeV"};
-    std::vector<std::string> foilThicknesses = {"10mm", "11mm", "12mm", "13mm", "14mm", "15mm", "16mm", "17mm", "18mm", "19mm", "20mm"};
+    std::vector<std::string> foilThicknesses = {"8mm","9mm","10mm", "11mm", "12mm", "13mm", "14mm", "15mm", "16mm", "17mm", "18mm", "19mm", "20mm"};
 
     // create one TChain per (medium, energy) and add matching files immediately
     for (const auto &m : mediums) {
         for (const auto &e : foilThicknesses) {
             std::string label = m + "_" + e; //does this mean it has to be in this order?
             TChain *ch = new TChain("IndividualHits");
-            ch->Add(TString::Format("%s_*%s_*.root", m.c_str(), e.c_str()).Data());
+            ch->Add(TString::Format("%s_*%s*.root", m.c_str(), e.c_str()).Data());
             chains.push_back({label, ch});
         }
     }
@@ -97,14 +89,20 @@ void compare()
     c1->cd();
 
     std::vector<TH1D*> histos;
-    std::vector<TH2D*> h2_histos;
     std::vector<double> usefulPhotonIntegrals;
-
-    // double globalMax = 0.0;
 
 for (size_t i = 0; i < chains.size(); i++) {
     TChain *t = chains[i].second;
     std::string label = chains[i].first;
+    double foilThickness = 0.0;
+    std::regex foilThicknessRegex(R"((\d+(?:\.\d+)?)\s*mm)");
+
+    std::smatch match;
+    if (std::regex_search(label, match, foilThicknessRegex)) {
+        foilThickness = std::stod(match[1].str());
+    } else {
+        continue;
+    }
 
     if (!t || t->GetEntries() == 0) {
         std::cout << "Warning: Chain " << label << " is empty!" << std::endl;
@@ -113,12 +111,9 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     TH1D *h = new TH1D(TString::Format("h_thread_%zu", i),
                        "Photon Depth", 100, Decoration.xMin, Decoration.xMax);
-    TH2D *h2 = new TH2D(TString::Format("h2_thread_%zu", i),
-                        "Photon Energy vs Depth", 100, photonDecoration.xMin, photonDecoration.xMax, 200, 0, 50);
 
     // Disable global ROOT directory writing for safety
     h->SetDirectory(nullptr);
-    h2->SetDirectory(nullptr);
 
     Float_t z, kineticE;
     Int_t pdg;
@@ -131,11 +126,9 @@ for (size_t i = 0; i < chains.size(); i++) {
         t->GetEntry(j);
         if (pdg == 1 && kineticE >= 15 && kineticE <= 22)
             h->Fill(z);
-        if (pdg == 1 && kineticE >= 0)
-            h2->Fill(z, kineticE);
     }
 
-    double integral = h->Integral(0, 20); 
+    double integral = h->Integral(foilThickness/10, 20+foilThickness/10); //want this to be from foilThickness/10 TO 20+foilThickness/10?
 
 
     {
@@ -145,7 +138,6 @@ for (size_t i = 0; i < chains.size(); i++) {
         h->GetYaxis()->SetTitle(Decoration.yTitle);
 
         histos.push_back(h);
-        h2_histos.push_back(h2);
         usefulPhotonIntegrals.push_back(integral);
 
         legend->AddEntry(h, label.c_str(), "l");
@@ -174,7 +166,6 @@ for (size_t i = 0; i < chains.size(); i++) {
             foilThickness = std::stod(match[1].str());
         } else {
             continue;
-
         }
 
         double usefulPhotons = (i < usefulPhotonIntegrals.size()) ? usefulPhotonIntegrals[i] : 0; //make sure index is valid
@@ -239,7 +230,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Foil Thickness", 600, 500);
     mg->SetTitle("Total #Useful photons (15-22MeV) in Detector per Primary Electron with 25MeV Beam vs Foil Thickness;Foil Thickness (mm);#Useful photons per Primary Electron");
     mg->Draw("AP");
-    mg->GetXaxis()->SetLimits(9, 21);
+    mg->GetXaxis()->SetLimits(7, 21);
     scatterLegend->Draw();
     c3->Update();
     c3->SaveAs("Photons_FoilThickness.png");
