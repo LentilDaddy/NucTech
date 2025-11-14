@@ -40,9 +40,18 @@ struct HistogramDecoration {
    double yMax;
 };
 
+
+struct MediumResult {
+    std::string medium;
+    double foilThickness;
+    double usefulPhotons;
+};
+
+
 void compare()
 {
     gROOT->SetBatch(kTRUE);
+
 
     //===============================
     // Define TChains for each medium
@@ -55,6 +64,8 @@ void compare()
     // std::vector<std::string> energies = {"20MeV", "22MeV", "25MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
     // std::vector<std::string> energies = {"25MeV"};
     std::vector<std::string> foilThicknesses = {"8mm","9mm","10mm", "11mm", "12mm", "13mm", "14mm", "15mm", "16mm", "17mm", "18mm", "19mm", "20mm"};
+
+    std::vector<MediumResult> results;
 
     // create one TChain per (medium, energy) and add matching files immediately
     for (const auto &m : mediums) {
@@ -89,15 +100,17 @@ void compare()
 for (size_t i = 0; i < chains.size(); i++) {
     TChain *t = chains[i].second;
     std::string label = chains[i].first;
-    double foilThickness = 0.0;
-    std::regex foilThicknessRegex(R"((\d+(?:\.\d+)?)\s*mm)");
 
-    std::smatch match;
-    if (std::regex_search(label, match, foilThicknessRegex)) {
-        foilThickness = std::stod(match[1].str());
-    } else {
-        continue;
-    }
+    // Extract foil thickness
+    double foilThickness = 0.0;
+    auto pos = label.find("mm");
+    if (pos != std::string::npos) {
+        size_t start = label.find_last_of('_', pos);
+        foilThickness = std::stod(label.substr(start + 1, pos - start - 1));
+    } else continue;
+
+    // Extract medium from label
+    std::string medium = label.substr(0, label.find("_"));
 
     if (!t || t->GetEntries() == 0) {
         std::cout << "Warning: Chain " << label << " is empty!" << std::endl;
@@ -106,15 +119,24 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     TH1D *h = new TH1D(TString::Format("h_thread_%zu", i),
                        "Photon Depth", 100, Decoration.xMin, Decoration.xMax);
-
-    // Disable global ROOT directory writing for safety
     h->SetDirectory(nullptr);
 
     Float_t z, kineticE;
     Int_t pdg;
+
+    // Branch optimization
+    t->SetBranchStatus("*", 0);
+    t->SetBranchStatus("HitZ", 1);
+    t->SetBranchStatus("HitPDG", 1);
+    t->SetBranchStatus("HitKineticEnergy", 1);
     t->SetBranchAddress("HitZ", &z);
     t->SetBranchAddress("HitPDG", &pdg);
     t->SetBranchAddress("HitKineticEnergy", &kineticE);
+
+    t->SetCacheSize(50 * 1024 * 1024);
+    t->AddBranchToCache("HitZ");
+    t->AddBranchToCache("HitPDG");
+    t->AddBranchToCache("HitKineticEnergy");
 
     Long64_t nentries = t->GetEntries();
     for (Long64_t j = 0; j < nentries; ++j) {
@@ -123,21 +145,19 @@ for (size_t i = 0; i < chains.size(); i++) {
             h->Fill(z);
     }
 
-    double integral = h->Integral(foilThickness/10, 20+foilThickness/10); //want this to be from foilThickness/10 TO 20+foilThickness/10?
+    double integral = h->Integral(foilThickness/10, 20+foilThickness/10);
 
+    h->SetLineColor(colors[i % nColors]);
+    h->SetLineWidth(Decoration.lineWidth);
+    h->GetXaxis()->SetTitle(Decoration.xTitle);
+    h->GetYaxis()->SetTitle(Decoration.yTitle);
 
-    {
-        h->SetLineColor(colors[i % nColors]);
-        h->SetLineWidth(Decoration.lineWidth);
-        h->GetXaxis()->SetTitle(Decoration.xTitle);
-        h->GetYaxis()->SetTitle(Decoration.yTitle);
+    histos.push_back(h);
+    legend->AddEntry(h, label.c_str(), "l");
 
-        histos.push_back(h);
-        usefulPhotonIntegrals.push_back(integral);
-
-        legend->AddEntry(h, label.c_str(), "l");
-    }
+    results.push_back({medium, foilThickness, integral / 1e6});
 }
+
 
     //===============================
     // Scatter plot of useful photons vs beam energy
@@ -149,41 +169,13 @@ for (size_t i = 0; i < chains.size(); i++) {
     TGraph *gUF6 = new TGraph();
     TGraph *gVacuum = new TGraph();
 
-    int idxSF6=0, idxC3F8=0, idxCF4=0, idxPF5=0, idxUF6=0, idxVacuum=0;
-
-    for (size_t i=0; i<chains.size(); i++) {
-        std::string label = chains[i].first;
-        double foilThickness = 0.0;
-        std::regex foilThicknessRegex(R"((\d+(?:\.\d+)?)\s*mm)");
-
-        std::smatch match;
-        if (std::regex_search(label, match, foilThicknessRegex)) {
-            foilThickness = std::stod(match[1].str());
-        } else {
-            continue;
-        }
-
-        double usefulPhotons = (i < usefulPhotonIntegrals.size()) ? usefulPhotonIntegrals[i] : 0; //make sure index is valid
-        usefulPhotons = usefulPhotons / 1e6;
-
-        if (label.find("SF6") != std::string::npos){ 
-            gSF6->SetPoint(idxSF6++, foilThickness, usefulPhotons);
-        }
-        else if (label.find("C3F8") != std::string::npos){
-            gC3F8->SetPoint(idxC3F8++, foilThickness, usefulPhotons);
-        }
-        else if (label.find("CF4") != std::string::npos){
-            gCF4->SetPoint(idxCF4++, foilThickness, usefulPhotons);
-        }
-        else if (label.find("PF5") != std::string::npos){
-            gPF5->SetPoint(idxPF5++, foilThickness, usefulPhotons);
-        }
-        else if (label.find("UF6") != std::string::npos){
-            gUF6->SetPoint(idxUF6++, foilThickness, usefulPhotons);
-        }
-        else if (label.find("Vacuum") != std::string::npos){
-            gVacuum->SetPoint(idxVacuum++, foilThickness, usefulPhotons);
-        }
+    for (const auto& r : results) {
+        if (r.medium == "SF6")      gSF6->SetPoint(gSF6->GetN(), r.foilThickness, r.usefulPhotons);
+        else if (r.medium == "C3F8") gC3F8->SetPoint(gC3F8->GetN(), r.foilThickness, r.usefulPhotons);
+        else if (r.medium == "CF4")  gCF4->SetPoint(gCF4->GetN(), r.foilThickness, r.usefulPhotons);
+        else if (r.medium == "PF5")  gPF5->SetPoint(gPF5->GetN(), r.foilThickness, r.usefulPhotons);
+        else if (r.medium == "UF6")  gUF6->SetPoint(gUF6->GetN(), r.foilThickness, r.usefulPhotons);
+        else if (r.medium == "Vacuum") gVacuum->SetPoint(gVacuum->GetN(), r.foilThickness, r.usefulPhotons);
     }
 
     // Style graphs
@@ -228,7 +220,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     mg->GetXaxis()->SetLimits(7, 21);
     scatterLegend->Draw();
     c3->Update();
-    c3->SaveAs("Photons_FoilThickness.png");
+    c3->SaveAs("Photons_FoilThickness_latest.png");
 }
 
 int main() {
