@@ -1,11 +1,3 @@
-//root -l -b -q 'compare.C++()'
-//compiled version in Makefile
-
-//why does it take so long to run
-//figure out how to create tchains only for exisiting files
-//batch processing?
-//ask for help with profiling in ROOT 
-//in parallel on Viking instead
 
 #include <TSystem.h>
 #include <TPluginManager.h> 
@@ -41,8 +33,8 @@ struct HistogramDecoration {
 };
 
 
-struct MediumResult {
-    std::string medium;
+struct EnergyResult {
+    std::string energy;
     double foilThickness;
     double usefulPhotons;
 };
@@ -53,26 +45,19 @@ void compare()
     gROOT->SetBatch(kTRUE);
 
 
-    //===============================
-    // Define TChains for each medium
-    //===============================
-
     std::vector<std::pair<std::string, TChain*>> chains;
 
-    // std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "PF5", "UF6", "Vacuum"};
-    std::vector<std::string> mediums = {"SF6"};
-    // std::vector<std::string> energies = {"20MeV", "22MeV", "25MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
-    // std::vector<std::string> energies = {"25MeV"};
-    std::vector<std::string> foilThicknesses = {"8mm","9mm","10mm", "11mm", "12mm", "13mm", "14mm", "15mm", "16mm", "17mm", "18mm", "19mm", "20mm"};
+    std::vector<std::string> energies = {"20MeV", "22MeV", "25MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
 
-    std::vector<MediumResult> results;
+    std::vector<std::string> foilThicknesses = {"1mm","2mm","3mm","4mm","5mm","6mm","7mm","8mm","9mm","10mm", "11mm", "12mm", "13mm", "14mm", "15mm", "16mm", "17mm", "18mm", "19mm", "20mm"};
 
-    // create one TChain per (medium, energy) and add matching files immediately
-    for (const auto &m : mediums) {
+    std::vector<EnergyResult> results;
+
+    for (const auto &m : energies) {
         for (const auto &e : foilThicknesses) {
-            std::string label = m + "_" + e; //does this mean it has to be in this order?
+            std::string label = e + "_" + m; //does this mean it has to be in this order?
             TChain *ch = new TChain("IndividualHits");
-            ch->Add(TString::Format("%s_*%s*.root", m.c_str(), e.c_str()).Data());
+            ch->Add(TString::Format("%s_*%s*.root", e.c_str(), m.c_str()).Data());
             chains.push_back({label, ch});
         }
     }
@@ -109,8 +94,7 @@ for (size_t i = 0; i < chains.size(); i++) {
         foilThickness = std::stod(label.substr(start + 1, pos - start - 1));
     } else continue;
 
-    // Extract medium from label
-    std::string medium = label.substr(0, label.find("_"));
+    std::string energy = label.substr(label.find("_") + 1);
 
     if (!t || t->GetEntries() == 0) {
         std::cout << "Warning: Chain " << label << " is empty!" << std::endl;
@@ -133,10 +117,10 @@ for (size_t i = 0; i < chains.size(); i++) {
     t->SetBranchAddress("HitPDG", &pdg);
     t->SetBranchAddress("HitKineticEnergy", &kineticE);
 
-    t->SetCacheSize(50 * 1024 * 1024);
-    t->AddBranchToCache("HitZ");
-    t->AddBranchToCache("HitPDG");
-    t->AddBranchToCache("HitKineticEnergy");
+    // t->SetCacheSize(50 * 1024 * 1024);
+    // t->AddBranchToCache("HitZ");
+    // t->AddBranchToCache("HitPDG");
+    // t->AddBranchToCache("HitKineticEnergy");
 
     Long64_t nentries = t->GetEntries();
     for (Long64_t j = 0; j < nentries; ++j) {
@@ -155,39 +139,49 @@ for (size_t i = 0; i < chains.size(); i++) {
     histos.push_back(h);
     legend->AddEntry(h, label.c_str(), "l");
 
-    results.push_back({medium, foilThickness, integral / 1e6});
+    results.push_back({energy, foilThickness, integral / 1e6});
 }
 
 
     //===============================
     // Scatter plot of useful photons vs beam energy
     //===============================
-    TGraph *gSF6 = new TGraph();
-    TGraph *gC3F8 = new TGraph();
-    TGraph *gCF4 = new TGraph();
-    TGraph *gPF5 = new TGraph();
-    TGraph *gUF6 = new TGraph();
-    TGraph *gVacuum = new TGraph();
+    TGraph *g20MeV = new TGraph();
+    TGraph *g22MeV = new TGraph();
+    TGraph *g25MeV = new TGraph();
+    TGraph *g28MeV = new TGraph();
+    TGraph *g30MeV = new TGraph();
+    TGraph *g35MeV = new TGraph();
+    TGraph *g40MeV = new TGraph();
+    TGraph *g45MeV = new TGraph();
+    TGraph *g50MeV = new TGraph();
 
     for (const auto& r : results) {
-        if (r.medium == "SF6")      gSF6->SetPoint(gSF6->GetN(), r.foilThickness, r.usefulPhotons);
-        else if (r.medium == "C3F8") gC3F8->SetPoint(gC3F8->GetN(), r.foilThickness, r.usefulPhotons);
-        else if (r.medium == "CF4")  gCF4->SetPoint(gCF4->GetN(), r.foilThickness, r.usefulPhotons);
-        else if (r.medium == "PF5")  gPF5->SetPoint(gPF5->GetN(), r.foilThickness, r.usefulPhotons);
-        else if (r.medium == "UF6")  gUF6->SetPoint(gUF6->GetN(), r.foilThickness, r.usefulPhotons);
-        else if (r.medium == "Vacuum") gVacuum->SetPoint(gVacuum->GetN(), r.foilThickness, r.usefulPhotons);
+        if (r.energy == "20MeV")      g20MeV->SetPoint(g20MeV->GetN(), r.foilThickness, r.usefulPhotons);
+        else if (r.energy == "22MeV") g22MeV->SetPoint(g22MeV->GetN(), r.foilThickness, r.usefulPhotons);
+        else if (r.energy == "25MeV") g25MeV->SetPoint(g25MeV->GetN(), r.foilThickness, r.usefulPhotons);
+        else if (r.energy == "28MeV") g28MeV->SetPoint(g28MeV->GetN(), r.foilThickness, r.usefulPhotons);
+        else if (r.energy == "30MeV") g30MeV->SetPoint(g30MeV->GetN(), r.foilThickness, r.usefulPhotons);
+        else if (r.energy == "35MeV") g35MeV->SetPoint(g35MeV->GetN(), r.foilThickness, r.usefulPhotons);
+        else if (r.energy == "40MeV") g40MeV->SetPoint(g40MeV->GetN(), r.foilThickness, r.usefulPhotons);
+        else if (r.energy == "45MeV") g45MeV->SetPoint(g45MeV->GetN(), r.foilThickness, r.usefulPhotons);
+        else if (r.energy == "50MeV") g50MeV->SetPoint(g50MeV->GetN(), r.foilThickness, r.usefulPhotons);
     }
+    //need to change this to have differenet energies now instead of different media.
 
     // Style graphs
-    gSF6->SetMarkerColor(kBlue);   gSF6->SetMarkerStyle(21);
-    gC3F8->SetMarkerColor(kRed);   gC3F8->SetMarkerStyle(23);
-    gCF4->SetMarkerColor(kBlack);  gCF4->SetMarkerStyle(24);
-    gPF5->SetMarkerColor(kMagenta);gPF5->SetMarkerStyle(22);
-    gUF6->SetMarkerColor(kOrange); gUF6->SetMarkerStyle(25);
-    gVacuum->SetMarkerColor(kGreen);gVacuum->SetMarkerStyle(26);
+    g20MeV->SetMarkerColor(kBlue);   g20MeV->SetMarkerStyle(21);
+    g22MeV->SetMarkerColor(kCyan);   g22MeV->SetMarkerStyle(22);
+    g25MeV->SetMarkerColor(kGreen);  g25MeV->SetMarkerStyle(23);
+    g28MeV->SetMarkerColor(kYellow); g28MeV->SetMarkerStyle(24);
+    g30MeV->SetMarkerColor(kOrange); g30MeV->SetMarkerStyle(25);
+    g35MeV->SetMarkerColor(kRed);    g35MeV->SetMarkerStyle(26);
+    g40MeV->SetMarkerColor(kMagenta);g40MeV->SetMarkerStyle(27);
+    g45MeV->SetMarkerColor(kBlack);  g45MeV->SetMarkerStyle(28);
+    g50MeV->SetMarkerColor(kGray);   g50MeV->SetMarkerStyle(29);
 
     double YMax = -1e9;
-    for (auto g : {gSF6, gC3F8, gCF4, gPF5, gUF6, gVacuum}) {
+    for (auto g : {g20MeV, g22MeV, g25MeV, g28MeV, g30MeV, g35MeV, g40MeV, g45MeV, g50MeV}) {
         int n = g->GetN(); //number of points in each graph
         for (int i = 0; i < n; ++i) {
             double x, y;
@@ -198,26 +192,35 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     //rest should be serial
     TMultiGraph *mg = new TMultiGraph();
-    mg->Add(gSF6, "P");
-    mg->Add(gC3F8, "P");
-    mg->Add(gCF4, "P");
-    mg->Add(gPF5, "P");
-    mg->Add(gUF6, "P");
-    mg->Add(gVacuum, "P");
+    mg->Add(g20MeV, "P");
+    mg->Add(g22MeV, "P");
+    mg->Add(g25MeV, "P");
+    mg->Add(g28MeV, "P");
+    mg->Add(g30MeV, "P");
+    mg->Add(g35MeV, "P");
+    mg->Add(g40MeV, "P");
+    mg->Add(g45MeV, "P");
+    mg->Add(g50MeV, "P");
+
     mg->SetMaximum(YMax * 1.1);
 
-    TLegend *scatterLegend = new TLegend(0.1, 0.78, 0.3, 0.88);
-    scatterLegend->AddEntry(gSF6, "SF6_1.339g/cm3", "p");
-    scatterLegend->AddEntry(gC3F8, "C3F8_1.352g/cm3", "p");
-    scatterLegend->AddEntry(gCF4, "CF4_1.603g/cm3", "p");
-    scatterLegend->AddEntry(gPF5, "PF5", "p");
-    scatterLegend->AddEntry(gUF6, "UF6_3.630g/cm3", "p");
-    scatterLegend->AddEntry(gVacuum, "Vacuum", "p");
+
+    //legend on the top right:
+    TLegend *scatterLegend = new TLegend(0.7, 0.7, 0.9, 0.9);
+    scatterLegend->AddEntry(g20MeV, "20MeV", "p");
+    scatterLegend->AddEntry(g22MeV, "22MeV", "p");
+    scatterLegend->AddEntry(g25MeV, "25MeV", "p");
+    scatterLegend->AddEntry(g28MeV, "28MeV", "p");
+    scatterLegend->AddEntry(g30MeV, "30MeV", "p");
+    scatterLegend->AddEntry(g35MeV, "35MeV", "p");
+    scatterLegend->AddEntry(g40MeV, "40MeV", "p");
+    scatterLegend->AddEntry(g45MeV, "45MeV", "p");
+    scatterLegend->AddEntry(g50MeV, "50MeV", "p");
 
     TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Foil Thickness", 600, 500);
-    mg->SetTitle("Total #Useful photons (15-22MeV) in Detector per Primary Electron with 25MeV Beam vs Foil Thickness;Foil Thickness (mm);#Useful photons per Primary Electron");
+    mg->SetTitle("Total #Useful photons (15-22MeV) in Detector per Primary Electron vs Foil Thickness;Foil Thickness (mm);#Useful photons per Primary Electron");
     mg->Draw("AP");
-    mg->GetXaxis()->SetLimits(7, 21);
+    mg->GetXaxis()->SetLimits(0, 21);
     scatterLegend->Draw();
     c3->Update();
     c3->SaveAs("Photons_FoilThickness_latest.png");
