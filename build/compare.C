@@ -47,7 +47,8 @@ void compare()
 
     std::vector<std::pair<std::string, TChain*>> chains;
 
-    std::vector<std::string> energies = {"20MeV", "22MeV", "25MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
+    // std::vector<std::string> energies = {"20MeV", "22MeV", "25MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
+    std::vector<std::string> energies = {"25MeV", "50MeV"};
 
     std::vector<std::string> foilThicknesses = {"1mm","2mm","3mm","4mm","5mm","6mm","7mm","8mm","9mm","10mm", "11mm", "12mm", "13mm", "14mm", "15mm", "16mm", "17mm", "18mm", "19mm", "20mm"};
 
@@ -57,8 +58,9 @@ void compare()
         for (const auto &e : foilThicknesses) {
             std::string label = e + "_" + m; //does this mean it has to be in this order?
             TChain *ch = new TChain("IndividualHits");
-            ch->Add(TString::Format("%s_*%s*.root", e.c_str(), m.c_str()).Data());
+            ch->Add(TString::Format("*_%s*_*%s*.root", e.c_str(), m.c_str()).Data());
             chains.push_back({label, ch});
+            // std::cout << "Added chain for " << label << std::endl;
         }
     }
     
@@ -90,7 +92,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     double foilThickness = 0.0;
     auto pos = label.find("mm");
     if (pos != std::string::npos) {
-        size_t start = label.find_last_of('_', pos);
+        size_t start = label.find_last_of('_', pos); //find underscore before "mm"
         foilThickness = std::stod(label.substr(start + 1, pos - start - 1));
     } else continue;
 
@@ -105,7 +107,7 @@ for (size_t i = 0; i < chains.size(); i++) {
                        "Photon Depth", 100, Decoration.xMin, Decoration.xMax);
     h->SetDirectory(nullptr);
 
-    Float_t z, kineticE;
+    float_t z, kineticE;
     Int_t pdg;
 
     // Branch optimization
