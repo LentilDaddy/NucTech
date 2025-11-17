@@ -9,6 +9,7 @@
 #include <TH2D.h>
 #include <TCanvas.h>
 #include <TLegend.h>
+#include <TLine.h>
 #include <TGraph.h>
 #include <TMultiGraph.h>
 #include <TStyle.h>
@@ -222,7 +223,67 @@ for (size_t i = 0; i < chains.size(); i++) {
     TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Foil Thickness", 600, 500);
     mg->SetTitle("Total #Useful photons (15-22MeV) in Detector per Primary Electron vs Foil Thickness;Foil Thickness (mm);#Useful photons per Primary Electron");
     mg->Draw("AP");
-    mg->GetXaxis()->SetLimits(0, 21);
+    mg->GetXaxis()->SetLimits(0, 24);
+
+    double yPadMin = gPad->GetUymin();
+    double yPadMax = gPad->GetUymax();
+    double xPadMax = gPad->GetUxmax(); // right x position for the TGaxis
+
+    // prepare energy->graph mapping (only energies with points will be drawn)
+    std::vector<std::pair<int,TGraph*>> energyGraphs = {
+        {20, g20MeV}, {22, g22MeV}, {25, g25MeV}, {28, g28MeV},
+        {30, g30MeV}, {35, g35MeV}, {40, g40MeV}, {45, g45MeV}, {50, g50MeV}
+    };
+
+    // compute cost values for present graphs (cost = E^2 / 400)
+    std::vector<std::pair<int,double>> costs; // (energy, cost)
+    for (auto &eg : energyGraphs) {
+        if (eg.second->GetN() == 0) continue;
+        int E = eg.first;
+        double cost = (double)E * (double)E / 400.0; // cost = x^2 / 400
+        costs.push_back({E, cost});
+    }
+
+    // Fixed right-axis range requested by you:
+    const double costAxisMin = 0.0;
+    const double costAxisMax = 7.0;
+
+    // draw horizontal lines for each energy; map cost (0..7) -> yPad (yPadMin..yPadMax)
+    for (auto &ec : costs) {
+        int E = ec.first;
+        double cost = ec.second;
+
+        // clamp cost into axis range (optional)
+        double costClamped = std::max(costAxisMin, std::min(cost, costAxisMax));
+
+        double yLine;
+        if (costAxisMax > costAxisMin) {
+            yLine = yPadMin + (costClamped - costAxisMin) / (costAxisMax - costAxisMin) * (yPadMax - yPadMin);
+        } else {
+            yLine = 0.5*(yPadMin + yPadMax);
+        }
+
+        // find matching graph to pick color
+        TGraph *gptr = nullptr;
+        for (auto &eg : energyGraphs) if (eg.first == E) { gptr = eg.second; break; }
+        int col = (gptr ? gptr->GetMarkerColor() : kBlack);
+
+        TLine *ln = new TLine(0.0, yLine, xPadMax, yLine);
+        ln->SetLineColor(col);
+        ln->SetLineStyle(2);
+        ln->SetLineWidth(2);
+        ln->Draw("same");
+
+        // optional: add a legend entry for the horizontal cost line (line symbol)
+        scatterLegend->AddEntry(ln, TString::Format("%dMeV cost", E), "l");
+    }
+
+    // draw a right-side axis fixed from 0 to 7 (this does NOT change the left axis)
+    TGaxis *rightAxis = new TGaxis(xPadMax, yPadMin, xPadMax, yPadMax, costAxisMin, costAxisMax, 510, "+L");
+    rightAxis->SetTitle("Relative cost (arb. units)");
+    rightAxis->SetTitleOffset(1.2);
+    rightAxis->Draw();
+
     scatterLegend->Draw();
     c3->Update();
     c3->SaveAs("Photons_FoilThickness_latest.png");
