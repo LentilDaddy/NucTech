@@ -213,7 +213,9 @@ for (size_t i = 0; i < chains.size(); i++) {
 
 
     //legend on the top right:
-    TLegend *scatterLegend = new TLegend(0.7, 0.7, 0.9, 0.9);
+    // TLegend *scatterLegend = new TLegend(0.7, 0.7, 0.9, 0.9);
+    //legend on top left:
+    TLegend *scatterLegend = new TLegend(0.15, 0.7, 0.35, 0.9);
     scatterLegend->AddEntry(g20MeV, "20MeV", "p");
     // scatterLegend->AddEntry(g22MeV, "22MeV", "p");
     scatterLegend->AddEntry(g25MeV, "25MeV", "p");
