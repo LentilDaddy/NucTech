@@ -31,7 +31,7 @@ private:
   std::vector<int> fV_hitPDG;
   // G4int fPrimariesDetector1;
   // std::set<G4int> fPrimariesDetector1;
-  // std::vector<int> fV_hitParentID;
+  std::vector<int> fV_hitParentID;
 
 };
 

@@ -88,7 +88,7 @@ C3F8->AddElement(elF, natoms=8);
 
   /***** Experimental hall *****/
 
-  G4double worldHalfLength = 1.5 * m; //doubled this to ensure no overlap with detector
+  G4double worldHalfLength = 0.5 * m; //doubled this to ensure no overlap with detector
 
   G4VSolid *world =
       new G4Box("World", worldHalfLength, worldHalfLength, worldHalfLength);

@@ -27,6 +27,7 @@ src/*
 !src/NucTechTechRunAction.cc
 !src/NucTechSteppingAction.cc
 !src/NucTechActionInitialization.cc
+!src/NucTechRunAction.cc
 
 
 # Allow Git to see the include directory itself

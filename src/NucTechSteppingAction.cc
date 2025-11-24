@@ -18,7 +18,7 @@
 // {}
 
 NucTechSteppingAction::NucTechSteppingAction()
-    : fV_hitEdep(), fV_hitPos(), fV_hitPDG(), fV_KineticEnergy()
+    : fV_hitEdep(), fV_hitPos(), fV_hitPDG(), fV_KineticEnergy(), fV_hitParentID()
 {}
 
 void NucTechSteppingAction::BeginOfEventAction() {
@@ -28,7 +28,7 @@ void NucTechSteppingAction::BeginOfEventAction() {
   // fV_hitTime.clear();
   fV_hitPDG.clear();
   fV_KineticEnergy.clear();
-  // fV_hitParentID.clear();
+  fV_hitParentID.clear();
 }
 
 void NucTechSteppingAction::EndOfEventAction() {
@@ -41,13 +41,6 @@ void NucTechSteppingAction::EndOfEventAction() {
   // Store the total nergy deposited in the event
   const G4float Edep_event =
       std::accumulate(fV_hitEdep.begin(), fV_hitEdep.end(), 0.);
-
-// // Fill the total event energy into the first ntuple ("EnergySpectrum")
-//   mgr->FillNtupleFColumn(1, 0, Edep_event / MeV);
-//   // mgr->FillNtupleDColumn(1, 1, fEdepDetector2 / MeV); // Assuming column 1 in ntuple 1
-//   // mgr->FillNtupleDColumn(1, 1, fFoilThickness / mm); // Assuming column 2 is for thickness
-//   // mgr->FillNtupleIColumn(1, 2, fPrimariesDetector1.size());
-//   mgr->AddNtupleRow(1);
 
 
   // Then record the individual hit energy and coordinates of this event
@@ -70,7 +63,7 @@ void NucTechSteppingAction::EndOfEventAction() {
     // mgr->FillNtupleDColumn(2, 3, time / ns);
     mgr->FillNtupleIColumn(1, 1, fV_hitPDG[i]); // Assuming column 5 is for PDG code
     mgr->FillNtupleFColumn(1, 2, kinEnergy);
-    // mgr->FillNtupleIColumn(2, 6, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
+    mgr->FillNtupleIColumn(1, 3, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
     mgr->AddNtupleRow(1);
   }
 }
@@ -136,7 +129,7 @@ if (currentName != "Detector1" &&
   const G4ParticleDefinition* pd = track->GetDefinition();
   // int pdgCode = track->GetDefinition()->GetPDGEncoding();
   int particleType = 2; // default: other
-  // int ParentID = track->GetParentID();
+  int ParentID = track->GetParentID();
 
   // fV_hitPDG.push_back(pdgCode);
 
@@ -146,6 +139,6 @@ if (currentName != "Detector1" &&
     particleType = 1;
   }
   fV_hitPDG.push_back(particleType);
-  // fV_hitParentID.push_back(ParentID);
+  fV_hitParentID.push_back(ParentID);
 
 }
