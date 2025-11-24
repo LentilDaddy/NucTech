@@ -43,16 +43,16 @@ struct EnergyResult {
 };
 
 
-int kP10Cyan = TColor::GetColor("#92dadd");
-int kP10Ash = TColor::GetColor("#717581");
-int kP10Green = TColor::GetColor("#b9ac70");
-int kP10Orange = TColor::GetColor("#e76300");
-int kP10Brown = TColor::Get("#a96b59");
-int kP10Violet = TColor::GetColor("#832db6");
-int kP10Gray = TColor::GetColor("#94a4a2");
-int kP10Red = TColor::GetColor("#bd1f01");
-int kP10Yellow = TColor::GetColor("#ffa90e");
-int kP10Blue = TColor::GetColor("#3f90da");
+// int kP10Cyan = TColor::GetColor("#92dadd");
+// int kP10Ash = TColor::GetColor("#717581");
+// int kP10Green = TColor::GetColor("#b9ac70");
+// int kP10Orange = TColor::GetColor("#e76300");
+// int kP10Brown = TColor::GetColor("#a96b59");
+// int kP10Violet = TColor::GetColor("#832db6");
+// int kP10Gray = TColor::GetColor("#94a4a2");
+// int kP10Red = TColor::GetColor("#bd1f01");
+// int kP10Yellow = TColor::GetColor("#ffa90e");
+// int kP10Blue = TColor::GetColor("#3f90da");
 
 
 
@@ -65,12 +65,12 @@ void compare()
     std::vector<std::pair<std::string, TChain*>> chains;
 
     // std::vector<std::string> energies = {"20MeV", "22MeV", "25MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
-    // std::vector<std::string> energies = {"20MeV", "25MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
+    std::vector<std::string> energies = {"20MeV", "25MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
     // std::vector<std::string> energies = {"25MeV", "50MeV"};
-    std::vector<std::string> energies = {"40MeV"};
+    // std::vector<std::string> energies = {"40MeV"};
 
-    // std::vector<std::string> foilThicknesses = {"1mm","2mm","3mm","4mm","5mm","6mm","7mm","8mm","9mm","10mm", "11mm", "12mm", "13mm", "14mm", "15mm", "16mm", "17mm", "18mm", "19mm", "20mm", "21mm", "22mm"};
-    std::vector<std::string> foilThicknesses = {"10mm", "11mm"}; //test
+    std::vector<std::string> foilThicknesses = {"1mm","2mm","3mm","4mm","5mm","6mm","7mm","8mm","9mm","10mm", "11mm", "12mm", "13mm", "14mm", "15mm", "16mm", "17mm", "18mm", "19mm", "20mm", "21mm", "22mm"};
+    // std::vector<std::string> foilThicknesses = {"10mm", "11mm"}; //test
 
     std::vector<EnergyResult> results;
 
@@ -168,7 +168,12 @@ for (size_t i = 0; i < chains.size(); i++) {
     histos.push_back(h);
     legend->AddEntry(h, label.c_str(), "l");
 
-    results.push_back({energyLabel, energy, foilThickness, integral / 1e6});
+    //if energyLabel is 40MeV or 45MeV, divide integral by 2e6
+    if (energyLabel == "40MeV" || energyLabel == "45MeV") {
+        integral /= 2.0;
+    }
+
+    results.push_back({energyLabel, energy, foilThickness, integral / 1e6}); //need to divide by 2e6 for 40 and 45MeV
 }
 
     //===============================
@@ -316,13 +321,13 @@ for (size_t i = 0; i < chains.size(); i++) {
 
 
     // Style graphs
-    g20MeV_Price->SetMarkerColor(kP10Red);   g20MeV_Price->SetMarkerStyle(8);
-    g25MeV_Price->SetMarkerColor(kP10Cyan);  g25MeV_Price->SetMarkerStyle(8);
-    g30MeV_Price->SetMarkerColor(kP10Ash); g30MeV_Price->SetMarkerStyle(8);
-    g35MeV_Price->SetMarkerColor(kP10Green);    g35MeV_Price->SetMarkerStyle(8);
-    g40MeV_Price->SetMarkerColor(kP10Orange);g40MeV_Price->SetMarkerStyle(8);
-    g45MeV_Price->SetMarkerColor(kP10Brown);  g45MeV_Price->SetMarkerStyle(8);
-    g50MeV_Price->SetMarkerColor(kP10Gray);   g50MeV_Price->SetMarkerStyle(8);
+    g20MeV_Price->SetMarkerColor(kP10Red);   g20MeV_Price->SetMarkerStyle(21);
+    g25MeV_Price->SetMarkerColor(kP10Cyan);  g25MeV_Price->SetMarkerStyle(23);
+    g30MeV_Price->SetMarkerColor(kP10Ash); g30MeV_Price->SetMarkerStyle(25);
+    g35MeV_Price->SetMarkerColor(kP10Green);    g35MeV_Price->SetMarkerStyle(26);
+    g40MeV_Price->SetMarkerColor(kP10Orange);g40MeV_Price->SetMarkerStyle(27);
+    g45MeV_Price->SetMarkerColor(kP10Brown);  g45MeV_Price->SetMarkerStyle(28);
+    g50MeV_Price->SetMarkerColor(kP10Gray);   g50MeV_Price->SetMarkerStyle(29);
 
     mg_Price->Add(g20MeV_Price, "P");
     mg_Price->Add(g25MeV_Price, "P");
@@ -335,7 +340,9 @@ for (size_t i = 0; i < chains.size(); i++) {
     mg_Price->SetMaximum(YRightMax * 1.1);
 
 
-    TLegend *scatterLegend_Price = new TLegend(0.15, 0.7, 0.35, 0.9);
+    // TLegend *scatterLegend_Price = new TLegend(0.15, 0.7, 0.35, 0.9);
+    //price legend shoudl be n top right
+    TLegend *scatterLegend_Price = new TLegend(0.65, 0.7, 0.85, 0.9);
     scatterLegend_Price->AddEntry(g20MeV_Price, "20MeV", "p");
     // scatterLegend_Price->AddEntry(g22MeV, "22MeV", "p");
     scatterLegend_Price->AddEntry(g25MeV_Price, "25MeV", "p");
@@ -347,7 +354,6 @@ for (size_t i = 0; i < chains.size(); i++) {
     scatterLegend_Price->AddEntry(g50MeV_Price, "50MeV", "p");
 
     TCanvas *c4 = new TCanvas("c4", "Relative Cost per Useful Photon", 600, 500);
-    // c3->SetRightMargin(0.15);
     c4->SetLeftMargin(0.15);
 
 
