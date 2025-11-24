@@ -39,7 +39,7 @@ struct EnergyResult {
     std::string energyLabel;
     double energy;
     double foilThickness;
-    double usefulPhotons;
+    double stoppedPrimaries;
 };
 
 
@@ -80,7 +80,7 @@ void compare()
     for (const auto &pair : energyFoilPairs) {
         std::string energy = pair.first;
         std::string foil = pair.second;
-        std::string label = foil + "_" + energy;
+        std::string label = energy + "_" + foil;
         TChain *ch = new TChain("IndividualHits");
         ch->Add(TString::Format("*_%s*_*%s*.root", foil.c_str(), energy.c_str()).Data());
         chains.push_back({label, ch});
@@ -135,7 +135,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     h->SetDirectory(nullptr);
 
     float_t z, kineticE;
-    Int_t pdg;
+    Int_t pdg, parentID;
 
     // Branch optimization
     t->SetBranchStatus("*", 0);
@@ -170,10 +170,10 @@ for (size_t i = 0; i < chains.size(); i++) {
     histos.push_back(h);
     legend->AddEntry(h, label.c_str(), "l");
 
-    //if energyLabel is 40MeV or 45MeV, divide integral by 2e6
-    if (energyLabel == "40MeV" || energyLabel == "45MeV") {
-        integral /= 2.0;
-    }
+    // //if energyLabel is 40MeV or 45MeV, divide integral by 2e6
+    // if (energyLabel == "40MeV" || energyLabel == "45MeV") {
+    //     integral /= 2.0;
+    // }
 
     /*this part gives the percentage of primary electrons that stopped in the foil*/
     results.push_back({energyLabel, energy, foilThickness, 100* integral / 1e6}); //need to divide by 2e6 for 40 and 45MeV
@@ -182,200 +182,61 @@ for (size_t i = 0; i < chains.size(); i++) {
     // //===============================
     // // Scatter plot of useful photons vs beam energy
     // //===============================
-    // TGraph *g20MeV = new TGraph();
-    // TGraph *g22MeV = new TGraph();
-    // TGraph *g25MeV = new TGraph();
-    // TGraph *g28MeV = new TGraph();
-    // TGraph *g30MeV = new TGraph();
-    // TGraph *g35MeV = new TGraph();
-    // TGraph *g40MeV = new TGraph();
-    // TGraph *g45MeV = new TGraph();
-    // TGraph *g50MeV = new TGraph();
+
+    TGraph *gPrimary = new TGraph();
 
 
-    // //this needs to be converted to double for the eneryg!!!!!
-    // for (const auto& r : results) {
-    //     if (r.energyLabel == "20MeV")      g20MeV->SetPoint(g20MeV->GetN(), r.foilThickness, r.usefulPhotons);
-    //     else if (r.energyLabel == "22MeV") g22MeV->SetPoint(g22MeV->GetN(), r.foilThickness, r.usefulPhotons);
-    //     else if (r.energyLabel == "25MeV") g25MeV->SetPoint(g25MeV->GetN(), r.foilThickness, r.usefulPhotons);
-    //     else if (r.energyLabel == "28MeV") g28MeV->SetPoint(g28MeV->GetN(), r.foilThickness, r.usefulPhotons);
-    //     else if (r.energyLabel == "30MeV") g30MeV->SetPoint(g30MeV->GetN(), r.foilThickness, r.usefulPhotons);
-    //     else if (r.energyLabel == "35MeV") g35MeV->SetPoint(g35MeV->GetN(), r.foilThickness, r.usefulPhotons);
-    //     else if (r.energyLabel == "40MeV") g40MeV->SetPoint(g40MeV->GetN(), r.foilThickness, r.usefulPhotons);
-    //     else if (r.energyLabel == "45MeV") g45MeV->SetPoint(g45MeV->GetN(), r.foilThickness, r.usefulPhotons);
-    //     else if (r.energyLabel == "50MeV") g50MeV->SetPoint(g50MeV->GetN(), r.foilThickness, r.usefulPhotons);
-    // }
-    // //change this to accessible colour scheme ROOT
+    //this needs to be converted to double for the eneryg!!!!!
+    for (const auto& r : results) {
+        if (r.energyLabel == "20MeV_4mm" || r.energyLabel == "25MeV_6mm" || r.energyLabel == "30MeV_9mm" ||
+            r.energyLabel == "35MeV_12mm" || r.energyLabel == "40MeV_11mm" || r.energyLabel == "45MeV_11mm" ||
+            r.energyLabel == "50MeV_13mm") {
+    gPrimary->SetPoint(gPrimary->GetN(), r.energy, r.stoppedPrimaries);
+    }      
+
+    }
+    //change this to accessible colour scheme ROOT
 
     // // Style graphs
-    // g20MeV->SetMarkerColor(kP10Red);   g20MeV->SetMarkerStyle(21);
-    // // g22MeV->SetMarkerColor(kP10Cyan);   g22MeV->SetMarkerStyle(22);
-    // g25MeV->SetMarkerColor(kP10Cyan);  g25MeV->SetMarkerStyle(23);
-    // // g28MeV->SetMarkerColor(kP10Yellow); g28MeV->SetMarkerStyle(24);
-    // g30MeV->SetMarkerColor(kP10Ash); g30MeV->SetMarkerStyle(25);
-    // g35MeV->SetMarkerColor(kP10Green);    g35MeV->SetMarkerStyle(26);
-    // g40MeV->SetMarkerColor(kP10Orange);g40MeV->SetMarkerStyle(27);
-    // g45MeV->SetMarkerColor(kP10Brown);  g45MeV->SetMarkerStyle(28);
-    // g50MeV->SetMarkerColor(kP10Gray);   g50MeV->SetMarkerStyle(29);
-
-
-    // double YMax = -1e9;
-    // for (auto g : {g20MeV, g22MeV, g25MeV, g28MeV, g30MeV, g35MeV, g40MeV, g45MeV, g50MeV}) {
-    //     int n = g->GetN(); //number of points in each graph
-    //     for (int i = 0; i < n; ++i) {
-    //         double x, y;
-    //         g->GetPoint(i, x, y);
-    //         if (y > YMax) YMax = y;
-    //     }
-    // }
-
-    // TMultiGraph *mg = new TMultiGraph();
-    // mg->Add(g20MeV, "P");
-    // mg->Add(g22MeV, "P");
-    // mg->Add(g25MeV, "P");
-    // mg->Add(g28MeV, "P");
-    // mg->Add(g30MeV, "P");
-    // mg->Add(g35MeV, "P");
-    // mg->Add(g40MeV, "P");
-    // mg->Add(g45MeV, "P");
-    // mg->Add(g50MeV, "P");
-
-    // mg->SetMaximum(YMax * 1.1);
-
-    // TLegend *scatterLegend = new TLegend(0.15, 0.7, 0.35, 0.9);
-    // scatterLegend->AddEntry(g20MeV, "20MeV", "p");
-    // // scatterLegend->AddEntry(g22MeV, "22MeV", "p");
-    // scatterLegend->AddEntry(g25MeV, "25MeV", "p");
-    // // scatterLegend->AddEntry(g28MeV, "28MeV", "p");
-    // scatterLegend->AddEntry(g30MeV, "30MeV", "p");
-    // scatterLegend->AddEntry(g35MeV, "35MeV", "p");
-    // scatterLegend->AddEntry(g40MeV, "40MeV", "p");
-    // scatterLegend->AddEntry(g45MeV, "45MeV", "p");
-    // scatterLegend->AddEntry(g50MeV, "50MeV", "p");
-
-    // TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Foil Thickness", 600, 500);
-    // // c3->SetRightMargin(0.15);
-    // c3->SetLeftMargin(0.15);
-
-
-    // mg->SetTitle("Total #Useful photons (15-22MeV) in Detector per Primary Electron vs Foil Thickness");
-    // mg->GetXaxis()->SetTitle("Foil Thickness (mm)");
-    // mg->GetYaxis()->SetTitle("#Useful photons per Primary Electron");
-    // mg->GetXaxis()->SetTitleSize(0.05);
-    // mg->GetYaxis()->SetTitleSize(0.05);
-    // mg->GetXaxis()->SetLabelSize(0.04);
-    // mg->GetYaxis()->SetLabelSize(0.04);
-    // mg->Draw("AP");
-    // mg->GetXaxis()->SetLimits(0, 24);
-
-
-    // // c3->Update();
-    // c3->cd();
-    // scatterLegend->Draw();
-    // c3->Update();
-    // c3->SaveAs("Photons_FoilThickness_latest.png");
+    gPrimary->SetMarkerColor(kP10Red);   gPrimary>SetMarkerStyle(21);
 
 
 
-    // /*Cost Graph different canvas AND save as different file*/
+    double YMax = -1e9;
+    for (auto g : {gPrimary}) {
+        int n = g->GetN(); //number of points in each graph
+        for (int i = 0; i < n; ++i) {
+            double x, y;
+            g->GetPoint(i, x, y);
+            if (y > YMax) YMax = y;
+        }
+    }
+
+    TMultiGraph *mg = new TMultiGraph();
+    mg->Add(gPrimary, "P");
+
+    mg->SetMaximum(YMax * 1.1);
 
 
-
-    // TMultiGraph *mg_Price = new TMultiGraph();
-
-    // TGraph *g20MeV_Price = new TGraph();
-    // TGraph *g22MeV_Price = new TGraph();
-    // TGraph *g25MeV_Price = new TGraph();
-    // TGraph *g28MeV_Price = new TGraph();
-    // TGraph *g30MeV_Price = new TGraph();
-    // TGraph *g35MeV_Price = new TGraph();
-    // TGraph *g40MeV_Price = new TGraph();
-    // TGraph *g45MeV_Price = new TGraph();
-    // TGraph *g50MeV_Price = new TGraph();
+    TCanvas *c3 = new TCanvas("c3", "Percentage Primary Electrons Stopped vs Beam Energy", 600, 500);
+    // c3->SetRightMargin(0.15);
+    c3->SetLeftMargin(0.15);
 
 
+    mg->SetTitle("Percentage of Primary Electrons Stopped for each Beam Energy and Corresponding Foil Thickness");
+    mg->GetXaxis()->SetTitle("Beam Energy (MeV)");
+    mg->GetYaxis()->SetTitle("Percentage Primary Electrons Stopped");
+    mg->GetXaxis()->SetTitleSize(0.05);
+    mg->GetYaxis()->SetTitleSize(0.05);
+    mg->GetXaxis()->SetLabelSize(0.04);
+    mg->GetYaxis()->SetLabelSize(0.04);
+    mg->Draw("AP");
+    mg->GetXaxis()->SetLimits(0, 24);
 
-    // for (const auto& r : results) {
-    //     double denom = (r.usefulPhotons > 0.0) ? r.usefulPhotons : 1e-12;
-    //     double cost = (r.energy * r.energy) / denom;
-    //     if (r.energyLabel == "20MeV")      g20MeV_Price->SetPoint(g20MeV_Price->GetN(), r.foilThickness, cost);
-    //     else if (r.energyLabel == "22MeV") g22MeV_Price->SetPoint(g22MeV_Price->GetN(), r.foilThickness, cost);
-    //     else if (r.energyLabel == "25MeV") g25MeV_Price->SetPoint(g25MeV_Price->GetN(), r.foilThickness, cost);
-    //     else if (r.energyLabel == "28MeV") g28MeV_Price->SetPoint(g28MeV_Price->GetN(), r.foilThickness, cost);
-    //     else if (r.energyLabel == "30MeV") g30MeV_Price->SetPoint(g30MeV_Price->GetN(), r.foilThickness, cost);
-    //     else if (r.energyLabel == "35MeV") g35MeV_Price->SetPoint(g35MeV_Price->GetN(), r.foilThickness, cost);
-    //     else if (r.energyLabel == "40MeV") g40MeV_Price->SetPoint(g40MeV_Price->GetN(), r.foilThickness, cost);
-    //     else if (r.energyLabel == "45MeV") g45MeV_Price->SetPoint(g45MeV_Price->GetN(), r.foilThickness, cost);
-    //     else if (r.energyLabel == "50MeV") g50MeV_Price->SetPoint(g50MeV_Price->GetN(), r.foilThickness, cost);
-    // }
+    c3->cd();
+    c3->Update();
+    c3->SaveAs("PrimariesStopped.png");
 
-
-    // double YRightMax = -1e9;
-    // double YRightMin = 1e9;
-    // for (auto g : {g20MeV_Price, g22MeV_Price, g25MeV_Price, g28MeV_Price, g30MeV_Price, g35MeV_Price, g40MeV_Price, g45MeV_Price, g50MeV_Price}) {
-    //     int n = g->GetN(); //number of points in each graph
-    //     for (int i = 0; i < n; ++i) {
-    //         double x, y;
-    //         g->GetPoint(i, x, y);
-    //         if (y > YRightMax) YRightMax = y;
-    //         if (y < YRightMin) YRightMin = y;
-    //     }
-    // }
-
-
-    // // Style graphs
-    // g20MeV_Price->SetMarkerColor(kP10Red);   g20MeV_Price->SetMarkerStyle(21);
-    // g25MeV_Price->SetMarkerColor(kP10Cyan);  g25MeV_Price->SetMarkerStyle(23);
-    // g30MeV_Price->SetMarkerColor(kP10Ash); g30MeV_Price->SetMarkerStyle(25);
-    // g35MeV_Price->SetMarkerColor(kP10Green);    g35MeV_Price->SetMarkerStyle(26);
-    // g40MeV_Price->SetMarkerColor(kP10Orange);g40MeV_Price->SetMarkerStyle(27);
-    // g45MeV_Price->SetMarkerColor(kP10Brown);  g45MeV_Price->SetMarkerStyle(28);
-    // g50MeV_Price->SetMarkerColor(kP10Gray);   g50MeV_Price->SetMarkerStyle(29);
-
-    // mg_Price->Add(g20MeV_Price, "P");
-    // mg_Price->Add(g25MeV_Price, "P");
-    // mg_Price->Add(g30MeV_Price, "P");
-    // mg_Price->Add(g35MeV_Price, "P");
-    // mg_Price->Add(g40MeV_Price, "P");
-    // mg_Price->Add(g45MeV_Price, "P");
-    // mg_Price->Add(g50MeV_Price, "P");
-
-    // mg_Price->SetMaximum(YRightMax * 1.1);
-
-
-    // // TLegend *scatterLegend_Price = new TLegend(0.15, 0.7, 0.35, 0.9);
-    // //price legend shoudl be n top right
-    // TLegend *scatterLegend_Price = new TLegend(0.65, 0.7, 0.85, 0.9);
-    // scatterLegend_Price->AddEntry(g20MeV_Price, "20MeV", "p");
-    // // scatterLegend_Price->AddEntry(g22MeV, "22MeV", "p");
-    // scatterLegend_Price->AddEntry(g25MeV_Price, "25MeV", "p");
-    // // scatterLegend_Price->AddEntry(g28MeV, "28MeV", "p");
-    // scatterLegend_Price->AddEntry(g30MeV_Price, "30MeV", "p");
-    // scatterLegend_Price->AddEntry(g35MeV_Price, "35MeV", "p");
-    // scatterLegend_Price->AddEntry(g40MeV_Price, "40MeV", "p");
-    // scatterLegend_Price->AddEntry(g45MeV_Price, "45MeV", "p");
-    // scatterLegend_Price->AddEntry(g50MeV_Price, "50MeV", "p");
-
-    // TCanvas *c4 = new TCanvas("c4", "Relative Cost per Useful Photon", 600, 500);
-    // c4->SetLeftMargin(0.15);
-
-
-    // mg_Price->SetTitle("Relative Cost per Useful Photon vs Foil Thickness");
-    // mg_Price->GetXaxis()->SetTitle("Foil Thickness (mm)");
-    // mg_Price->GetYaxis()->SetTitle("Cost per Useful Photon");
-    // mg_Price->GetXaxis()->SetTitleSize(0.05);
-    // mg_Price->GetYaxis()->SetTitleSize(0.05);
-    // mg_Price->GetXaxis()->SetLabelSize(0.04);
-    // mg_Price->GetYaxis()->SetLabelSize(0.04);
-    // mg_Price->Draw("AP");
-    // mg_Price->GetXaxis()->SetLimits(0, 24);
-
-
-    // // c3->Update();
-    // c4->cd();
-    // scatterLegend_Price->Draw();
-    // c4->Update();
-    // c4->SaveAs("CostPerUsefulPhoton.png");
 
 }
 
