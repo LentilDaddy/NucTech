@@ -48,6 +48,8 @@ void NucTechSteppingAction::EndOfEventAction() {
     // auto energy = fV_hitEdep[i] / MeV;
     auto position = fV_hitPos[i];
     G4float z = static_cast<G4float>(position.z() / cm);
+    G4float x = static_cast<G4float>(position.x() / cm);
+    G4float y = static_cast<G4float>(position.y() / cm);
     // auto time = fV_hitTime[i] / ns;
     auto kinEnergy = fV_KineticEnergy[i] / MeV;
     // auto momentum = fV_hitMomentum[i];
@@ -57,13 +59,15 @@ void NucTechSteppingAction::EndOfEventAction() {
     // mgr->FillNtupleDColumn(2, 2, position.y() / cm);
     // mgr->FillNtupleFColumn(2, 0, position.z() / cm);
     mgr->FillNtupleFColumn(1, 0, z);
+    mgr->FillNtupleFColumn(1, 1, x);
+    mgr->FillNtupleFColumn(1, 2, y);
     // mgr->FillNtupleDColumn(2, 2, momentum.x() / (MeV));
     // mgr->FillNtupleDColumn(2, 3, momentum.y() / (MeV));
     // mgr->FillNtupleDColumn(2, 2, momentum.z() / (MeV));
     // mgr->FillNtupleDColumn(2, 3, time / ns);
-    mgr->FillNtupleIColumn(1, 1, fV_hitPDG[i]); // Assuming column 5 is for PDG code
-    mgr->FillNtupleFColumn(1, 2, kinEnergy);
-    mgr->FillNtupleIColumn(1, 3, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
+    mgr->FillNtupleIColumn(1, 3, fV_hitPDG[i]); // Assuming column 5 is for PDG code
+    mgr->FillNtupleFColumn(1, 4, kinEnergy);
+    mgr->FillNtupleIColumn(1, 5, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
     mgr->AddNtupleRow(1);
   }
 }

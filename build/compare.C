@@ -90,47 +90,45 @@ void compare()
     //===============================
     // Decorations and setup
     //===============================
-    HistogramDecoration Decoration = {
-       1, kP10Brown, "Depth (cm)", "#photons in range 15-22 MeV", nullptr, 0., 100., 0., 0.
-    };
-
-    int colors[] = {kP10Red, kP10Cyan, kP10Ash, kP10Green, kP10Orange, kP10Brown, kP10Violet, kP10Gray,
-                    kP10Yellow, kP10Blue};
-    int nColors = sizeof(colors)/sizeof(int);
+    // HistogramDecoration Decoration = {
+    //    1, kBlack, "Depth (cm)", "#photons in range 15-22 MeV", nullptr, 0., 100., 0., 0.
+    // };
 
     TLegend *legend = new TLegend(0.7,0.7,0.9,0.9);
     TCanvas *c1 = new TCanvas("c1", "Compare Energy Deposition", 900, 700);
     c1->cd();
 
     std::vector<TH1D*> histos;
-    std::vector<double> usefulPhotonIntegrals;
+    std::vector<double> StopppedPrimariesIntegrals;
 
 for (size_t i = 0; i < chains.size(); i++) {
     TChain *t = chains[i].second;
+
     std::string label = chains[i].first;
 
-    // Extract foil thickness
-    double foilThickness = 0.0;
-    auto pos_MeV = label.find("mm");
-    if (pos_MeV != std::string::npos) {
-        size_t start = label.find_last_of('_', pos_MeV); //find underscore before "mm"
-        foilThickness = std::stod(label.substr(start + 1, pos_MeV - start - 1));
-    } else continue;
+    std::string energyLabel   = label.substr(0, label.find("_"));
+    std::string foilLabel     = label.substr(label.find("_") + 1);
 
-    std::string energyLabel = label.substr(label.find("_") + 1);
+    auto posE = energyLabel.find("MeV");
+    double energy = std::stod(energyLabel.substr(0, posE));
+    auto posF = foilLabel.find("mm");
+    double foilThickness = std::stod(foilLabel.substr(0, posF));
 
-    // Extract foil thickness
-    double energy = 0.0;
-    auto pos = label.find("MeV");
-    if (pos != std::string::npos) {
-        size_t start = label.find_last_of('_', pos); 
-        energy = std::stod(label.substr(start + 1, pos - start - 1));
-    } else continue;
 
     if (!t || t->GetEntries() == 0) {
         std::cout << "Warning: Chain " << label << " is empty!" << std::endl;
         continue;
     }
+
+    TH1D *h = new TH1D(
+        TString::Format("h_%zu", i),
+        TString::Format("Depth Distribution of Stopped Primary Electrons"),
+        200, 0, 20      // depth range in cm
+    );
+
+        // TH1D *h = new TH1D(TString::Format("h_%zu", i),
+
+        //                "Photon Depth", 100, Decoration.xMin, Decoration.xMax);
 
     h->SetDirectory(nullptr);
 
@@ -148,35 +146,33 @@ for (size_t i = 0; i < chains.size(); i++) {
     t->SetBranchAddress("HitKineticEnergy", &kineticE);
     t->SetBranchAddress("HitParentID", &parentID);
 
-    // t->SetCacheSize(50 * 1024 * 1024);
-    // t->AddBranchToCache("HitZ");
-    // t->AddBranchToCache("HitPDG");
-    // t->AddBranchToCache("HitKineticEnergy");
 
     Long64_t nentries = t->GetEntries();
     for (Long64_t j = 0; j < nentries; ++j) {
         t->GetEntry(j);
-        if (pdg == 0 && parentID == 0 && kineticE ==0) //to obtain all stopped primary electrons. Need a key for PRIMARY
+        if (pdg == 0 && parentID==0 && kineticE ==0) //to obtain all stopped primary electrons. Need a key for PRIMARY
             h->Fill(z);
     }
 
-    double integral = h->Integral(0, foilThickness/10);
 
-    h->SetLineColor(colors[i % nColors]); //colours dont matter here
-    h->SetLineWidth(Decoration.lineWidth);
-    h->GetXaxis()->SetTitle(Decoration.xTitle);
-    h->GetYaxis()->SetTitle(Decoration.yTitle);
+    std::cout<<"foil thickness is "<<foilThickness<<" mm"<<std::endl;
+    double integral = h->Integral(0, foilThickness/10);
+    // double integral = h->Integral(0, 20);
+    std::cout << "Integral for " << label << ": " << integral << std::endl;
+
+    // h->SetLineColor(colors[i % nColors]); //colours dont matter here
+    // h->SetLineWidth(Decoration.lineWidth);
+    // h->GetXaxis()->SetTitle(Decoration.xTitle);
+    // h->GetYaxis()->SetTitle(Decoration.yTitle);
 
     histos.push_back(h);
     legend->AddEntry(h, label.c_str(), "l");
 
-    // //if energyLabel is 40MeV or 45MeV, divide integral by 2e6
-    // if (energyLabel == "40MeV" || energyLabel == "45MeV") {
-    //     integral /= 2.0;
-    // }
 
     /*this part gives the percentage of primary electrons that stopped in the foil*/
-    results.push_back({energyLabel, energy, foilThickness, 100* integral / 1e6}); //need to divide by 2e6 for 40 and 45MeV
+    results.push_back({label, energy, foilThickness, 100 * integral / 1e6}); //temprary change to test
+
+    // results.push_back({energyLabel, energy, foilThickness, 100* integral / 1e6}); //need to divide by 2e6 for 40 and 45MeV
 }
 
     // //===============================
@@ -188,34 +184,29 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     //this needs to be converted to double for the eneryg!!!!!
     for (const auto& r : results) {
-        if (r.energyLabel == "20MeV_4mm" || r.energyLabel == "25MeV_6mm" || r.energyLabel == "30MeV_9mm" ||
-            r.energyLabel == "35MeV_12mm" || r.energyLabel == "40MeV_11mm" || r.energyLabel == "45MeV_11mm" ||
-            r.energyLabel == "50MeV_13mm") {
-    gPrimary->SetPoint(gPrimary->GetN(), r.energy, r.stoppedPrimaries);
-    }      
-
-    }
-    //change this to accessible colour scheme ROOT
+        gPrimary->SetPoint(gPrimary->GetN(), r.energy, r.stoppedPrimaries);
+    }  
+    
+        //change this to accessible colour scheme ROOT
 
     // // Style graphs
-    gPrimary->SetMarkerColor(kP10Red);   gPrimary>SetMarkerStyle(21);
+    gPrimary->SetMarkerColor(kRed);
+    gPrimary->SetMarkerStyle(21);
 
+    //fix gPrimary y axis range to 100
 
+    gPrimary->SetMaximum(100);
 
-    double YMax = -1e9;
-    for (auto g : {gPrimary}) {
-        int n = g->GetN(); //number of points in each graph
-        for (int i = 0; i < n; ++i) {
-            double x, y;
-            g->GetPoint(i, x, y);
-            if (y > YMax) YMax = y;
-        }
-    }
+    double YMax = 100;
 
     TMultiGraph *mg = new TMultiGraph();
     mg->Add(gPrimary, "P");
 
-    mg->SetMaximum(YMax * 1.1);
+    //Fix y axis range to 100
+
+    mg->SetMinimum(0);
+    mg->SetMaximum(YMax);
+    // mg->SetMaximum(YMax);
 
 
     TCanvas *c3 = new TCanvas("c3", "Percentage Primary Electrons Stopped vs Beam Energy", 600, 500);
@@ -223,22 +214,27 @@ for (size_t i = 0; i < chains.size(); i++) {
     c3->SetLeftMargin(0.15);
 
 
-    mg->SetTitle("Percentage of Primary Electrons Stopped for each Beam Energy and Corresponding Foil Thickness");
+    mg->SetTitle("% Primary Electrons Stopped inside Foil for each Beam Energy and Corresponding Foil Thickness");
     mg->GetXaxis()->SetTitle("Beam Energy (MeV)");
-    mg->GetYaxis()->SetTitle("Percentage Primary Electrons Stopped");
+    mg->GetYaxis()->SetTitle("% Primary Electrons Stopped");
     mg->GetXaxis()->SetTitleSize(0.05);
     mg->GetYaxis()->SetTitleSize(0.05);
     mg->GetXaxis()->SetLabelSize(0.04);
     mg->GetYaxis()->SetLabelSize(0.04);
+
     mg->Draw("AP");
-    mg->GetXaxis()->SetLimits(0, 24);
+    mg->GetXaxis()->SetLimits(19, 51); //this was too low
+    mg->GetYaxis()->SetRangeUser(0, 100);   // << FIXED
 
     c3->cd();
     c3->Update();
     c3->SaveAs("PrimariesStopped.png");
 
 
-}
+
+    }
+
+
 
 int main() {
     compare();

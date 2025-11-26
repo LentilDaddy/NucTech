@@ -15,7 +15,7 @@ public:
   virtual G4VPhysicalVolume *Construct() override;
 
   // G4double GetFoilThickness() const { return fFoilThickness; } // <-- Add this
-
+  
 private:
   void DefineMaterials();
   G4VPhysicalVolume *DefineVolumes();

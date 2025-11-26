@@ -46,9 +46,10 @@ void NucTechRunAction::BeginOfRunAction(const G4Run* /*run*/)
   
   mgr->CreateNtuple("IndividualHits", "NucTech");
   // mgr->CreateNtupleDColumn("HitEdep");
-  // mgr->CreateNtupleDColumn("HitX"); //positions of each hit
-  // mgr->CreateNtupleDColumn("HitY");
+
   mgr->CreateNtupleFColumn("HitZ");
+  mgr->CreateNtupleFColumn("HitX"); //positions of each hit
+  mgr->CreateNtupleFColumn("HitY");
   // mgr->CreateNtupleDColumn("HitPx");
   // mgr->CreateNtupleDColumn("HitPy");
   // mgr->CreateNtupleDColumn("HitPz");

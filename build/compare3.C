@@ -50,12 +50,12 @@ struct HistogramDecoration {
 
 
 
-void compare2()
+void compare3()
 {
     gROOT->SetBatch(kTRUE);
 
     // define mediums:
-    std::vector<std::string> Media = {"SF6", "C3F8", "CF4"};
+    std::vector<std::string> Media = {"SF6", "PF5", "C3F8", "CF4"};
 
     // create chains
     std::vector<std::pair<std::string, TChain*>> chains;
@@ -66,7 +66,7 @@ void compare2()
     }
 
     // create main canvas
-    TCanvas *c = new TCanvas("c", "Photon Energy vs Depth", 1400, 1000);
+    TCanvas *c = new TCanvas("c", "Useful Photon Spread", 1400, 1400);
     int N = chains.size();
     int rows = std::ceil(std::sqrt(N));
     int cols = std::ceil((double)N / rows);
@@ -83,9 +83,9 @@ void compare2()
 
         TH2D *h = new TH2D(
             TString::Format("h2_%s", label.c_str()),
-            TString::Format("Energy vs Depth - %s", label.c_str()),
-            200, 0.9, 20,      // depth range
-            200, 0.5, 50       // energy range
+            TString::Format("Useful Photon Spread - %s", label.c_str()),
+            200, -15.0, 15.0,      // depth range
+            200, 15.0, 15.0       // energy range
         );
         h->SetDirectory(nullptr);
 
@@ -96,6 +96,8 @@ void compare2()
         t->SetBranchStatus("HitZ", 1);
         t->SetBranchStatus("HitPDG", 1);
         t->SetBranchStatus("HitKineticEnergy", 1);
+        t->SetBranchAddress("HitX", &x);
+        t->SetBranchAddress("HitY", &y);
         t->SetBranchAddress("HitZ", &z);
         t->SetBranchAddress("HitPDG", &pdg);
         t->SetBranchAddress("HitKineticEnergy", &kineticE);
@@ -103,23 +105,23 @@ void compare2()
         Long64_t nentries = t->GetEntries();
         for (Long64_t j = 0; j < nentries; ++j) {
             t->GetEntry(j);
-            if (pdg == 1)
-                h->Fill(z, kineticE);
+            if (pdg == 1 && kineticE >=15 && kineticE <=22)
+                h->Fill(x, y);
         }
 
         c->cd(i+1);
         gPad->SetRightMargin(0.12);
         gPad->SetLogz();
-        h->GetXaxis()->SetTitle("Depth (cm)");
-        h->GetYaxis()->SetTitle("Kinetic Energy (MeV)");
+        h->GetXaxis()->SetTitle("x (cm)");
+        h->GetYaxis()->SetTitle("y (cm)");
         h->Draw("COLZ");
     }
 
-    c->SaveAs("PhotonEnergySpectra.png");
+    c->SaveAs("PhotonSpread.png");
     // std::cout << "Saved: PhotonEnergy_Compare.png\n";
 }
 
 int main() {
-    compare2();
+    compare3();
     return 0;
 }

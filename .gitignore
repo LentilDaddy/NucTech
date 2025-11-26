@@ -13,6 +13,7 @@ build/*
 # ...except the specific files you want to track
 !build/compare.C
 !build/compare2.C
+!build/compare3.C
 !build/submit.sh
 
 
