@@ -40,7 +40,6 @@ G4int ncomponents, natoms;
 G4String name;
 // define a material from elements.   case 1: chemical molecule
 G4double medium_density = 1.339*g/cm3; //keep the same because we will be changing pressure anyway.
-// G4double medium_density = 0.001*g/cm3; //keep the same because we will be changing pressure anyway.
 G4Material* SF6 = new G4Material(name="SF6", medium_density, ncomponents=2);
 SF6->AddElement(elS, natoms=1);
 SF6->AddElement(elF, natoms=6);
@@ -64,25 +63,24 @@ C3F8->AddElement(elF, natoms=8);
 
   //G4Material *foil = nist->FindOrBuildMaterial("G4_Au");
   G4Material *foil = nist->FindOrBuildMaterial("G4_Cu"); //swap target to tungsten
-  // G4Material *medium = nist->FindOrBuildMaterial("G4_WATER");
   G4Material *medium = SF6;
 
 
-  // Compute the mixture density as the mass-weighted sum:
-  //   ρ_mix = f_Medium·ρ_w + f_Foil·ρ_Au
-  const G4double f_Medium = 0.99;  // medium mass fraction
-  const G4double f_Foil = 0.01; // foil mass fraction
-  G4double density = f_Medium * medium->GetDensity() + f_Foil * foil->GetDensity(); //why combine this?
-  // → density ≃ 0.9*1.0 + 0.1*19.3 ≃ 2.832 g/cm3
+  // // Compute the mixture density as the mass-weighted sum:
+  // //   ρ_mix = f_Medium·ρ_w + f_Foil·ρ_Au
+  // const G4double f_Medium = 0.99;  // medium mass fraction
+  // const G4double f_Foil = 0.01; // foil mass fraction
+  // G4double density = f_Medium * medium->GetDensity() + f_Foil * foil->GetDensity(); //why combine this?
+  // // → density ≃ 0.9*1.0 + 0.1*19.3 ≃ 2.832 g/cm3
 
-  // Create the new material as a two-component mixture
-  G4Material *mediumFoilMix = new G4Material("MediumFoilMixture", // name
-                                            density, // density [g/cm3]
-                                            2);      // number of components
+  // // Create the new material as a two-component mixture
+  // G4Material *mediumFoilMix = new G4Material("MediumFoilMixture", // name
+  //                                           density, // density [g/cm3]
+  //                                           2);      // number of components
 
-  // Add components by mass fraction
-  mediumFoilMix->AddMaterial(medium, f_Medium);
-  mediumFoilMix->AddMaterial(foil, f_Foil); //these aren't used 
+  // // Add components by mass fraction
+  // mediumFoilMix->AddMaterial(medium, f_Medium);
+  // mediumFoilMix->AddMaterial(foil, f_Foil); //these aren't used 
 
   // Definition of the volumes - experimental hall and phantom
 
@@ -101,19 +99,16 @@ C3F8->AddElement(elF, natoms=8);
 
   /***** Detector *****/
 
-  G4double det_radius = 15. * cm;
-    
-  // G4double det_halfX = 150. * cm;
-  // G4double det_halfY = 150. * cm;
-  G4double dzMid = 10. * mm; // foil thickness
-  G4double det_halfDepth = 10. * cm;
+  G4double det_radius = 5. * cm;
+  G4double dzFoilPart = 9. * mm; // foil thickness
+  G4double dzVacuum = 10. * mm;
+  G4double dzFoil = dzFoilPart + dzVacuum;
+  G4double det_halfDepth = 5. * cm;
 
 
   G4VSolid *det_solid =
     new G4Tubs("Detector1", 0.*cm, det_radius, det_halfDepth, 0.*deg, 360.*deg); //i think this is just the dimensions
 
-    // G4VSolid *det_solid =
-    // new G4Box("Detector1", det_halfX, det_halfY, det_halfDepth);
 
   G4LogicalVolume *det_logical =
       new G4LogicalVolume(det_solid, medium, "Detector1");
@@ -121,7 +116,7 @@ C3F8->AddElement(elF, natoms=8);
    G4double &det_PosZ = det_halfDepth; // place it so no overlap with foil
 
   new G4PVPlacement(nullptr,                         // No rotation
-		    G4ThreeVector(0., 0., det_PosZ + dzMid), // Translation (so no overlap with foil)
+		    G4ThreeVector(0., 0., det_PosZ + dzFoil), // Translation (so no overlap with foil)
                     det_logical,                     // Logical volume
                     "Detector1",                     // Name
                     world_logical,                   // Mother volume
@@ -129,24 +124,44 @@ C3F8->AddElement(elF, natoms=8);
                     0,              // Copy number
                     checkOverlaps); // Overlap checking
 
-  G4VSolid *midLayerSolid =
-    new G4Tubs("Detector2", 0.*cm, det_radius, dzMid / 2, 0.*deg, 360.*deg);  
 
-  // Logical volume using the medium‐foil mixture material
+
+  G4VSolid *midLayerSolid =
+    new G4Tubs("Detector2", 0.*cm, det_radius, dzFoil / 2, 0.*deg, 360.*deg);  
+
+  // Logical volume using the foil material
   G4LogicalVolume *midLayer_log =
       new G4LogicalVolume(midLayerSolid, foil, "Detector2");
 
       /*Place the foil*/
   new G4PVPlacement(nullptr,                   // no rotation
-		    // G4ThreeVector(0., 0., -det_halfDepth + dzMid/2 ), // If mother is detector1.
-		    G4ThreeVector(0., 0., dzMid/2 ), // at detector start
+		    G4ThreeVector(0., 0., dzFoil/2 ), // at detector start
                     midLayer_log,              // its logical volume
                     "Detector2",               // name
-                    // det_logical,               // mother is your detector volume
                     world_logical,               // mother is your world volume
                     false,                     // not parameterized
                     0,                         // copy number
                     checkOverlaps              // overlap checking
+  );
+
+
+
+  G4VSolid *vacuumLayer =
+    new G4Tubs("vacuumLayer", 0.*cm, det_radius, dzVacuum / 2, 0.*deg, 360.*deg);  
+
+  G4LogicalVolume *vacuumLayer_log =
+      new G4LogicalVolume(vacuumLayer, vacuum, "vacuumLayer");
+
+  std::cout << "Vacuum layer placed at z = " << dzFoil - 1.*mm - dzVacuum/2 << " mm" << std::endl;
+      /*Place the vacuum layer*/
+  new G4PVPlacement(nullptr,                   
+		    G4ThreeVector(0., 0., dzFoil - 4.*mm - dzVacuum/2 ), 
+                    vacuumLayer_log,              // its logical volume
+                    "vacuumLayer",               // name
+                    midLayer_log,               // mother is Detector 2 volume
+                    false,                     // not parameterized
+                    0,                         // copy number
+                    !checkOverlaps              // overlap checking
   );
 
   /***** Step limit *****/

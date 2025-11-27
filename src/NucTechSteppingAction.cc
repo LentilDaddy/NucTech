@@ -95,9 +95,16 @@ G4String motherName = (depth > 1 && touchable->GetVolume(1))
 
 if (currentName != "Detector1" &&
     currentName != "Detector2" &&
-    motherName != "Detector1"){
+    motherName != "Detector1" && currentName != "vacuumLayer"){
     return;
     }
+
+// if (currentName != "Detector1" &&
+//     currentName != "Detector2" &&
+//     motherName != "Detector1"){
+//     return;
+//     }
+
 
   // if (postStepPoint->GetPhysicalVolume()->GetName() != "Detector1" &&
   //     postStepPoint->GetPhysicalVolume()->GetName() != "Detector2")
