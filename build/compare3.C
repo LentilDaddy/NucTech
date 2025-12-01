@@ -55,7 +55,7 @@ void compare3()
     gROOT->SetBatch(kTRUE);
 
     // define mediums:
-    std::vector<std::string> Media = {"SF6", "PF5", "C3F8", "CF4"};
+    std::vector<std::string> Media = {"SF6", "C3F8", "CF4"};
 
     // create chains
     std::vector<std::pair<std::string, TChain*>> chains;
@@ -85,20 +85,20 @@ void compare3()
             TString::Format("h2_%s", label.c_str()),
             TString::Format("Useful Photon Spread - %s", label.c_str()),
             200, -15.0, 15.0,      // depth range
-            200, 15.0, 15.0       // energy range
+            200, -15.0, 15.0       // energy range
         );
         h->SetDirectory(nullptr);
 
-        float_t z, kineticE;
+        float_t x, y, kineticE;
         int pdg;
 
         t->SetBranchStatus("*", 0);
-        t->SetBranchStatus("HitZ", 1);
+        // t->SetBranchStatus("HitZ", 1);
         t->SetBranchStatus("HitPDG", 1);
         t->SetBranchStatus("HitKineticEnergy", 1);
         t->SetBranchAddress("HitX", &x);
         t->SetBranchAddress("HitY", &y);
-        t->SetBranchAddress("HitZ", &z);
+        // t->SetBranchAddress("HitZ", &z);
         t->SetBranchAddress("HitPDG", &pdg);
         t->SetBranchAddress("HitKineticEnergy", &kineticE);
 
@@ -114,6 +114,9 @@ void compare3()
         gPad->SetLogz();
         h->GetXaxis()->SetTitle("x (cm)");
         h->GetYaxis()->SetTitle("y (cm)");
+
+        h->GetXaxis()->SetRangeUser(-15.0, 15.0);
+        h->GetYaxis()->SetRangeUser(-15.0, 15.0);
         h->Draw("COLZ");
     }
 

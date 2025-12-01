@@ -85,7 +85,7 @@ void compare2()
             TString::Format("h2_%s", label.c_str()),
             TString::Format("Energy vs Depth - %s", label.c_str()),
             200, 0.9, 20,      // depth range
-            200, 0.5, 50       // energy range
+            200, 0.5, 31       // energy range
         );
         h->SetDirectory(nullptr);
 
@@ -109,7 +109,7 @@ void compare2()
 
         c->cd(i+1);
         gPad->SetRightMargin(0.12);
-        gPad->SetLogz();
+        // gPad->SetLogy();
         h->GetXaxis()->SetTitle("Depth (cm)");
         h->GetYaxis()->SetTitle("Kinetic Energy (MeV)");
         h->Draw("COLZ");

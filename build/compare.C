@@ -1,3 +1,11 @@
+//root -l -b -q 'compare.C++()'
+//compiled version in Makefile
+
+//why does it take so long to run
+//figure out how to create tchains only for exisiting files
+//batch processing?
+//ask for help with profiling in ROOT 
+//in parallel on Viking instead
 
 #include <TSystem.h>
 #include <TPluginManager.h> 
@@ -9,9 +17,7 @@
 #include <TH2D.h>
 #include <TCanvas.h>
 #include <TLegend.h>
-#include <TLine.h>
 #include <TGraph.h>
-#include <TGaxis.h>
 #include <TMultiGraph.h>
 #include <TStyle.h>
 #include <TString.h>
@@ -21,6 +27,7 @@
 #include <string>
 #include <regex>
 #include <cmath>
+// #include <omp.h>
 
 struct HistogramDecoration {
    int lineWidth;
@@ -34,207 +41,318 @@ struct HistogramDecoration {
    double yMax;
 };
 
-
-struct EnergyResult {
-    std::string energyLabel;
-    double energy;
-    double foilThickness;
-    double stoppedPrimaries;
-};
-
-
-// int kP10Cyan = TColor::GetColor("#92dadd");
-// int kP10Ash = TColor::GetColor("#717581");
-// int kP10Green = TColor::GetColor("#b9ac70");
-// int kP10Orange = TColor::GetColor("#e76300");
-// int kP10Brown = TColor::GetColor("#a96b59");
-// int kP10Violet = TColor::GetColor("#832db6");
-// int kP10Gray = TColor::GetColor("#94a4a2");
-// int kP10Red = TColor::GetColor("#bd1f01");
-// int kP10Yellow = TColor::GetColor("#ffa90e");
-// int kP10Blue = TColor::GetColor("#3f90da");
-
-
-
-
 void compare()
 {
     gROOT->SetBatch(kTRUE);
 
 
+    // #pragma omp parallel
+    // {
+    //     int tid = omp_get_thread_num();
+    //     #pragma omp critical
+    //     std::cout << "Hello from thread " << tid << std::endl;
+    // }
+
+    //===============================
+    // Define TChains for each medium
+    //===============================
+
     std::vector<std::pair<std::string, TChain*>> chains;
 
-    // Replace the separate energy and foil thickness vectors with specific pairs
-    std::vector<std::pair<std::string, std::string>> energyFoilPairs = {
-        {"20MeV", "4mm"},
-        {"25MeV", "6mm"},
-        {"30MeV", "9mm"},
-        {"35MeV", "12mm"},
-        {"40MeV", "11mm"},
-        {"45MeV", "11mm"},
-        {"50MeV", "13mm"}
-    };
+    // std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "PF5", "UF6", "vacuum"};
+    std::vector<std::string> mediums = {"SF6","C3F8","CF4","UF6"};
+    // std::vector<std::string> energies = {"20MeV", "22MeV", "25MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
+    std::vector<std::string> energies = {"25MeV"};
 
-    std::vector<EnergyResult> results;
-
-    for (const auto &pair : energyFoilPairs) {
-        std::string energy = pair.first;
-        std::string foil = pair.second;
-        std::string label = energy + "_" + foil;
-        TChain *ch = new TChain("IndividualHits");
-        ch->Add(TString::Format("*_%s*_*%s*.root", foil.c_str(), energy.c_str()).Data());
-        chains.push_back({label, ch});
+    // create one TChain per (medium, energy) and add matching files immediately
+    for (const auto &m : mediums) {
+        for (const auto &e : energies) {
+            std::string label = m + "_" + e; //does this mean it has to be in this order?
+            TChain *ch = new TChain("IndividualHits");
+            ch->Add(TString::Format("%s_*%s*.root", m.c_str(), e.c_str()).Data());
+            chains.push_back({label, ch});
+        }
     }
     
 
     //===============================
     // Decorations and setup
     //===============================
-    // HistogramDecoration Decoration = {
-    //    1, kBlack, "Depth (cm)", "#photons in range 15-22 MeV", nullptr, 0., 100., 0., 0.
-    // };
+    HistogramDecoration Decoration = {
+       1, kBlack, "Depth (cm)", "#photons in range 15-22 MeV", nullptr, 0., 110., 0., 0.
+    }; // lineWidth, lineColor, xTitle, yTitle, title, xMin, xMax, yMin, yMax
+
+    HistogramDecoration photonDecoration = {
+       1, kBlack, "Depth (cm)", "Photon Energy (MeV)", nullptr, 0., 110., 0., 0.
+    };
+
+    int colors[] = {kRed, kSpring+5, kBlack, kMagenta+2, kViolet-2, kBlue-7,
+                    kAzure-1, kCyan, kTeal+10, kGreen+3, kYellow, kGray,
+                    kOrange-7, kPink+7};
+    int nColors = sizeof(colors)/sizeof(int);
 
     TLegend *legend = new TLegend(0.7,0.7,0.9,0.9);
     TCanvas *c1 = new TCanvas("c1", "Compare Energy Deposition", 900, 700);
     c1->cd();
 
     std::vector<TH1D*> histos;
-    std::vector<double> StopppedPrimariesIntegrals;
+    std::vector<TH2D*> h2_histos;
+    std::vector<double> usefulPhotonIntegrals100;
+    std::vector<double> usefulPhotonIntegrals10;
+    std::vector<double> usefulPhotonIntegrals20;
+    std::vector<double> usefulPhotonIntegrals30;
+    std::vector<double> usefulPhotonIntegrals40;
+    std::vector<double> usefulPhotonIntegrals50;
+    std::vector<double> usefulPhotonIntegrals60;
+    std::vector<double> usefulPhotonIntegrals70;
+    std::vector<double> usefulPhotonIntegrals80;
+    std::vector<double> usefulPhotonIntegrals90;
+    
+    // double globalMax = 0.0;
 
 for (size_t i = 0; i < chains.size(); i++) {
     TChain *t = chains[i].second;
-
     std::string label = chains[i].first;
-
-    std::string energyLabel   = label.substr(0, label.find("_"));
-    std::string foilLabel     = label.substr(label.find("_") + 1);
-
-    auto posE = energyLabel.find("MeV");
-    double energy = std::stod(energyLabel.substr(0, posE));
-    auto posF = foilLabel.find("mm");
-    double foilThickness = std::stod(foilLabel.substr(0, posF));
-
 
     if (!t || t->GetEntries() == 0) {
         std::cout << "Warning: Chain " << label << " is empty!" << std::endl;
         continue;
     }
 
-    TH1D *h = new TH1D(
-        TString::Format("h_%zu", i),
-        TString::Format("Depth Distribution of Stopped Primary Electrons"),
-        200, 0, 20      // depth range in cm
-    );
+    TH1D *h = new TH1D(TString::Format("h_thread_%zu", i),
+                       "Photon Depth", 1100, Decoration.xMin, Decoration.xMax);
+                       //
+    TH2D *h2 = new TH2D(TString::Format("h2_thread_%zu", i),
+                        "Photon Energy vs Depth", 1000, photonDecoration.xMin, photonDecoration.xMax, 1000, 0, 50);
 
-        // TH1D *h = new TH1D(TString::Format("h_%zu", i),
-
-        //                "Photon Depth", 100, Decoration.xMin, Decoration.xMax);
-
+    // Disable global ROOT directory writing for safety
     h->SetDirectory(nullptr);
+    h2->SetDirectory(nullptr);
 
-    float_t z, kineticE;
-    Int_t pdg, parentID;
-
-    // Branch optimization
-    t->SetBranchStatus("*", 0);
-    t->SetBranchStatus("HitZ", 1);
-    t->SetBranchStatus("HitPDG", 1);
-    t->SetBranchStatus("HitKineticEnergy", 1);
-    t->SetBranchStatus("HitParentID", 1);
+    Float_t z, kineticE;
+    Int_t pdg;
     t->SetBranchAddress("HitZ", &z);
     t->SetBranchAddress("HitPDG", &pdg);
     t->SetBranchAddress("HitKineticEnergy", &kineticE);
-    t->SetBranchAddress("HitParentID", &parentID);
-
 
     Long64_t nentries = t->GetEntries();
     for (Long64_t j = 0; j < nentries; ++j) {
         t->GetEntry(j);
-        if (pdg == 0 && parentID==0 && kineticE ==0) //to obtain all stopped primary electrons. Need a key for PRIMARY
+        if (pdg == 1 && kineticE >= 15 && kineticE <= 22)
             h->Fill(z);
+        if (pdg == 1 && kineticE >= 0)
+            h2->Fill(z, kineticE);
     }
 
 
-    std::cout<<"foil thickness is "<<foilThickness<<" mm"<<std::endl;
-    double integral = h->Integral(0, foilThickness/10);
-    // double integral = h->Integral(0, 20);
-    std::cout << "Integral for " << label << ": " << integral << std::endl;
+    //     c->cd(i+1);
+    //     gPad->SetRightMargin(0.12);
+    //     // gPad->SetLogy();
+    //     h->GetXaxis()->SetTitle("Depth (cm)");
+    //     h->GetYaxis()->SetTitle("# Useful Photons (15-22 MeV)");
+    //     // h->Draw("COLZ");
+    // // }
 
-    // h->SetLineColor(colors[i % nColors]); //colours dont matter here
-    // h->SetLineWidth(Decoration.lineWidth);
-    // h->GetXaxis()->SetTitle(Decoration.xTitle);
-    // h->GetYaxis()->SetTitle(Decoration.yTitle);
+    // c->SaveAs("PhotonEnergySpectra.png");
 
-    histos.push_back(h);
-    legend->AddEntry(h, label.c_str(), "l");
+    double integral100 = h->Integral(1.3, 100+1.3); //repeat over different lengths NOT includiing foil part
+    double integral10 = h->Integral(1.3, 10+1.3); //repeat over different lengths
+    double integral20 = h->Integral(1.3, 20+1.3); //repeat over different lengths
+    double integral30 = h->Integral(1.3, 30+1.3); //repeat over different lengths
+    double integral40 = h->Integral(1.3, 40+1.3); //repeat over different lengths
+    double integral50 = h->Integral(1.3, 50+1.3); //repeat over different lengths
+    double integral60 = h->Integral(1.3, 60+1.3); //repeat over different lengths
+    double integral70 = h->Integral(1.3, 70+1.3); //repeat over different lengths
+    double integral80 = h->Integral(1.3, 80+1.3); //repeat over different lengths
+    double integral90 = h->Integral(1.3, 90+1.3); //repeat over different lengths
 
+    {
+        h->SetLineColor(colors[i % nColors]);
+        h->SetLineWidth(Decoration.lineWidth);
+        h->GetXaxis()->SetTitle(Decoration.xTitle);
+        h->GetYaxis()->SetTitle(Decoration.yTitle);
 
-    /*this part gives the percentage of primary electrons that stopped in the foil*/
-    results.push_back({label, energy, foilThickness, 100 * integral / 1e6}); //temprary change to test
-
-    // results.push_back({energyLabel, energy, foilThickness, 100* integral / 1e6}); //need to divide by 2e6 for 40 and 45MeV
+        histos.push_back(h);
+        h2_histos.push_back(h2);
+        usefulPhotonIntegrals100.push_back(integral100);
+        usefulPhotonIntegrals10.push_back(integral10);
+        usefulPhotonIntegrals20.push_back(integral20);
+        usefulPhotonIntegrals30.push_back(integral30);
+        usefulPhotonIntegrals40.push_back(integral40);
+        usefulPhotonIntegrals50.push_back(integral50);
+        usefulPhotonIntegrals60.push_back(integral60);
+        usefulPhotonIntegrals70.push_back(integral70);
+        usefulPhotonIntegrals80.push_back(integral80);
+        usefulPhotonIntegrals90.push_back(integral90);
+        legend->AddEntry(h, label.c_str(), "l");
+    }
 }
 
-    // //===============================
-    // // Scatter plot of useful photons vs beam energy
-    // //===============================
+    //===============================
+    // Scatter plot of useful photons vs beam energy
+    //===============================
+    TGraph *gSF6 = new TGraph();
+    TGraph *gC3F8 = new TGraph();
+    TGraph *gCF4 = new TGraph();
+    TGraph *gPF5 = new TGraph();
+    TGraph *gUF6 = new TGraph();
+    TGraph *gVacuum = new TGraph();
 
-    TGraph *gPrimary = new TGraph();
+    int idxSF6=0, idxC3F8=0, idxCF4=0, idxPF5=0, idxUF6=0, idxVacuum=0;
 
-
-    //this needs to be converted to double for the eneryg!!!!!
-    for (const auto& r : results) {
-        gPrimary->SetPoint(gPrimary->GetN(), r.energy, r.stoppedPrimaries);
-    }  
-    
-        //change this to accessible colour scheme ROOT
-
-    // // Style graphs
-    gPrimary->SetMarkerColor(kRed);
-    gPrimary->SetMarkerStyle(21);
-
-    //fix gPrimary y axis range to 100
-
-    gPrimary->SetMaximum(100);
-
-    double YMax = 100;
-
-    TMultiGraph *mg = new TMultiGraph();
-    mg->Add(gPrimary, "P");
-
-    //Fix y axis range to 100
-
-    mg->SetMinimum(0);
-    mg->SetMaximum(YMax);
-    // mg->SetMaximum(YMax);
+    for (size_t i=0; i<chains.size(); i++) {
+        std::string label = chains[i].first;
+        double beamEnergy = 0.0;
 
 
-    TCanvas *c3 = new TCanvas("c3", "Percentage Primary Electrons Stopped vs Beam Energy", 600, 500);
-    // c3->SetRightMargin(0.15);
-    c3->SetLeftMargin(0.15);
+        std::regex energyRegex(R"((\d+(?:\.\d+)?)\s*MeV)");
+        std::smatch match;
+        if (std::regex_search(label, match, energyRegex)) {
+            beamEnergy = std::stod(match[1].str());
+        } else {
+            continue;
+
+        }
 
 
-    mg->SetTitle("% Primary Electrons Stopped inside Foil for each Beam Energy and Corresponding Foil Thickness");
-    mg->GetXaxis()->SetTitle("Beam Energy (MeV)");
-    mg->GetYaxis()->SetTitle("% Primary Electrons Stopped");
-    mg->GetXaxis()->SetTitleSize(0.05);
-    mg->GetYaxis()->SetTitleSize(0.05);
-    mg->GetXaxis()->SetLabelSize(0.04);
-    mg->GetYaxis()->SetLabelSize(0.04);
+        double usefulPhotons100 = (i < usefulPhotonIntegrals100.size()) ? usefulPhotonIntegrals100[i] : 0; //make sure index is valid
+        double usefulPhotons10 = (i < usefulPhotonIntegrals10.size()) ? usefulPhotonIntegrals10[i] : 0; //make sure index is valid
+        double usefulPhotons20 = (i < usefulPhotonIntegrals20.size()) ? usefulPhotonIntegrals20[i] : 0; //make sure index is valid
+        double usefulPhotons30 = (i < usefulPhotonIntegrals30.size()) ? usefulPhotonIntegrals30[i] : 0; //make sure index is valid
+        double usefulPhotons40 = (i < usefulPhotonIntegrals40.size()) ? usefulPhotonIntegrals40[i] : 0; //make sure index is valid
+        double usefulPhotons50 = (i < usefulPhotonIntegrals50.size()) ? usefulPhotonIntegrals50[i] : 0; //make sure index is valid
+        double usefulPhotons60 = (i < usefulPhotonIntegrals60.size()) ? usefulPhotonIntegrals60[i] : 0; //make sure index is valid
+        double usefulPhotons70 = (i < usefulPhotonIntegrals70.size()) ? usefulPhotonIntegrals70[i] : 0; //make sure index is valid
+        double usefulPhotons80 = (i < usefulPhotonIntegrals80.size()) ? usefulPhotonIntegrals80[i] : 0; //make sure index is valid
+        double usefulPhotons90 = (i < usefulPhotonIntegrals90.size()) ? usefulPhotonIntegrals90[i] : 0; //make sure index is valid
+        
+        std::cout << "Label: " << label << ", Useful Photons at 10cm: " << usefulPhotons10 << std::endl;
+        usefulPhotons100 = usefulPhotons100 / 1e6; 
+        usefulPhotons10 = usefulPhotons10 / 1e6; 
+        usefulPhotons20 = usefulPhotons20 / 1e6; 
+        usefulPhotons30 = usefulPhotons30 / 1e6; 
+        usefulPhotons40 = usefulPhotons40 / 1e6; 
+        usefulPhotons50 = usefulPhotons50 / 1e6; 
+        usefulPhotons60 = usefulPhotons60 / 1e6; 
+        usefulPhotons70 = usefulPhotons70 / 1e6; 
+        usefulPhotons80 = usefulPhotons80 / 1e6; 
+        usefulPhotons90 = usefulPhotons90 / 1e6;
 
-    mg->Draw("AP");
-    mg->GetXaxis()->SetLimits(19, 51); //this was too low
-    mg->GetYaxis()->SetRangeUser(0, 100);   // << FIXED
-
-    c3->cd();
-    c3->Update();
-    c3->SaveAs("PrimariesStopped.png");
-
-
-
+        std::cout << "Label: " << label << ", Useful Photons at 10cm per primary electron: " << usefulPhotons10 << std::endl;
+        if (label.find("SF6") != std::string::npos){ //swap beam energy for lengths
+            gSF6->SetPoint(idxSF6++, 10, usefulPhotons10);
+            gSF6->SetPoint(idxSF6++, 20, usefulPhotons20);
+            gSF6->SetPoint(idxSF6++, 30, usefulPhotons30);
+            gSF6->SetPoint(idxSF6++, 40, usefulPhotons40);
+            gSF6->SetPoint(idxSF6++, 50, usefulPhotons50);
+            gSF6->SetPoint(idxSF6++, 60, usefulPhotons60);
+            gSF6->SetPoint(idxSF6++, 70, usefulPhotons70);
+            gSF6->SetPoint(idxSF6++, 80, usefulPhotons80);
+            gSF6->SetPoint(idxSF6++, 90, usefulPhotons90);
+            gSF6->SetPoint(idxSF6++, 100, usefulPhotons100);
+        }
+        else if (label.find("C3F8") != std::string::npos){
+            gC3F8->SetPoint(idxC3F8++, 10, usefulPhotons10);
+            gC3F8->SetPoint(idxC3F8++, 20, usefulPhotons20);
+            gC3F8->SetPoint(idxC3F8++, 30, usefulPhotons30);
+            gC3F8->SetPoint(idxC3F8++, 40, usefulPhotons40);
+            gC3F8->SetPoint(idxC3F8++, 50, usefulPhotons50);
+            gC3F8->SetPoint(idxC3F8++, 60, usefulPhotons60);
+            gC3F8->SetPoint(idxC3F8++, 70, usefulPhotons70);
+            gC3F8->SetPoint(idxC3F8++, 80, usefulPhotons80);
+            gC3F8->SetPoint(idxC3F8++, 90, usefulPhotons90);
+            gC3F8->SetPoint(idxC3F8++, 100, usefulPhotons100);
+        }
+        else if (label.find("CF4") != std::string::npos){
+            gCF4->SetPoint(idxCF4++, 10, usefulPhotons10);
+            gCF4->SetPoint(idxCF4++, 20, usefulPhotons20);
+            gCF4->SetPoint(idxCF4++, 30, usefulPhotons30);
+            gCF4->SetPoint(idxCF4++, 40, usefulPhotons40);
+            gCF4->SetPoint(idxCF4++, 50, usefulPhotons50);
+            gCF4->SetPoint(idxCF4++, 60, usefulPhotons60);
+            gCF4->SetPoint(idxCF4++, 70, usefulPhotons70);
+            gCF4->SetPoint(idxCF4++, 80, usefulPhotons80);
+            gCF4->SetPoint(idxCF4++, 90, usefulPhotons90);
+            gCF4->SetPoint(idxCF4++, 100, usefulPhotons100);
+        }
+        else if (label.find("PF5") != std::string::npos){
+            gPF5->SetPoint(idxPF5++, 10, usefulPhotons10);
+            gPF5->SetPoint(idxPF5++, 20, usefulPhotons20);
+            gPF5->SetPoint(idxPF5++, 30, usefulPhotons30);
+            gPF5->SetPoint(idxPF5++, 40, usefulPhotons40);
+            gPF5->SetPoint(idxPF5++, 50, usefulPhotons50);
+            gPF5->SetPoint(idxPF5++, 100, usefulPhotons100);
+        }
+        else if (label.find("UF6") != std::string::npos){
+            gUF6->SetPoint(idxUF6++, 10, usefulPhotons10);
+            gUF6->SetPoint(idxUF6++, 20, usefulPhotons20);
+            gUF6->SetPoint(idxUF6++, 30, usefulPhotons30);
+            gUF6->SetPoint(idxUF6++, 40, usefulPhotons40);
+            gUF6->SetPoint(idxUF6++, 50, usefulPhotons50);
+            gUF6->SetPoint(idxUF6++, 60, usefulPhotons60);
+            gUF6->SetPoint(idxUF6++, 70, usefulPhotons70);
+            gUF6->SetPoint(idxUF6++, 80, usefulPhotons80);
+            gUF6->SetPoint(idxUF6++, 90, usefulPhotons90);
+            gUF6->SetPoint(idxUF6++, 100, usefulPhotons100);
+        }
+        else if (label.find("vacuum") != std::string::npos){
+            gVacuum->SetPoint(idxVacuum++, 10, usefulPhotons10);
+            gVacuum->SetPoint(idxVacuum++, 20, usefulPhotons20);
+            gVacuum->SetPoint(idxVacuum++, 30, usefulPhotons30);
+            gVacuum->SetPoint(idxVacuum++, 40, usefulPhotons40);
+            gVacuum->SetPoint(idxVacuum++, 50, usefulPhotons50);
+            gVacuum->SetPoint(idxVacuum++, 60, usefulPhotons60);
+            gVacuum->SetPoint(idxVacuum++, 70, usefulPhotons70);
+            gVacuum->SetPoint(idxVacuum++, 80, usefulPhotons80);
+            gVacuum->SetPoint(idxVacuum++, 90, usefulPhotons90);
+            gVacuum->SetPoint(idxVacuum++, 100, usefulPhotons100);
+        }
     }
 
+    // Style graphs
+    gSF6->SetMarkerColor(kBlue);   gSF6->SetMarkerStyle(21);
+    gC3F8->SetMarkerColor(kRed);   gC3F8->SetMarkerStyle(23);
+    gCF4->SetMarkerColor(kBlack);  gCF4->SetMarkerStyle(24);
+    gPF5->SetMarkerColor(kMagenta);gPF5->SetMarkerStyle(22);
+    gUF6->SetMarkerColor(kOrange); gUF6->SetMarkerStyle(25);
+    gVacuum->SetMarkerColor(kGreen);gVacuum->SetMarkerStyle(26);
 
+    double YMax = -1e9;
+    for (auto g : {gSF6, gC3F8, gCF4, gPF5, gUF6, gVacuum}) {
+        int n = g->GetN(); //number of points in each graph
+        for (int i = 0; i < n; ++i) {
+            double x, y;
+            g->GetPoint(i, x, y);
+            if (y > YMax) YMax = y;
+        }
+    }
+
+    //rest should be serial
+    TMultiGraph *mg = new TMultiGraph();
+    mg->Add(gSF6, "P");
+    mg->Add(gC3F8, "P");
+    mg->Add(gCF4, "P");
+    mg->Add(gPF5, "P");
+    mg->Add(gUF6, "P");
+    mg->Add(gVacuum, "P");
+    mg->SetMaximum(YMax * 1.1);
+
+    TLegend *scatterLegend = new TLegend(0.1, 0.78, 0.3, 0.88);
+    scatterLegend->AddEntry(gSF6, "SF6_2x1.339g/cm3", "p");
+    scatterLegend->AddEntry(gC3F8, "C3F8_2x1.32g/cm3", "p");
+    scatterLegend->AddEntry(gCF4, "CF4_2x1.603g/cm3", "p");
+    scatterLegend->AddEntry(gPF5, "PF5", "p");
+    scatterLegend->AddEntry(gUF6, "UF6_2x3.630g/cm3", "p");
+    scatterLegend->AddEntry(gVacuum, "vacuum", "p");
+
+    TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Detector Length [25MeV beam]", 600, 500);
+    mg->SetTitle("#Useful photons (15-22MeV) per Primary Electron vs Detector Length;Detector Length (cm);#Useful photons per Primary Electron");
+    mg->Draw("AP");
+    mg->GetXaxis()->SetLimits(0, 110);
+    scatterLegend->Draw();
+    c3->Update();
+    c3->SaveAs("Photons_DetectorLength.png");
+}
 
 int main() {
     compare();

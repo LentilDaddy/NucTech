@@ -18,7 +18,7 @@
 // {}
 
 NucTechSteppingAction::NucTechSteppingAction()
-    : fV_hitEdep(), fV_hitPos(), fV_hitPDG(), fV_KineticEnergy(), fV_hitParentID()
+    : fV_hitEdep(), fV_hitPos(), fV_hitPDG(), fV_KineticEnergy()
 {}
 
 void NucTechSteppingAction::BeginOfEventAction() {
@@ -28,7 +28,7 @@ void NucTechSteppingAction::BeginOfEventAction() {
   // fV_hitTime.clear();
   fV_hitPDG.clear();
   fV_KineticEnergy.clear();
-  fV_hitParentID.clear();
+  // fV_hitParentID.clear();
 }
 
 void NucTechSteppingAction::EndOfEventAction() {
@@ -42,14 +42,19 @@ void NucTechSteppingAction::EndOfEventAction() {
   const G4float Edep_event =
       std::accumulate(fV_hitEdep.begin(), fV_hitEdep.end(), 0.);
 
+// // Fill the total event energy into the first ntuple ("EnergySpectrum")
+//   mgr->FillNtupleFColumn(1, 0, Edep_event / MeV);
+//   // mgr->FillNtupleDColumn(1, 1, fEdepDetector2 / MeV); // Assuming column 1 in ntuple 1
+//   // mgr->FillNtupleDColumn(1, 1, fFoilThickness / mm); // Assuming column 2 is for thickness
+//   // mgr->FillNtupleIColumn(1, 2, fPrimariesDetector1.size());
+//   mgr->AddNtupleRow(1);
+
 
   // Then record the individual hit energy and coordinates of this event
   for (std::size_t i = 0; i < fV_hitEdep.size(); i++) {
     // auto energy = fV_hitEdep[i] / MeV;
     auto position = fV_hitPos[i];
     G4float z = static_cast<G4float>(position.z() / cm);
-    G4float x = static_cast<G4float>(position.x() / cm);
-    G4float y = static_cast<G4float>(position.y() / cm);
     // auto time = fV_hitTime[i] / ns;
     auto kinEnergy = fV_KineticEnergy[i] / MeV;
     // auto momentum = fV_hitMomentum[i];
@@ -59,15 +64,13 @@ void NucTechSteppingAction::EndOfEventAction() {
     // mgr->FillNtupleDColumn(2, 2, position.y() / cm);
     // mgr->FillNtupleFColumn(2, 0, position.z() / cm);
     mgr->FillNtupleFColumn(1, 0, z);
-    mgr->FillNtupleFColumn(1, 1, x);
-    mgr->FillNtupleFColumn(1, 2, y);
     // mgr->FillNtupleDColumn(2, 2, momentum.x() / (MeV));
     // mgr->FillNtupleDColumn(2, 3, momentum.y() / (MeV));
     // mgr->FillNtupleDColumn(2, 2, momentum.z() / (MeV));
     // mgr->FillNtupleDColumn(2, 3, time / ns);
-    mgr->FillNtupleIColumn(1, 3, fV_hitPDG[i]); // Assuming column 5 is for PDG code
-    mgr->FillNtupleFColumn(1, 4, kinEnergy);
-    mgr->FillNtupleIColumn(1, 5, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
+    mgr->FillNtupleIColumn(1, 1, fV_hitPDG[i]); // Assuming column 5 is for PDG code
+    mgr->FillNtupleFColumn(1, 2, kinEnergy);
+    // mgr->FillNtupleIColumn(2, 6, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
     mgr->AddNtupleRow(1);
   }
 }
@@ -95,16 +98,9 @@ G4String motherName = (depth > 1 && touchable->GetVolume(1))
 
 if (currentName != "Detector1" &&
     currentName != "Detector2" &&
-    motherName != "Detector1" && currentName != "vacuumLayer"){
+    motherName != "Detector1"){
     return;
     }
-
-// if (currentName != "Detector1" &&
-//     currentName != "Detector2" &&
-//     motherName != "Detector1"){
-//     return;
-//     }
-
 
   // if (postStepPoint->GetPhysicalVolume()->GetName() != "Detector1" &&
   //     postStepPoint->GetPhysicalVolume()->GetName() != "Detector2")
@@ -140,7 +136,7 @@ if (currentName != "Detector1" &&
   const G4ParticleDefinition* pd = track->GetDefinition();
   // int pdgCode = track->GetDefinition()->GetPDGEncoding();
   int particleType = 2; // default: other
-  int ParentID = track->GetParentID();
+  // int ParentID = track->GetParentID();
 
   // fV_hitPDG.push_back(pdgCode);
 
@@ -150,6 +146,6 @@ if (currentName != "Detector1" &&
     particleType = 1;
   }
   fV_hitPDG.push_back(particleType);
-  fV_hitParentID.push_back(ParentID);
+  // fV_hitParentID.push_back(ParentID);
 
 }
