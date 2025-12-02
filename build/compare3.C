@@ -84,8 +84,8 @@ void compare3()
         TH2D *h = new TH2D(
             TString::Format("h2_%s", label.c_str()),
             TString::Format("Useful Photon Spread - %s", label.c_str()),
-            200, -15.0, 15.0,      // depth range
-            200, 15.0, 15.0       // energy range
+            300, 1.0, 21.0,      // depth range
+            150, 0.0, 15.0       // radius range
         );
         h->SetDirectory(nullptr);
 
@@ -93,12 +93,16 @@ void compare3()
         int pdg;
 
         t->SetBranchStatus("*", 0);
+        t->SetBranchStatus("HitX", 1);
+        t->SetBranchStatus("HitY", 1);
         t->SetBranchStatus("HitZ", 1);
+        t->SetBranchStatus("HitR", 1);
         t->SetBranchStatus("HitPDG", 1);
         t->SetBranchStatus("HitKineticEnergy", 1);
         t->SetBranchAddress("HitX", &x);
         t->SetBranchAddress("HitY", &y);
         t->SetBranchAddress("HitZ", &z);
+        t->SetBranchAddress("HitR", &r);
         t->SetBranchAddress("HitPDG", &pdg);
         t->SetBranchAddress("HitKineticEnergy", &kineticE);
 
@@ -106,14 +110,14 @@ void compare3()
         for (Long64_t j = 0; j < nentries; ++j) {
             t->GetEntry(j);
             if (pdg == 1 && kineticE >=15 && kineticE <=22)
-                h->Fill(x, y);
+                h->Fill(z, r);
         }
 
         c->cd(i+1);
         gPad->SetRightMargin(0.12);
         gPad->SetLogz();
-        h->GetXaxis()->SetTitle("x (cm)");
-        h->GetYaxis()->SetTitle("y (cm)");
+        h->GetXaxis()->SetTitle("Depth (cm)");
+        h->GetYaxis()->SetTitle("Radius (cm)");
         h->Draw("COLZ");
     }
 

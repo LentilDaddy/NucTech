@@ -100,12 +100,13 @@ C3F8->AddElement(elF, natoms=8);
   /***** Detector *****/
 
   G4double det_radius = 15. * cm;
-  G4double dzFoilPart = 9. * mm; // foil thickness
+  G4double dzFoilPart = 10. * mm; // foil thickness
   // G4double dzVacuum = 10. * mm;
   // G4double dzFoil = dzFoilPart + dzVacuum;
   G4double dzFoil = dzFoilPart;
-  G4double det_halfDepth = 10. * cm;
-  
+
+G4double det_halfDepth = 10. * cm;
+  G4int nSlices = 200;
 
 
   G4VSolid *det_solid =
@@ -135,6 +136,24 @@ C3F8->AddElement(elF, natoms=8);
   G4LogicalVolume *midLayer_log =
       new G4LogicalVolume(midLayerSolid, foil, "Detector2");
 
+
+
+  /***** Slices in detector *****/
+
+G4double sliceHalfThickness = 0.01 * mm;
+G4VSolid* sliceSolid = new G4Tubs("SliceSolid", 0.*cm, det_radius, sliceHalfThickness, 0.*deg, 360.*deg);
+
+G4LogicalVolume* sliceLogical =
+    new G4LogicalVolume(sliceSolid, medium, "SliceLogical");
+
+
+new G4PVReplica("SlicePhysical",   // name
+                sliceLogical,      // logical volume of slice
+                det_logical,       // mother volume (Detector1)
+                kZAxis,            // replicate along Z (the cylinder axis). kZAxis is predefined in G4PhysicalConstants.hh
+                nSlices,              // number of slices (Detector1 half-depth × 2 / 1 mm)
+                1.0 * mm);         // slice thickness
+
       /*Place the foil*/
   new G4PVPlacement(nullptr,                   // no rotation
 		    G4ThreeVector(0., 0., dzFoil/2 ), // at detector start
@@ -145,8 +164,6 @@ C3F8->AddElement(elF, natoms=8);
                     0,                         // copy number
                     checkOverlaps              // overlap checking
   );
-
-
 
   // G4VSolid *vacuumLayer =
   //   new G4Tubs("vacuumLayer", 0.*cm, det_radius, dzVacuum / 2, 0.*deg, 360.*deg);  
