@@ -90,7 +90,7 @@ void compare3()
         );
         h->SetDirectory(nullptr);
 
-        float_t z, kineticE;
+        float_t z, kineticE, r;
         int pdg;
 
         t->SetBranchStatus("*", 0);
