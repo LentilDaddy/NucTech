@@ -211,7 +211,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     // g28MeV->SetMarkerColor(kP10Yellow); g28MeV->SetMarkerStyle(24);
     g30MeV->SetMarkerColor(kP10Ash); g30MeV->SetMarkerStyle(25);
     g35MeV->SetMarkerColor(kP10Green);    g35MeV->SetMarkerStyle(26);
-    g40MeV->SetMarkerColor(kP10Orange);g40MeV->SetMarkerStyle(27);
+    g40MeV->SetMarkerColor(kP10Orange); g40MeV->SetMarkerStyle(27);
     g45MeV->SetMarkerColor(kP10Brown);  g45MeV->SetMarkerStyle(28);
     g50MeV->SetMarkerColor(kP10Gray);   g50MeV->SetMarkerStyle(29);
 
