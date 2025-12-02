@@ -99,11 +99,13 @@ C3F8->AddElement(elF, natoms=8);
 
   /***** Detector *****/
 
-  G4double det_radius = 5. * cm;
+  G4double det_radius = 15. * cm;
   G4double dzFoilPart = 9. * mm; // foil thickness
-  G4double dzVacuum = 10. * mm;
-  G4double dzFoil = dzFoilPart + dzVacuum;
-  G4double det_halfDepth = 5. * cm;
+  // G4double dzVacuum = 10. * mm;
+  // G4double dzFoil = dzFoilPart + dzVacuum;
+  G4double dzFoil = dzFoilPart;
+  G4double det_halfDepth = 10. * cm;
+  
 
 
   G4VSolid *det_solid =
@@ -146,27 +148,27 @@ C3F8->AddElement(elF, natoms=8);
 
 
 
-  G4VSolid *vacuumLayer =
-    new G4Tubs("vacuumLayer", 0.*cm, det_radius, dzVacuum / 2, 0.*deg, 360.*deg);  
+  // G4VSolid *vacuumLayer =
+  //   new G4Tubs("vacuumLayer", 0.*cm, det_radius, dzVacuum / 2, 0.*deg, 360.*deg);  
 
-  G4LogicalVolume *vacuumLayer_log =
-      new G4LogicalVolume(vacuumLayer, vacuum, "vacuumLayer");
+  // G4LogicalVolume *vacuumLayer_log =
+  //     new G4LogicalVolume(vacuumLayer, vacuum, "vacuumLayer");
 
-  std::cout << "Vacuum layer placed at z = " << dzFoil - 1.*mm - dzVacuum/2 << " mm" << std::endl;
-      /*Place the vacuum layer*/
-  new G4PVPlacement(nullptr,                   
-		    G4ThreeVector(0., 0., dzFoil - 4.*mm - dzVacuum/2 ), 
-                    vacuumLayer_log,              // its logical volume
-                    "vacuumLayer",               // name
-                    midLayer_log,               // mother is Detector 2 volume
-                    false,                     // not parameterized
-                    0,                         // copy number
-                    !checkOverlaps              // overlap checking
-  );
+  // std::cout << "Vacuum layer placed at z = " << dzFoil - 1.*mm - dzVacuum/2 << " mm" << std::endl;
+  //     /*Place the vacuum layer*/
+  // new G4PVPlacement(nullptr,                   
+	// 	    G4ThreeVector(0., 0., dzFoil - 4.*mm - dzVacuum/2 ), 
+  //                   vacuumLayer_log,              // its logical volume
+  //                   "vacuumLayer",               // name
+  //                   midLayer_log,               // mother is Detector 2 volume
+  //                   false,                     // not parameterized
+  //                   0,                         // copy number
+  //                   !checkOverlaps              // overlap checking
+  // );
 
   /***** Step limit *****/
 
-  G4double maxStep = .05 * mm; //changed from 0.05
+  G4double maxStep = .01 * mm; //changed from 0.05
   fStepLimit = new G4UserLimits(maxStep);
   det_logical->SetUserLimits(fStepLimit); //assigned to detector 1
   midLayer_log->SetUserLimits(fStepLimit); //assigned to detector 2 (the foil?)
