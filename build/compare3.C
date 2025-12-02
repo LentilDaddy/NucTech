@@ -55,7 +55,8 @@ void compare3()
     gROOT->SetBatch(kTRUE);
 
     // define mediums:
-    std::vector<std::string> Media = {"SF6", "PF5", "C3F8", "CF4"};
+    // std::vector<std::string> Media = {"SF6", "PF5", "C3F8", "CF4"};
+    std::vector<std::string> Media = {"SF6"};
 
     // create chains
     std::vector<std::pair<std::string, TChain*>> chains;
@@ -93,14 +94,14 @@ void compare3()
         int pdg;
 
         t->SetBranchStatus("*", 0);
-        t->SetBranchStatus("HitX", 1);
-        t->SetBranchStatus("HitY", 1);
+        // t->SetBranchStatus("HitX", 1);
+        // t->SetBranchStatus("HitY", 1);
         t->SetBranchStatus("HitZ", 1);
         t->SetBranchStatus("HitR", 1);
         t->SetBranchStatus("HitPDG", 1);
         t->SetBranchStatus("HitKineticEnergy", 1);
-        t->SetBranchAddress("HitX", &x);
-        t->SetBranchAddress("HitY", &y);
+        // t->SetBranchAddress("HitX", &x);
+        // t->SetBranchAddress("HitY", &y);
         t->SetBranchAddress("HitZ", &z);
         t->SetBranchAddress("HitR", &r);
         t->SetBranchAddress("HitPDG", &pdg);
