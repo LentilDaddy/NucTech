@@ -22,30 +22,30 @@ NucTechDetectorConstruction::~NucTechDetectorConstruction() {
   delete fStepLimit;
 }
 
-NucTechDetectorConstruction::NucTechDetectorConstruction()
-{
-// Create field builder
-G4FieldBuilder::Instance();
-// G4FieldBuilder::Instance()->SetVerboseLevel(2);
-}
+// NucTechDetectorConstruction::NucTechDetectorConstruction()
+// {
+// // Create field builder
+// G4FieldBuilder::Instance();
+// // G4FieldBuilder::Instance()->SetVerboseLevel(2);
+// }
 
 
 /*Next place a local magnetic field on the vacuum region*/
 
-void NucTechDetectorConstruction::ConstructSDandField()
-{
-// Create user detector field
-auto localMagField = new MagneticField();
+// void NucTechDetectorConstruction::ConstructSDandField()
+// {
+// // Create user detector field
+// auto localMagField = new MagneticField();
 
-// Set field to the field builder
-auto fieldBuilder = G4FieldBuilder::Instance();
-fieldBuilder->SetLocalField(localMagField, vacuumLayer_log);
+// // Set field to the field builder
+// auto fieldBuilder = G4FieldBuilder::Instance();
+// fieldBuilder->SetLocalField(localMagField, vacuumLayer_log);
 
 
-// Construct all Geant4 field objects
-fieldBuilder->ConstructFieldSetup();
+// // Construct all Geant4 field objects
+// fieldBuilder->ConstructFieldSetup();
 
-}
+// }
 
 
 G4VPhysicalVolume *NucTechDetectorConstruction::Construct() {
