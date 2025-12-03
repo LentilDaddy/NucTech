@@ -112,6 +112,7 @@ C3F8->AddElement(elF, natoms=8);
   G4double dzVacuum = 10. * mm;
   G4double dzFoil = dzFoilPart + dzVacuum;
   G4double det_halfDepth = 5. * cm;
+  G4int nSlices = 200;
 
 
   G4VSolid *det_solid =
