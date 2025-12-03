@@ -10,6 +10,7 @@
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
 #include "G4PVReplica.hh"
+#include "G4FieldBuilder.hh"
 
 
 
@@ -20,6 +21,32 @@ NucTechDetectorConstruction::NucTechDetectorConstruction()
 NucTechDetectorConstruction::~NucTechDetectorConstruction() {
   delete fStepLimit;
 }
+
+NucTechDetectorConstruction::NucTechDetectorConstruction()
+{
+// Create field builder
+G4FieldBuilder::Instance();
+// G4FieldBuilder::Instance()->SetVerboseLevel(2);
+}
+
+
+/*Next place a local magnetic field on the vacuum region*/
+
+void NucTechDetectorConstruction::ConstructSDandField()
+{
+// Create user detector field
+auto localMagField = new MagneticField();
+
+// Set field to the field builder
+auto fieldBuilder = G4FieldBuilder::Instance();
+fieldBuilder->SetLocalField(localMagField, vacuumLayer_log);
+
+
+// Construct all Geant4 field objects
+fieldBuilder->ConstructFieldSetup();
+
+}
+
 
 G4VPhysicalVolume *NucTechDetectorConstruction::Construct() {
   G4bool checkOverlaps = true;
@@ -64,25 +91,6 @@ C3F8->AddElement(elF, natoms=8);
   //G4Material *foil = nist->FindOrBuildMaterial("G4_Au");
   G4Material *foil = nist->FindOrBuildMaterial("G4_Cu"); //swap target to tungsten
   G4Material *medium = SF6;
-
-
-  // // Compute the mixture density as the mass-weighted sum:
-  // //   ρ_mix = f_Medium·ρ_w + f_Foil·ρ_Au
-  // const G4double f_Medium = 0.99;  // medium mass fraction
-  // const G4double f_Foil = 0.01; // foil mass fraction
-  // G4double density = f_Medium * medium->GetDensity() + f_Foil * foil->GetDensity(); //why combine this?
-  // // → density ≃ 0.9*1.0 + 0.1*19.3 ≃ 2.832 g/cm3
-
-  // // Create the new material as a two-component mixture
-  // G4Material *mediumFoilMix = new G4Material("MediumFoilMixture", // name
-  //                                           density, // density [g/cm3]
-  //                                           2);      // number of components
-
-  // // Add components by mass fraction
-  // mediumFoilMix->AddMaterial(medium, f_Medium);
-  // mediumFoilMix->AddMaterial(foil, f_Foil); //these aren't used 
-
-  // Definition of the volumes - experimental hall and phantom
 
   /***** Experimental hall *****/
 
@@ -152,7 +160,7 @@ C3F8->AddElement(elF, natoms=8);
   G4LogicalVolume *vacuumLayer_log =
       new G4LogicalVolume(vacuumLayer, vacuum, "vacuumLayer");
 
-  std::cout << "Vacuum layer placed at z = " << dzFoil - 1.*mm - dzVacuum/2 << " mm" << std::endl;
+
       /*Place the vacuum layer*/
   new G4PVPlacement(nullptr,                   
 		    G4ThreeVector(0., 0., dzFoil - 4.*mm - dzVacuum/2 ), 
@@ -164,13 +172,16 @@ C3F8->AddElement(elF, natoms=8);
                     !checkOverlaps              // overlap checking
   );
 
+
+
+
   /***** Step limit *****/
 
-  G4double maxStep = .05 * mm; //changed from 0.05
+  G4double maxStep = .01 * mm; //changed from 0.05
   fStepLimit = new G4UserLimits(maxStep);
   det_logical->SetUserLimits(fStepLimit); //assigned to detector 1
   midLayer_log->SetUserLimits(fStepLimit); //assigned to detector 2 (the foil?)
-  // sliceLogical->SetUserLimits(fStepLimit);
+  // sliceLogical->SetUserLimits(fStepLimit); //should this be applied to the slices?
 
   /***** Visualisation *****/
 
