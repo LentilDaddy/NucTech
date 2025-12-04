@@ -11,6 +11,10 @@
 #include "G4VisAttributes.hh"
 #include "G4PVReplica.hh"
 #include "G4FieldBuilder.hh"
+#include "G4FieldManager.hh"
+#include "G4UniformMagField.hh"
+#include "G4TransportationManager.hh"
+// #include "NucTechMagneticField.hh"
 
 
 
@@ -20,32 +24,14 @@ NucTechDetectorConstruction::NucTechDetectorConstruction()
 
 NucTechDetectorConstruction::~NucTechDetectorConstruction() {
   delete fStepLimit;
+
+
+  if (fMagneticField)
+  {
+    delete fMagneticField;
+    fMagneticField = nullptr;
+  }
 }
-
-// NucTechDetectorConstruction::NucTechDetectorConstruction()
-// {
-// // Create field builder
-// G4FieldBuilder::Instance();
-// // G4FieldBuilder::Instance()->SetVerboseLevel(2);
-// }
-
-
-/*Next place a local magnetic field on the vacuum region*/
-
-// void NucTechDetectorConstruction::ConstructSDandField()
-// {
-// // Create user detector field
-// auto localMagField = new MagneticField();
-
-// // Set field to the field builder
-// auto fieldBuilder = G4FieldBuilder::Instance();
-// fieldBuilder->SetLocalField(localMagField, vacuumLayer_log);
-
-
-// // Construct all Geant4 field objects
-// fieldBuilder->ConstructFieldSetup();
-
-// }
 
 
 G4VPhysicalVolume *NucTechDetectorConstruction::Construct() {
@@ -108,7 +94,7 @@ C3F8->AddElement(elF, natoms=8);
   /***** Detector *****/
 
   G4double det_radius = 5. * cm;
-  G4double dzFoilPart = 9. * mm; // foil thickness
+  G4double dzFoilPart = 10. * mm; // foil thickness
   G4double dzVacuum = 10. * mm;
   G4double dzFoil = dzFoilPart + dzVacuum;
   G4double det_halfDepth = 5. * cm;
@@ -193,6 +179,16 @@ new G4PVReplica("SlicePhysical",   // name
 
 
 
+  // --- local magnetic field attached to vacuumLayer_log ---
+  // Option A: uniform B-field (simple, recommended)
+  G4ThreeVector bVec(0., 1.5*tesla, 0.); // change vector/magnitude as needed
+  G4UniformMagField* uniformField = new G4UniformMagField(bVec);
+  G4FieldManager* vacFieldMgr = new G4FieldManager(uniformField);
+  vacFieldMgr->CreateChordFinder(uniformField);
+  vacuumLayer_log->SetFieldManager(vacFieldMgr, true);
+
+
+
 
   /***** Step limit *****/
 
@@ -218,3 +214,4 @@ new G4PVReplica("SlicePhysical",   // name
 
   return world_physical;
 }
+
