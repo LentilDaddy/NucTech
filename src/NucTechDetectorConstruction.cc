@@ -93,11 +93,11 @@ C3F8->AddElement(elF, natoms=8);
 
   /***** Detector *****/
 
-  G4double det_radius = 5. * cm;
+  G4double det_radius = 10. * cm;
   G4double dzFoilPart = 10. * mm; // foil thickness
   G4double dzVacuum = 10. * mm;
   G4double dzFoil = dzFoilPart + dzVacuum;
-  G4double det_halfDepth = 5. * cm;
+  G4double det_halfDepth = 10. * cm;
   G4int nSlices = 200;
 
 

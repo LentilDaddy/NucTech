@@ -55,7 +55,8 @@ void compare3()
     gROOT->SetBatch(kTRUE);
 
     // define mediums:
-    std::vector<std::string> Media = {"SF6", "PF5", "C3F8", "CF4"};
+    // std::vector<std::string> Media = {"SF6", "PF5", "C3F8", "CF4"};
+    std::vector<std::string> Media = {"SF6"};
 
     // create chains
     std::vector<std::pair<std::string, TChain*>> chains;
@@ -66,7 +67,7 @@ void compare3()
     }
 
     // create main canvas
-    TCanvas *c = new TCanvas("c", "Useful Photon Spread", 1400, 1400);
+    TCanvas *c = new TCanvas("c", "Primary Electron Spread", 1400, 1400);
     int N = chains.size();
     int rows = std::ceil(std::sqrt(N));
     int cols = std::ceil((double)N / rows);
@@ -83,41 +84,47 @@ void compare3()
 
         TH2D *h = new TH2D(
             TString::Format("h2_%s", label.c_str()),
-            TString::Format("Useful Photon Spread - %s", label.c_str()),
-            200, -15.0, 15.0,      // depth range
-            200, 15.0, 15.0       // energy range
+            TString::Format("Primary Electron Spread - %s", label.c_str()),
+            2000, 0.0, 20.0,      // depth range
+            1000, 0.0, 10.0       // radius range
         );
         h->SetDirectory(nullptr);
 
-        float_t z, kineticE;
+        float_t z, kineticE, r;
         int pdg;
 
         t->SetBranchStatus("*", 0);
+        // t->SetBranchStatus("HitX", 1);
+        // t->SetBranchStatus("HitY", 1);
         t->SetBranchStatus("HitZ", 1);
+        t->SetBranchStatus("HitR", 1);
         t->SetBranchStatus("HitPDG", 1);
+        t->SetBranchStatus("HitParentID", 1);
         t->SetBranchStatus("HitKineticEnergy", 1);
-        t->SetBranchAddress("HitX", &x);
-        t->SetBranchAddress("HitY", &y);
+        // t->SetBranchAddress("HitX", &x);
+        // t->SetBranchAddress("HitY", &y);
         t->SetBranchAddress("HitZ", &z);
+        t->SetBranchAddress("HitR", &r);
         t->SetBranchAddress("HitPDG", &pdg);
+        t->SetBranchAddress("HitParentID", &parentID);
         t->SetBranchAddress("HitKineticEnergy", &kineticE);
 
         Long64_t nentries = t->GetEntries();
         for (Long64_t j = 0; j < nentries; ++j) {
             t->GetEntry(j);
-            if (pdg == 1 && kineticE >=15 && kineticE <=22)
-                h->Fill(x, y);
+            if (pdg == 0 && )
+                h->Fill(z, r);
         }
 
         c->cd(i+1);
         gPad->SetRightMargin(0.12);
         gPad->SetLogz();
-        h->GetXaxis()->SetTitle("x (cm)");
-        h->GetYaxis()->SetTitle("y (cm)");
+        h->GetXaxis()->SetTitle("Depth (cm)");
+        h->GetYaxis()->SetTitle("Radius (cm)");
         h->Draw("COLZ");
     }
 
-    c->SaveAs("PhotonSpread.png");
+    c->SaveAs("PrimarySpread.png");
     // std::cout << "Saved: PhotonEnergy_Compare.png\n";
 }
 
