@@ -10,7 +10,7 @@
 #include "G4UserLimits.hh"
 #include "G4VisAttributes.hh"
 #include "G4PVReplica.hh"
-#include "G4FieldBuilder.hh"
+//#include "G4FieldBuilder.hh"
 #include "G4FieldManager.hh"
 #include "G4UniformMagField.hh"
 #include "G4TransportationManager.hh"
@@ -25,12 +25,6 @@ NucTechDetectorConstruction::NucTechDetectorConstruction()
 NucTechDetectorConstruction::~NucTechDetectorConstruction() {
   delete fStepLimit;
 
-
-  if (fMagneticField)
-  {
-    delete fMagneticField;
-    fMagneticField = nullptr;
-  }
 }
 
 

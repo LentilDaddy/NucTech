@@ -91,7 +91,7 @@ void compare3()
         h->SetDirectory(nullptr);
 
         float_t z, kineticE, r;
-        int pdg;
+        int pdg, parentID;
 
         t->SetBranchStatus("*", 0);
         // t->SetBranchStatus("HitX", 1);
@@ -112,7 +112,7 @@ void compare3()
         Long64_t nentries = t->GetEntries();
         for (Long64_t j = 0; j < nentries; ++j) {
             t->GetEntry(j);
-            if (pdg == 0 && )
+            if (pdg == 0 && parentID == 0)  // primary electron
                 h->Fill(z, r);
         }
 
