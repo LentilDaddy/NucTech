@@ -14,6 +14,7 @@ build/*
 !build/compare.C
 !build/compare2.C
 !build/compare3.C
+!build/compare4.C
 !build/submit.sh
 
 
