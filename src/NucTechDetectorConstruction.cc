@@ -126,7 +126,7 @@ C3F8->AddElement(elF, natoms=8);
 
   /***** Slices in detector *****/
 
-G4double sliceHalfThickness = 0.01 * mm;
+G4double sliceHalfThickness = 0.5 * mm;
 G4VSolid* sliceSolid = new G4Tubs("SliceSolid", 0.*cm, det_radius, sliceHalfThickness, 0.*deg, 360.*deg);
 
 G4LogicalVolume* sliceLogical =
