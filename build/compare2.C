@@ -84,8 +84,8 @@ void compare2()
         TH2D *h = new TH2D(
             TString::Format("h2_%s", label.c_str()),
             TString::Format("Energy vs Depth - %s", label.c_str()),
-            200, 0.9, 20,      // depth range
-            200, 0.5, 50       // energy range
+            2000, 0.9, 20.9,      // depth range
+            3000, 0, 30       // energy range
         );
         h->SetDirectory(nullptr);
 
