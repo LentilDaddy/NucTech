@@ -64,28 +64,43 @@ void compare()
 
     std::vector<std::pair<std::string, TChain*>> chains;
 
-    // Replace the separate energy and foil thickness vectors with specific pairs
-    std::vector<std::pair<std::string, std::string>> energyFoilPairs = {
-        {"20MeV", "4mm"},
-        {"25MeV", "6mm"},
-        {"30MeV", "9mm"},
-        {"35MeV", "12mm"},
-        {"40MeV", "11mm"},
-        {"45MeV", "11mm"},
-        {"50MeV", "13mm"}
-    };
+    // // Replace the separate energy and foil thickness vectors with specific pairs
+    // std::vector<std::pair<std::string, std::string>> energyFoilPairs = {
+    //     {"20MeV", "4mm"},
+    //     {"25MeV", "6mm"},
+    //     {"30MeV", "9mm"},
+    //     {"35MeV", "12mm"},
+    //     {"40MeV", "11mm"},
+    //     {"45MeV", "11mm"},
+    //     {"50MeV", "13mm"}
+    // };
 
-    std::vector<EnergyResult> results;
+    // std::vector<EnergyResult> results;
 
-    for (const auto &pair : energyFoilPairs) {
-        std::string energy = pair.first;
-        std::string foil = pair.second;
-        std::string label = energy + "_" + foil;
-        TChain *ch = new TChain("IndividualHits");
-        ch->Add(TString::Format("*_%s*_*%s*.root", foil.c_str(), energy.c_str()).Data());
-        chains.push_back({label, ch});
-    }
+    // for (const auto &pair : energyFoilPairs) {
+    //     std::string energy = pair.first;
+    //     std::string foil = pair.second;
+    //     std::string label = energy + "_" + foil;
+    //     TChain *ch = new TChain("IndividualHits");
+    //     ch->Add(TString::Format("*_%s*_*%s*.root", foil.c_str(), energy.c_str()).Data());
+    //     chains.push_back({label, ch});
+    // }
     
+
+    std::vector<std::string> foilThicknesses = {"3mm"};
+
+    std::vector<std::string> BFields = {"0.0T", "0.1T"};};
+
+    // create one TChain per (medium, energy) and add matching files immediately
+    for (const auto &m : foilThicknesses) {
+        for (const auto &e : BFields) {
+            std::string label = m + "_" + e; //does this mean it has to be in this order?
+            TChain *ch = new TChain("IndividualHits");
+            ch->Add(TString::Format("_%s_*%s*.root", m.c_str(), e.c_str()).Data());
+            chains.push_back({label, ch});
+        }
+    }
+
 
     //===============================
     // Decorations and setup
