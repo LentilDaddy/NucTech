@@ -159,6 +159,15 @@ for (size_t i = 0; i < chains.size(); i++) {
     std::cout<<"foil thickness is "<<foilThickness<<" mm"<<std::endl;
     // double integral = h->Integral(0, foilThickness/10);
     double integral = h->Integral(foilThickness/10, 15+foilThickness/10); //changed to 15 cm + foil thickness to ignore initial build up region
+
+    double integral1 = h->Integral(foilThickness/10, 1+foilThickness/10);
+    double integral2 = h->Integral(foilThickness/10, 2+foilThickness/10);
+    double integral3 = h->Integral(foilThickness/10, 3+foilThickness/10);
+    double integral4 = h->Integral(foilThickness/10, 4+foilThickness/10);
+    double integral5 = h->Integral(foilThickness/10, 5+foilThickness/10);
+    double integral10 = h->Integral(foilThickness/10, 10+foilThickness/10);
+    double integral15 = h->Integral(foilThickness/10, 15+foilThickness/10);
+    
     std::cout << "Integral for " << label << ": " << integral << std::endl;
 
     // h->SetLineColor(colors[i % nColors]); //colours dont matter here
@@ -173,6 +182,14 @@ for (size_t i = 0; i < chains.size(); i++) {
     /*this part gives the percentage of primary electrons that stopped in the foil*/
     results.push_back({label, energy, foilThickness, 100 * integral / 1e6}); //temprary change to test
 
+    stoppedPrimaries1.push_back(100 * integral1 / 1e6);
+    stoppedPrimaries2.push_back(100 * integral2 / 1e6);
+    stoppedPrimaries3.push_back(100 * integral3 / 1e6);
+    stoppedPrimaries4.push_back(100 * integral4 / 1e6);
+    stoppedPrimaries5.push_back(100 * integral5 / 1e6);
+    stoppedPrimaries10.push_back(100 * integral10 / 1e6);
+    stoppedPrimaries15.push_back(100 * integral15 / 1e6);
+
     // results.push_back({energyLabel, energy, foilThickness, 100* integral / 1e6}); //need to divide by 2e6 for 40 and 45MeV
 }
 
@@ -183,16 +200,19 @@ for (size_t i = 0; i < chains.size(); i++) {
     TGraph *gPrimary = new TGraph();
 
 
-    //this needs to be converted to double for the eneryg!!!!!
-    for (const auto& r : results) {
-        gPrimary->SetPoint(gPrimary->GetN(), 1, r.stoppedPrimaries); //we will need stoppedPrimaries1, 2, 3 etc
-        gPrimary->SetPoint(gPrimary->GetN(), 2, r.stoppedPrimaries);
-        gPrimary->SetPoint(gPrimary->GetN(), 3, r.stoppedPrimaries);
-        gPrimary->SetPoint(gPrimary->GetN(), 4, r.stoppedPrimaries);
-        gPrimary->SetPoint(gPrimary->GetN(), 5, r.stoppedPrimaries);
-        gPrimary->SetPoint(gPrimary->GetN(), 10, r.stoppedPrimaries);
-        gPrimary->SetPoint(gPrimary->GetN(), 15, r.stoppedPrimaries);
-    }  
+    // //this needs to be converted to double for the eneryg!!!!!
+    // for (const auto& r : results) {
+    //     gPrimary->SetPoint(gPrimary->GetN(), r.energy, r.stoppedPrimaries); //we will need stoppedPrimaries1, 2, 3 etc
+
+    // }  
+
+        gPrimary->SetPoint(gPrimary->GetN(), 1, stoppedPrimaries1); //we will need stoppedPrimaries1, 2, 3 etc
+        gPrimary->SetPoint(gPrimary->GetN(), 2, stoppedPrimaries2);
+        gPrimary->SetPoint(gPrimary->GetN(), 3, stoppedPrimaries3);
+        gPrimary->SetPoint(gPrimary->GetN(), 4, stoppedPrimaries4);
+        gPrimary->SetPoint(gPrimary->GetN(), 5, stoppedPrimaries5);
+        gPrimary->SetPoint(gPrimary->GetN(), 10, stoppedPrimaries10);
+        gPrimary->SetPoint(gPrimary->GetN(), 15, stoppedPrimaries15);
     
         //change this to accessible colour scheme ROOT
 
