@@ -185,7 +185,7 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     //this needs to be converted to double for the eneryg!!!!!
     for (const auto& r : results) {
-        gPrimary->SetPoint(gPrimary->GetN(), 1, r.stoppedPrimaries);
+        gPrimary->SetPoint(gPrimary->GetN(), 1, r.stoppedPrimaries); //we will need stoppedPrimaries1, 2, 3 etc
         gPrimary->SetPoint(gPrimary->GetN(), 2, r.stoppedPrimaries);
         gPrimary->SetPoint(gPrimary->GetN(), 3, r.stoppedPrimaries);
         gPrimary->SetPoint(gPrimary->GetN(), 4, r.stoppedPrimaries);
