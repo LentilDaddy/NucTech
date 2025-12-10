@@ -123,7 +123,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     TH1D *h = new TH1D(
         TString::Format("h_%zu", i),
         TString::Format("Depth Distribution of Stopped Primary Electrons"),
-        200, 0, 20      // depth range in cm
+        2000, 0, 20      // depth range in cm
     );
 
         // TH1D *h = new TH1D(TString::Format("h_%zu", i),
@@ -132,7 +132,7 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     h->SetDirectory(nullptr);
 
-    float_t z, kineticE;
+    float_t z, kineticE, r;
     Int_t pdg, parentID;
 
     // Branch optimization
@@ -142,6 +142,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     t->SetBranchStatus("HitKineticEnergy", 1);
     t->SetBranchStatus("HitParentID", 1);
     t->SetBranchAddress("HitZ", &z);
+    t->SetBranchAddress("HitR", &r);
     t->SetBranchAddress("HitPDG", &pdg);
     t->SetBranchAddress("HitKineticEnergy", &kineticE);
     t->SetBranchAddress("HitParentID", &parentID);
@@ -150,14 +151,14 @@ for (size_t i = 0; i < chains.size(); i++) {
     Long64_t nentries = t->GetEntries();
     for (Long64_t j = 0; j < nentries; ++j) {
         t->GetEntry(j);
-        if (pdg == 0 && parentID==0 && kineticE ==0) //to obtain all stopped primary electrons. Need a key for PRIMARY
+        if (pdg == 0 && parentID==0 && kineticE ==0 || pdg == 0 && parentID==0 && r==9.0) //to obtain all stopped and deflected primary electrons. Probably not the best method
             h->Fill(z);
     }
 
 
     std::cout<<"foil thickness is "<<foilThickness<<" mm"<<std::endl;
-    double integral = h->Integral(0, foilThickness/10);
-    // double integral = h->Integral(0, 20);
+    // double integral = h->Integral(0, foilThickness/10);
+    double integral = h->Integral(foilThickness/10, 15+foilThickness/10); //changed to 15 cm + foil thickness to ignore initial build up region
     std::cout << "Integral for " << label << ": " << integral << std::endl;
 
     // h->SetLineColor(colors[i % nColors]); //colours dont matter here
@@ -184,7 +185,13 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     //this needs to be converted to double for the eneryg!!!!!
     for (const auto& r : results) {
-        gPrimary->SetPoint(gPrimary->GetN(), r.energy, r.stoppedPrimaries);
+        gPrimary->SetPoint(gPrimary->GetN(), 1, r.stoppedPrimaries);
+        gPrimary->SetPoint(gPrimary->GetN(), 2, r.stoppedPrimaries);
+        gPrimary->SetPoint(gPrimary->GetN(), 3, r.stoppedPrimaries);
+        gPrimary->SetPoint(gPrimary->GetN(), 4, r.stoppedPrimaries);
+        gPrimary->SetPoint(gPrimary->GetN(), 5, r.stoppedPrimaries);
+        gPrimary->SetPoint(gPrimary->GetN(), 10, r.stoppedPrimaries);
+        gPrimary->SetPoint(gPrimary->GetN(), 15, r.stoppedPrimaries);
     }  
     
         //change this to accessible colour scheme ROOT
@@ -214,21 +221,21 @@ for (size_t i = 0; i < chains.size(); i++) {
     c3->SetLeftMargin(0.15);
 
 
-    mg->SetTitle("% Primary Electrons Stopped inside Foil for each Beam Energy and Corresponding Foil Thickness");
-    mg->GetXaxis()->SetTitle("Beam Energy (MeV)");
-    mg->GetYaxis()->SetTitle("% Primary Electrons Stopped");
+    mg->SetTitle("% Primary Electrons Deflected/stopped inside B field region against length of region");
+    mg->GetXaxis()->SetTitle("Length (cm)");
+    mg->GetYaxis()->SetTitle("% Primary Electrons Deflected/stopped");
     mg->GetXaxis()->SetTitleSize(0.05);
     mg->GetYaxis()->SetTitleSize(0.05);
     mg->GetXaxis()->SetLabelSize(0.04);
     mg->GetYaxis()->SetLabelSize(0.04);
 
     mg->Draw("AP");
-    mg->GetXaxis()->SetLimits(19, 51); //this was too low
+    mg->GetXaxis()->SetLimits(0, 20); //this was too low
     mg->GetYaxis()->SetRangeUser(0, 100);   // << FIXED
 
     c3->cd();
     c3->Update();
-    c3->SaveAs("PrimariesStopped.png");
+    c3->SaveAs("PrimariesDeflected.png");
 
 
 

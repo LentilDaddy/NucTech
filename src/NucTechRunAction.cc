@@ -48,8 +48,8 @@ void NucTechRunAction::BeginOfRunAction(const G4Run* /*run*/)
   // mgr->CreateNtupleDColumn("HitEdep");
 
   mgr->CreateNtupleFColumn("HitZ");
-  mgr->CreateNtupleFColumn("HitX"); //positions of each hit
-  mgr->CreateNtupleFColumn("HitY");
+  // mgr->CreateNtupleFColumn("HitX"); //positions of each hit
+  // mgr->CreateNtupleFColumn("HitY");
   mgr->CreateNtupleFColumn("HitR");
   // mgr->CreateNtupleDColumn("HitPx");
   // mgr->CreateNtupleDColumn("HitPy");

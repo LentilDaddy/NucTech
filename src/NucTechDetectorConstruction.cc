@@ -87,12 +87,12 @@ C3F8->AddElement(elF, natoms=8);
 
   /***** Detector *****/
 
-  G4double det_radius = 10. * cm;
-  G4double dzFoilPart = 10. * mm; // foil thickness
-  G4double dzVacuum = 10. * mm;
+  G4double det_radius = 9. * cm;
+  G4double dzFoilPart = 5. * mm; // foil thickness. 4mm of initial layer!
+  G4double dzVacuum = 150. * mm;
   G4double dzFoil = dzFoilPart + dzVacuum;
-  G4double det_halfDepth = 10. * cm;
-  G4int nSlices = 200;
+  G4double det_halfDepth = 5. * cm;
+  G4int nSlices = 100;
 
 
   G4VSolid *det_solid =
@@ -162,7 +162,7 @@ new G4PVReplica("SlicePhysical",   // name
 
       /*Place the vacuum layer*/
   new G4PVPlacement(nullptr,                   
-		    G4ThreeVector(0., 0., dzFoil - 4.*mm - dzVacuum/2 ), 
+		    G4ThreeVector(0., 0., dzFoil - 1.*mm - dzVacuum/2 ), //there is a thin layer of foil at end - eventually need to change this to stainless steel
                     vacuumLayer_log,              // its logical volume
                     "vacuumLayer",               // name
                     midLayer_log,               // mother is Detector 2 volume
@@ -175,7 +175,7 @@ new G4PVReplica("SlicePhysical",   // name
 
   // --- local magnetic field attached to vacuumLayer_log ---
   // Option A: uniform B-field (simple, recommended)
-  G4ThreeVector bVec(0., 1.5*tesla, 0.); // change vector/magnitude as needed
+  G4ThreeVector bVec(0., 0.1*tesla, 0.); // change vector/magnitude as needed
   G4UniformMagField* uniformField = new G4UniformMagField(bVec);
   G4FieldManager* vacFieldMgr = new G4FieldManager(uniformField);
   vacFieldMgr->CreateChordFinder(uniformField);
