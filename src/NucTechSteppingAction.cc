@@ -63,14 +63,14 @@ void NucTechSteppingAction::EndOfEventAction() {
     mgr->FillNtupleFColumn(1, 0, z);
     // mgr->FillNtupleFColumn(1, 1, x);
     // mgr->FillNtupleFColumn(1, 2, y);
-    mgr->FillNtupleFColumn(1, 3, r);
+    mgr->FillNtupleFColumn(1, 1, r);
     // mgr->FillNtupleDColumn(2, 2, momentum.x() / (MeV));
     // mgr->FillNtupleDColumn(2, 3, momentum.y() / (MeV));
     // mgr->FillNtupleDColumn(2, 2, momentum.z() / (MeV));
     // mgr->FillNtupleDColumn(2, 3, time / ns);
-    mgr->FillNtupleIColumn(1, 4, fV_hitPDG[i]); // Assuming column 5 is for PDG code
-    mgr->FillNtupleFColumn(1, 5, kinEnergy);
-    mgr->FillNtupleIColumn(1, 6, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
+    mgr->FillNtupleIColumn(1, 2, fV_hitPDG[i]); // Assuming column 5 is for PDG code
+    mgr->FillNtupleFColumn(1, 3, kinEnergy);
+    mgr->FillNtupleIColumn(1, 4, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
     mgr->AddNtupleRow(1);
   }
 }
@@ -98,7 +98,8 @@ G4String motherName = (depth > 1 && touchable->GetVolume(1))
 
 if (currentName != "Detector1" &&
     currentName != "Detector2" &&
-    motherName != "Detector1" && currentName != "vacuumLayer"){
+    motherName != "Detector1" && currentName != "vacuumLayer"
+  && currentName != "stainlessSteel"){
     return;
     }
 

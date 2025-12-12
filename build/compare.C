@@ -35,11 +35,18 @@ struct HistogramDecoration {
 };
 
 
+// struct EnergyResult {
+//     std::string energyLabel;
+//     double energy;
+//     double foilThickness;
+//     double stoppedPrimaries;
+// };
+
 struct EnergyResult {
-    std::string energyLabel;
-    double energy;
-    double foilThickness;
-    double stoppedPrimaries;
+    std::string BfieldLabel;
+    double vacuumLength;
+    double Bfield;
+    double electrons;
 };
 
 
@@ -64,39 +71,17 @@ void compare()
 
     std::vector<std::pair<std::string, TChain*>> chains;
 
-    // // Replace the separate energy and foil thickness vectors with specific pairs
-    // std::vector<std::pair<std::string, std::string>> energyFoilPairs = {
-    //     {"20MeV", "4mm"},
-    //     {"25MeV", "6mm"},
-    //     {"30MeV", "9mm"},
-    //     {"35MeV", "12mm"},
-    //     {"40MeV", "11mm"},
-    //     {"45MeV", "11mm"},
-    //     {"50MeV", "13mm"}
-    // };
+    std::vector<EnergyResult> results;
 
-    // std::vector<EnergyResult> results;
+    std::vector<std::string> vacuumLengths = {"1cm", "2cm", "3cm", "4cm", "5cm", "10cm", "15cm"};
 
-    // for (const auto &pair : energyFoilPairs) {
-    //     std::string energy = pair.first;
-    //     std::string foil = pair.second;
-    //     std::string label = energy + "_" + foil;
-    //     TChain *ch = new TChain("IndividualHits");
-    //     ch->Add(TString::Format("*_%s*_*%s*.root", foil.c_str(), energy.c_str()).Data());
-    //     chains.push_back({label, ch});
-    // }
-    
+    std::vector<std::string> BFields = {"0.0T", "0.1T"};;
 
-    std::vector<std::string> foilThicknesses = {"3mm"};
-
-    std::vector<std::string> BFields = {"0.0T", "0.1T"};};
-
-    // create one TChain per (medium, energy) and add matching files immediately
-    for (const auto &m : foilThicknesses) {
+    for (const auto &m : vacuumLengths) {
         for (const auto &e : BFields) {
             std::string label = m + "_" + e; //does this mean it has to be in this order?
             TChain *ch = new TChain("IndividualHits");
-            ch->Add(TString::Format("_%s_*%s*.root", m.c_str(), e.c_str()).Data());
+            ch->Add(TString::Format("*_%sVacuum*%s*.root", m.c_str(), e.c_str()).Data());
             chains.push_back({label, ch});
         }
     }
@@ -118,17 +103,19 @@ void compare()
 
 for (size_t i = 0; i < chains.size(); i++) {
     TChain *t = chains[i].second;
-
     std::string label = chains[i].first;
 
-    std::string energyLabel   = label.substr(0, label.find("_"));
-    std::string foilLabel     = label.substr(label.find("_") + 1);
+    // Parse label: vacuumLength_Bfield (e.g., "15cm_0.1T")
+    size_t lastUnderscore = label.rfind("_");
+    std::string vacuumLengthStr = label.substr(0, lastUnderscore);
+    std::string BfieldStr = label.substr(lastUnderscore + 1);
 
-    auto posE = energyLabel.find("MeV");
-    double energy = std::stod(energyLabel.substr(0, posE));
-    auto posF = foilLabel.find("mm");
-    double foilThickness = std::stod(foilLabel.substr(0, posF));
-
+    // Extract numeric values
+    auto posCm = vacuumLengthStr.find("cm");
+    double vacuumLength = std::stod(vacuumLengthStr.substr(0, posCm));
+    
+    auto posT = BfieldStr.find("T");
+    double Bfield = std::stod(BfieldStr.substr(0, posT));
 
     if (!t || t->GetEntries() == 0) {
         std::cout << "Warning: Chain " << label << " is empty!" << std::endl;
@@ -137,20 +124,14 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     TH1D *h = new TH1D(
         TString::Format("h_%zu", i),
-        TString::Format("Depth Distribution of Stopped Primary Electrons"),
-        2000, 0, 20      // depth range in cm
+        TString::Format("Depth Distribution of Electrons"),
+        2000, 0, 20
     );
-
-        // TH1D *h = new TH1D(TString::Format("h_%zu", i),
-
-        //                "Photon Depth", 100, Decoration.xMin, Decoration.xMax);
-
     h->SetDirectory(nullptr);
 
     float_t z, kineticE, r;
     Int_t pdg, parentID;
 
-    // Branch optimization
     t->SetBranchStatus("*", 0);
     t->SetBranchStatus("HitZ", 1);
     t->SetBranchStatus("HitPDG", 1);
@@ -162,103 +143,72 @@ for (size_t i = 0; i < chains.size(); i++) {
     t->SetBranchAddress("HitKineticEnergy", &kineticE);
     t->SetBranchAddress("HitParentID", &parentID);
 
-
     Long64_t nentries = t->GetEntries();
     for (Long64_t j = 0; j < nentries; ++j) {
         t->GetEntry(j);
-        if (pdg == 0 && parentID==0 && kineticE ==0 || pdg == 0 && parentID==0 && r==9.0) //to obtain all stopped and deflected primary electrons. Probably not the best method
+        if (pdg == 0) {
             h->Fill(z);
+        }
     }
 
-
-    std::cout<<"foil thickness is "<<foilThickness<<" mm"<<std::endl;
-    // double integral = h->Integral(0, foilThickness/10);
-    double integral = h->Integral(foilThickness/10, 15+foilThickness/10); //changed to 15 cm + foil thickness to ignore initial build up region
-
-    double integral1 = h->Integral(foilThickness/10, 1+foilThickness/10);
-    double integral2 = h->Integral(foilThickness/10, 2+foilThickness/10);
-    double integral3 = h->Integral(foilThickness/10, 3+foilThickness/10);
-    double integral4 = h->Integral(foilThickness/10, 4+foilThickness/10);
-    double integral5 = h->Integral(foilThickness/10, 5+foilThickness/10);
-    double integral10 = h->Integral(foilThickness/10, 10+foilThickness/10);
-    double integral15 = h->Integral(foilThickness/10, 15+foilThickness/10);
+    double foilThickness = 40.0;
+    double integral = h->Integral(foilThickness/10 + vacuumLength, foilThickness/10 + vacuumLength + 0.05);
     
     std::cout << "Integral for " << label << ": " << integral << std::endl;
-
-    // h->SetLineColor(colors[i % nColors]); //colours dont matter here
-    // h->SetLineWidth(Decoration.lineWidth);
-    // h->GetXaxis()->SetTitle(Decoration.xTitle);
-    // h->GetYaxis()->SetTitle(Decoration.yTitle);
 
     histos.push_back(h);
     legend->AddEntry(h, label.c_str(), "l");
 
-
-    /*this part gives the percentage of primary electrons that stopped in the foil*/
-    results.push_back({label, energy, foilThickness, 100 * integral / 1e6}); //temprary change to test
-
-    stoppedPrimaries1.push_back(100 * integral1 / 1e6);
-    stoppedPrimaries2.push_back(100 * integral2 / 1e6);
-    stoppedPrimaries3.push_back(100 * integral3 / 1e6);
-    stoppedPrimaries4.push_back(100 * integral4 / 1e6);
-    stoppedPrimaries5.push_back(100 * integral5 / 1e6);
-    stoppedPrimaries10.push_back(100 * integral10 / 1e6);
-    stoppedPrimaries15.push_back(100 * integral15 / 1e6);
-
-    // results.push_back({energyLabel, energy, foilThickness, 100* integral / 1e6}); //need to divide by 2e6 for 40 and 45MeV
+    results.push_back({BfieldStr, vacuumLength, Bfield, integral});
 }
 
     // //===============================
     // // Scatter plot of useful photons vs beam energy
     // //===============================
 
-    TGraph *gPrimary = new TGraph();
+    TGraph *gScatter_0T = new TGraph();
+    TGraph *gScatter_01T = new TGraph();
 
 
-    // //this needs to be converted to double for the eneryg!!!!!
-    // for (const auto& r : results) {
-    //     gPrimary->SetPoint(gPrimary->GetN(), r.energy, r.stoppedPrimaries); //we will need stoppedPrimaries1, 2, 3 etc
+    for (const auto& r : results) {
+        if (r.BfieldLabel == "0.0T") {
+            gScatter_0T->SetPoint(gScatter_0T->GetN(), r.vacuumLength, r.electrons);
+        } else if (r.BfieldLabel == "0.1T") {
+            gScatter_01T->SetPoint(gScatter_01T->GetN(), r.vacuumLength, r.electrons);
+        }
+    }  
 
-    // }  
-
-        gPrimary->SetPoint(gPrimary->GetN(), 1, stoppedPrimaries1); //we will need stoppedPrimaries1, 2, 3 etc
-        gPrimary->SetPoint(gPrimary->GetN(), 2, stoppedPrimaries2);
-        gPrimary->SetPoint(gPrimary->GetN(), 3, stoppedPrimaries3);
-        gPrimary->SetPoint(gPrimary->GetN(), 4, stoppedPrimaries4);
-        gPrimary->SetPoint(gPrimary->GetN(), 5, stoppedPrimaries5);
-        gPrimary->SetPoint(gPrimary->GetN(), 10, stoppedPrimaries10);
-        gPrimary->SetPoint(gPrimary->GetN(), 15, stoppedPrimaries15);
-    
-        //change this to accessible colour scheme ROOT
 
     // // Style graphs
-    gPrimary->SetMarkerColor(kRed);
-    gPrimary->SetMarkerStyle(21);
+    gScatter_0T->SetMarkerColor(kRed);
+    gScatter_0T->SetMarkerStyle(21);
 
-    //fix gPrimary y axis range to 100
+    gScatter_01T->SetMarkerColor(kBlue);
+    gScatter_01T->SetMarkerStyle(23);
 
-    gPrimary->SetMaximum(100);
-
-    double YMax = 100;
+    // Find maximum y value and add 10% padding
+    double maxY_0T = (gScatter_0T->GetN() > 0) ? gScatter_0T->GetHistogram()->GetMaximum() : 0;
+    double maxY_01T = (gScatter_01T->GetN() > 0) ? gScatter_01T->GetHistogram()->GetMaximum() : 0;
+    double YMax = std::max(maxY_0T, maxY_01T) * 1.1;  // Add 10% padding
 
     TMultiGraph *mg = new TMultiGraph();
-    mg->Add(gPrimary, "P");
+    mg->Add(gScatter_0T, "P");
+    mg->Add(gScatter_01T, "P");
 
     //Fix y axis range to 100
 
     mg->SetMinimum(0);
     mg->SetMaximum(YMax);
-    // mg->SetMaximum(YMax);
+ 
 
-
-    TCanvas *c3 = new TCanvas("c3", "Percentage Primary Electrons Stopped vs Beam Energy", 600, 500);
+    TCanvas *c3 = new TCanvas("c3", "#Electrons entering Stainless Steel Layer vs Bfield region Length", 600, 500);
     // c3->SetRightMargin(0.15);
     c3->SetLeftMargin(0.15);
 
 
-    mg->SetTitle("% Primary Electrons Deflected/stopped inside B field region against length of region");
+    mg->SetTitle("#Electrons entering Stainless Steel Layer against length of B field region");
     mg->GetXaxis()->SetTitle("Length (cm)");
-    mg->GetYaxis()->SetTitle("% Primary Electrons Deflected/stopped");
+    mg->GetYaxis()->SetTitle("#Electrons entering Stainless Steel Layer");
     mg->GetXaxis()->SetTitleSize(0.05);
     mg->GetYaxis()->SetTitleSize(0.05);
     mg->GetXaxis()->SetLabelSize(0.04);
@@ -266,15 +216,21 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     mg->Draw("AP");
     mg->GetXaxis()->SetLimits(0, 20); //this was too low
-    mg->GetYaxis()->SetRangeUser(0, 100);   // << FIXED
+    mg->GetYaxis()->SetRangeUser(0, YMax);   // << FIXED
+    TLegend *lgb = new TLegend(0.65, 0.75, 0.9, 0.9);
+    lgb->SetBorderSize(0);
+    lgb->SetFillStyle(0);
+    lgb->AddEntry(gScatter_0T, "B = 0.0 T", "P");
+    lgb->AddEntry(gScatter_01T, "B = 0.1 T", "P");
+    lgb->Draw();
 
     c3->cd();
     c3->Update();
-    c3->SaveAs("PrimariesDeflected.png");
+    c3->SaveAs("ElectronsSteel.png");
 
 
+}
 
-    }
 
 
 

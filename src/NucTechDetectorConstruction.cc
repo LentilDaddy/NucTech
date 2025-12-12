@@ -71,6 +71,7 @@ C3F8->AddElement(elF, natoms=8);
   //G4Material *foil = nist->FindOrBuildMaterial("G4_Au");
   G4Material *foil = nist->FindOrBuildMaterial("G4_Cu"); //swap target to tungsten
   G4Material *medium = SF6;
+  G4Material *Fe_Steel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
 
   /***** Experimental hall *****/
 
@@ -88,9 +89,10 @@ C3F8->AddElement(elF, natoms=8);
   /***** Detector *****/
 
   G4double det_radius = 9. * cm;
-  G4double dzFoilPart = 5. * mm; // foil thickness. 4mm of initial layer!
-  G4double dzVacuum = 150. * mm;
-  G4double dzFoil = dzFoilPart + dzVacuum;
+  // G4double dzFoilPart = 5. * mm; // foil thickness. 4mm of initial layer!
+  G4double dzVacuum = 15. * cm;
+  G4double dzFoil = 4*mm;
+  G4double dzSteel = 0.5*mm;
   G4double det_halfDepth = 5. * cm;
   G4int nSlices = 100;
 
@@ -105,7 +107,7 @@ C3F8->AddElement(elF, natoms=8);
    G4double &det_PosZ = det_halfDepth; // place it so no overlap with foil
 
   new G4PVPlacement(nullptr,                         // No rotation
-		    G4ThreeVector(0., 0., det_PosZ + dzFoil), // Translation (so no overlap with foil)
+		    G4ThreeVector(0., 0., det_PosZ + dzFoil + dzVacuum + dzSteel), // Translation (so no overlap with foil)
                     det_logical,                     // Logical volume
                     "Detector1",                     // Name
                     world_logical,                   // Mother volume
@@ -162,14 +164,40 @@ new G4PVReplica("SlicePhysical",   // name
 
       /*Place the vacuum layer*/
   new G4PVPlacement(nullptr,                   
-		    G4ThreeVector(0., 0., dzFoil - 1.*mm - dzVacuum/2 ), //there is a thin layer of foil at end - eventually need to change this to stainless steel
+		    G4ThreeVector(0., 0., dzFoil + dzVacuum/2 ), //there is a thin layer of foil at end - eventually need to change this to stainless steel
                     vacuumLayer_log,              // its logical volume
                     "vacuumLayer",               // name
-                    midLayer_log,               // mother is Detector 2 volume
+                    world_logical,               // mother is Detector 2 volume
                     false,                     // not parameterized
                     0,                         // copy number
                     !checkOverlaps              // overlap checking
   );
+
+
+
+
+  G4VSolid *stainlessSteel =
+    new G4Tubs("stainlessSteel", 0.*cm, det_radius, dzSteel / 2, 0.*deg, 360.*deg);  
+
+  G4LogicalVolume *stainlessSteel_log =
+      new G4LogicalVolume(stainlessSteel, Fe_Steel, "stainlessSteel");
+
+
+      /*Place the vacuum layer*/
+  new G4PVPlacement(nullptr,                   
+		    G4ThreeVector(0., 0., dzFoil + dzVacuum + dzSteel/2 ), //there is a thin layer of foil at end - eventually need to change this to stainless steel
+                    stainlessSteel_log,              // its logical volume
+                    "stainlessSteel",               // name
+                    world_logical,               // mother is Detector 2 volume
+                    false,                     // not parameterized
+                    0,                         // copy number
+                    !checkOverlaps              // overlap checking
+  );
+
+
+
+
+
 
 
 
