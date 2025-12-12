@@ -168,10 +168,10 @@ for (size_t i = 0; i < chains.size(); i++) {
     histos.push_back(h);
     legend->AddEntry(h, label.c_str(), "l");
 
-    //if energyLabel is 40MeV or 45MeV, divide integral by 2e6
-    if (energyLabel == "40MeV" || energyLabel == "45MeV") {
-        integral /= 2.0;
-    }
+    // //if energyLabel is 40MeV or 45MeV, divide integral by 2e6
+    // if (energyLabel == "40MeV" || energyLabel == "45MeV") {
+    //     integral /= 2.0;
+    // }
 
     results.push_back({energyLabel, energy, foilThickness, integral / 1e6}); //need to divide by 2e6 for 40 and 45MeV
 }
