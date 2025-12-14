@@ -75,7 +75,7 @@ void compare()
 
     std::vector<std::string> vacuumLengths = {"1cm", "2cm", "3cm", "4cm", "5cm", "10cm", "15cm"};
 
-    std::vector<std::string> BFields = {"0.0T", "0.1T"};;
+    std::vector<std::string> BFields = {"0.0T", "0.1T", "1.0T"};;
 
     for (const auto &m : vacuumLengths) {
         for (const auto &e : BFields) {
@@ -168,6 +168,7 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     TGraph *gScatter_0T = new TGraph();
     TGraph *gScatter_01T = new TGraph();
+    TGraph *gScatter_1T = new TGraph();
 
 
     for (const auto& r : results) {
@@ -175,6 +176,8 @@ for (size_t i = 0; i < chains.size(); i++) {
             gScatter_0T->SetPoint(gScatter_0T->GetN(), r.vacuumLength, r.electrons);
         } else if (r.BfieldLabel == "0.1T") {
             gScatter_01T->SetPoint(gScatter_01T->GetN(), r.vacuumLength, r.electrons);
+        } else if (r.BfieldLabel == "1.0T") {
+            gScatter_1T->SetPoint(gScatter_1T->GetN(), r.vacuumLength, r.electrons);
         }
     }  
 
@@ -186,14 +189,19 @@ for (size_t i = 0; i < chains.size(); i++) {
     gScatter_01T->SetMarkerColor(kBlue);
     gScatter_01T->SetMarkerStyle(23);
 
+    gScatter_1T->SetMarkerColor(kGreen+2);
+    gScatter_1T->SetMarkerStyle(22);
+
     // Find maximum y value and add 10% padding
     double maxY_0T = (gScatter_0T->GetN() > 0) ? gScatter_0T->GetHistogram()->GetMaximum() : 0;
     double maxY_01T = (gScatter_01T->GetN() > 0) ? gScatter_01T->GetHistogram()->GetMaximum() : 0;
-    double YMax = std::max(maxY_0T, maxY_01T) * 1.1;  // Add 10% padding
+    double maxY_1T = (gScatter_1T->GetN() > 0) ? gScatter_1T->GetHistogram()->GetMaximum() : 0;
+    double YMax = std::max(maxY_0T, maxY_01T, maxY_1T) * 1.1;  // Add 10% padding
 
     TMultiGraph *mg = new TMultiGraph();
     mg->Add(gScatter_0T, "P");
     mg->Add(gScatter_01T, "P");
+    mg->Add(gScatter_1T, "P");
 
     //Fix y axis range to 100
 
