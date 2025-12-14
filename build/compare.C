@@ -192,12 +192,15 @@ for (size_t i = 0; i < chains.size(); i++) {
     gScatter_1T->SetMarkerColor(kGreen+2);
     gScatter_1T->SetMarkerStyle(22);
 
-    // Find maximum y value and add 10% padding
-    double maxY_0T = (gScatter_0T->GetN() > 0) ? gScatter_0T->GetHistogram()->GetMaximum() : 0;
-    double maxY_01T = (gScatter_01T->GetN() > 0) ? gScatter_01T->GetHistogram()->GetMaximum() : 0;
-    double maxY_1T = (gScatter_1T->GetN() > 0) ? gScatter_1T->GetHistogram()->GetMaximum() : 0;
-    double YMax = std::max(maxY_0T, maxY_01T, maxY_1T) * 1.1;  // Add 10% padding
-
+    double YMax = -1e9;
+    for (auto g : {gScatter_01T, gScatter_1T, gScatter_0T}) {
+        int n = g->GetN(); //number of points in each graph
+        for (int i = 0; i < n; ++i) {
+            double x, y;
+            g->GetPoint(i, x, y);
+            if (y > YMax) YMax = y;
+        }
+    }
     TMultiGraph *mg = new TMultiGraph();
     mg->Add(gScatter_0T, "P");
     mg->Add(gScatter_01T, "P");
@@ -206,7 +209,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     //Fix y axis range to 100
 
     mg->SetMinimum(0);
-    mg->SetMaximum(YMax);
+    mg->SetMaximum(YMax*1.1);
  
 
     TCanvas *c3 = new TCanvas("c3", "#Electrons entering Stainless Steel Layer vs Bfield region Length", 600, 500);
@@ -224,12 +227,13 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     mg->Draw("AP");
     mg->GetXaxis()->SetLimits(0, 20); //this was too low
-    mg->GetYaxis()->SetRangeUser(0, YMax);   // << FIXED
+    mg->GetYaxis()->SetRangeUser(0, YMax*1.1);   // << FIXED
     TLegend *lgb = new TLegend(0.65, 0.75, 0.9, 0.9);
     lgb->SetBorderSize(0);
     lgb->SetFillStyle(0);
     lgb->AddEntry(gScatter_0T, "B = 0.0 T", "P");
     lgb->AddEntry(gScatter_01T, "B = 0.1 T", "P");
+    lgb->AddEntry(gScatter_1T, "B = 1.0 T", "P");
     lgb->Draw();
 
     c3->cd();
