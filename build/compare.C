@@ -151,7 +151,7 @@ for (size_t i = 0; i < chains.size(); i++) {
         }
     }
 
-    double foilThickness = 40.0;
+    double foilThickness = 4.0; //mm
     double integral = h->Integral(foilThickness/10 + vacuumLength, foilThickness/10 + vacuumLength + 0.05);
     
     std::cout << "Integral for " << label << ": " << integral << std::endl;
