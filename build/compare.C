@@ -65,12 +65,12 @@ void compare()
     std::vector<std::pair<std::string, TChain*>> chains;
 
     // std::vector<std::string> energies = {"20MeV", "22MeV", "25MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
-    std::vector<std::string> energies = {"20MeV"};
+    std::vector<std::string> energies = {"30MeV"};
     // std::vector<std::string> energies = {"25MeV", "50MeV"};
     // std::vector<std::string> energies = {"40MeV"};
 
     // std::vector<std::string> foilThicknesses = {"1mm","2mm","3mm","4mm","5mm","6mm","7mm","8mm","9mm","10mm", "11mm", "12mm", "13mm", "14mm", "15mm", "16mm", "17mm", "18mm", "19mm", "20mm", "21mm", "22mm"};
-    std::vector<std::string> foilThicknesses = {"4mm", "5mm"}; //test
+    std::vector<std::string> foilThicknesses = {"10mm"}; //test
 
     std::vector<EnergyResult> results;
 
