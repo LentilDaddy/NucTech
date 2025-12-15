@@ -228,7 +228,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     mg->Draw("AP");
     mg->GetXaxis()->SetLimits(0, 20); //this was too low
     mg->GetYaxis()->SetRangeUser(0, YMax*1.1);   // << FIXED
-    TLegend *lgb = new TLegend(0.65, 0.75, 0.9, 0.9);
+    TLegend *lgb = new TLegend(0.75, 0.75, 0.95, 0.95);
     lgb->SetBorderSize(0);
     lgb->SetFillStyle(0);
     lgb->AddEntry(gScatter_0T, "B = 0.0 T", "P");
