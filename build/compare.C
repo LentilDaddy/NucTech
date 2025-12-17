@@ -64,13 +64,13 @@ void compare()
 
     std::vector<std::pair<std::string, TChain*>> chains;
 
-    // std::vector<std::string> energies = {"20MeV", "22MeV", "25MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
-    std::vector<std::string> energies = {"30MeV"};
+    std::vector<std::string> energies = {"20MeV", "25MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
+    // std::vector<std::string> energies = {"30MeV"};
     // std::vector<std::string> energies = {"25MeV", "50MeV"};
     // std::vector<std::string> energies = {"40MeV"};
 
-    // std::vector<std::string> foilThicknesses = {"1mm","2mm","3mm","4mm","5mm","6mm","7mm","8mm","9mm","10mm", "11mm", "12mm", "13mm", "14mm", "15mm", "16mm", "17mm", "18mm", "19mm", "20mm", "21mm", "22mm"};
-    std::vector<std::string> foilThicknesses = {"10mm"}; //test
+    std::vector<std::string> foilThicknesses = {"1mm","2mm","3mm","4mm","5mm","6mm","7mm","8mm","9mm","10mm", "11mm", "12mm", "13mm", "14mm", "15mm", "16mm", "17mm", "18mm", "19mm", "20mm", "21mm", "22mm"};
+    // std::vector<std::string> foilThicknesses = {"10mm"}; //test
 
     std::vector<EnergyResult> results;
 
@@ -180,9 +180,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     // Scatter plot of useful photons vs beam energy
     //===============================
     TGraph *g20MeV = new TGraph();
-    TGraph *g22MeV = new TGraph();
     TGraph *g25MeV = new TGraph();
-    TGraph *g28MeV = new TGraph();
     TGraph *g30MeV = new TGraph();
     TGraph *g35MeV = new TGraph();
     TGraph *g40MeV = new TGraph();
@@ -193,9 +191,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     //this needs to be converted to double for the eneryg!!!!!
     for (const auto& r : results) {
         if (r.energyLabel == "20MeV")      g20MeV->SetPoint(g20MeV->GetN(), r.foilThickness, r.usefulPhotons);
-        else if (r.energyLabel == "22MeV") g22MeV->SetPoint(g22MeV->GetN(), r.foilThickness, r.usefulPhotons);
         else if (r.energyLabel == "25MeV") g25MeV->SetPoint(g25MeV->GetN(), r.foilThickness, r.usefulPhotons);
-        else if (r.energyLabel == "28MeV") g28MeV->SetPoint(g28MeV->GetN(), r.foilThickness, r.usefulPhotons);
         else if (r.energyLabel == "30MeV") g30MeV->SetPoint(g30MeV->GetN(), r.foilThickness, r.usefulPhotons);
         else if (r.energyLabel == "35MeV") g35MeV->SetPoint(g35MeV->GetN(), r.foilThickness, r.usefulPhotons);
         else if (r.energyLabel == "40MeV") g40MeV->SetPoint(g40MeV->GetN(), r.foilThickness, r.usefulPhotons);
@@ -206,9 +202,7 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     // Style graphs
     g20MeV->SetMarkerColor(kP10Red);   g20MeV->SetMarkerStyle(21);
-    // g22MeV->SetMarkerColor(kP10Cyan);   g22MeV->SetMarkerStyle(22);
     g25MeV->SetMarkerColor(kP10Cyan);  g25MeV->SetMarkerStyle(23);
-    // g28MeV->SetMarkerColor(kP10Yellow); g28MeV->SetMarkerStyle(24);
     g30MeV->SetMarkerColor(kP10Ash); g30MeV->SetMarkerStyle(25);
     g35MeV->SetMarkerColor(kP10Green);    g35MeV->SetMarkerStyle(26);
     g40MeV->SetMarkerColor(kP10Orange); g40MeV->SetMarkerStyle(27);
@@ -217,7 +211,7 @@ for (size_t i = 0; i < chains.size(); i++) {
 
 
     double YMax = -1e9;
-    for (auto g : {g20MeV, g22MeV, g25MeV, g28MeV, g30MeV, g35MeV, g40MeV, g45MeV, g50MeV}) {
+    for (auto g : {g20MeV, g25MeV, g30MeV, g35MeV, g40MeV, g45MeV, g50MeV}) {
         int n = g->GetN(); //number of points in each graph
         for (int i = 0; i < n; ++i) {
             double x, y;
@@ -228,9 +222,7 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     TMultiGraph *mg = new TMultiGraph();
     mg->Add(g20MeV, "P");
-    mg->Add(g22MeV, "P");
     mg->Add(g25MeV, "P");
-    mg->Add(g28MeV, "P");
     mg->Add(g30MeV, "P");
     mg->Add(g35MeV, "P");
     mg->Add(g40MeV, "P");
@@ -239,11 +231,9 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     mg->SetMaximum(YMax * 1.1);
 
-    TLegend *scatterLegend = new TLegend(0.15, 0.7, 0.35, 0.9);
+    TLegend *scatterLegend = new TLegend(0.75, 0.75, 0.95, 0.95);
     scatterLegend->AddEntry(g20MeV, "20MeV", "p");
-    // scatterLegend->AddEntry(g22MeV, "22MeV", "p");
     scatterLegend->AddEntry(g25MeV, "25MeV", "p");
-    // scatterLegend->AddEntry(g28MeV, "28MeV", "p");
     scatterLegend->AddEntry(g30MeV, "30MeV", "p");
     scatterLegend->AddEntry(g35MeV, "35MeV", "p");
     scatterLegend->AddEntry(g40MeV, "40MeV", "p");
@@ -281,9 +271,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     TMultiGraph *mg_Price = new TMultiGraph();
 
     TGraph *g20MeV_Price = new TGraph();
-    TGraph *g22MeV_Price = new TGraph();
     TGraph *g25MeV_Price = new TGraph();
-    TGraph *g28MeV_Price = new TGraph();
     TGraph *g30MeV_Price = new TGraph();
     TGraph *g35MeV_Price = new TGraph();
     TGraph *g40MeV_Price = new TGraph();
@@ -296,9 +284,7 @@ for (size_t i = 0; i < chains.size(); i++) {
         double denom = (r.usefulPhotons > 0.0) ? r.usefulPhotons : 1e-12;
         double cost = (r.energy * r.energy) / denom;
         if (r.energyLabel == "20MeV")      g20MeV_Price->SetPoint(g20MeV_Price->GetN(), r.foilThickness, cost);
-        else if (r.energyLabel == "22MeV") g22MeV_Price->SetPoint(g22MeV_Price->GetN(), r.foilThickness, cost);
         else if (r.energyLabel == "25MeV") g25MeV_Price->SetPoint(g25MeV_Price->GetN(), r.foilThickness, cost);
-        else if (r.energyLabel == "28MeV") g28MeV_Price->SetPoint(g28MeV_Price->GetN(), r.foilThickness, cost);
         else if (r.energyLabel == "30MeV") g30MeV_Price->SetPoint(g30MeV_Price->GetN(), r.foilThickness, cost);
         else if (r.energyLabel == "35MeV") g35MeV_Price->SetPoint(g35MeV_Price->GetN(), r.foilThickness, cost);
         else if (r.energyLabel == "40MeV") g40MeV_Price->SetPoint(g40MeV_Price->GetN(), r.foilThickness, cost);
@@ -309,7 +295,7 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     double YRightMax = -1e9;
     double YRightMin = 1e9;
-    for (auto g : {g20MeV_Price, g22MeV_Price, g25MeV_Price, g28MeV_Price, g30MeV_Price, g35MeV_Price, g40MeV_Price, g45MeV_Price, g50MeV_Price}) {
+    for (auto g : {g20MeV_Price, g25MeV_Price, g30MeV_Price, g35MeV_Price, g40MeV_Price, g45MeV_Price, g50MeV_Price}) {
         int n = g->GetN(); //number of points in each graph
         for (int i = 0; i < n; ++i) {
             double x, y;
@@ -342,11 +328,9 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     // TLegend *scatterLegend_Price = new TLegend(0.15, 0.7, 0.35, 0.9);
     //price legend shoudl be n top right
-    TLegend *scatterLegend_Price = new TLegend(0.65, 0.7, 0.85, 0.9);
+    TLegend *scatterLegend_Price = new TLegend(0.05, 0.75, 0.25, 0.95);
     scatterLegend_Price->AddEntry(g20MeV_Price, "20MeV", "p");
-    // scatterLegend_Price->AddEntry(g22MeV, "22MeV", "p");
     scatterLegend_Price->AddEntry(g25MeV_Price, "25MeV", "p");
-    // scatterLegend_Price->AddEntry(g28MeV, "28MeV", "p");
     scatterLegend_Price->AddEntry(g30MeV_Price, "30MeV", "p");
     scatterLegend_Price->AddEntry(g35MeV_Price, "35MeV", "p");
     scatterLegend_Price->AddEntry(g40MeV_Price, "40MeV", "p");
