@@ -57,20 +57,35 @@ void compare()
     // Define TChains for each medium
     //===============================
 
-    std::vector<std::pair<std::string, TChain*>> chains;
+    std::vector<std::tuple<std::string, TChain*, double>> chains;
 
     // std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "PF5", "UF6", "Vacuum"};
     std::vector<std::string> mediums = {"SF6"};
-    std::vector<std::string> energies = {"20MeV", "25MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
+    // std::vector<std::string> energies = {"20MeV", "25MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
+
+    //vector pairs fr energy and foil thicknesses:
+
+    std::vector<std::pair<std::string, double>> energyFoilPairs = {
+        {"20MeV", 3},
+        {"25MeV", 3},
+        {"30MeV", 4},
+        {"35MeV", 6},
+        {"40MeV", 6},
+        {"45MeV", 8},
+        {"50MeV", 10}
+    };
+
     // std::vector<std::string> energies = {"30MeV"};
 
     // create one TChain per (medium, energy) and add matching files immediately
     for (const auto &m : mediums) {
-        for (const auto &e : energies) {
+        for (const auto &pair : energyFoilPairs) {
+            std::string e = pair.first;
+            double foilThickness = pair.second;
             std::string label = m + "_" + e; //does this mean it has to be in this order?
             TChain *ch = new TChain("IndividualHits");
             ch->Add(TString::Format("%s_*%s_*.root", m.c_str(), e.c_str()).Data());
-            chains.push_back({label, ch});
+            chains.push_back(std::make_tuple(label, ch, foilThickness));
         }
     }
     
@@ -82,9 +97,9 @@ void compare()
        1, kBlack, "Depth (cm)", "#photons in range 15-22 MeV", nullptr, 0., 100., 0., 0.
     };
 
-    HistogramDecoration photonDecoration = {
-       1, kBlack, "Depth (cm)", "Photon Energy (MeV)", nullptr, 0., 100., 0., 0.
-    };
+    // HistogramDecoration photonDecoration = {
+    //    1, kBlack, "Depth (cm)", "Photon Energy (MeV)", nullptr, 0., 100., 0., 0.
+    // };
 
     int colors[] = {kRed, kSpring+5, kBlack, kMagenta+2, kViolet-2, kBlue-7,
                     kAzure-1, kCyan, kTeal+10, kGreen+3, kYellow, kGray,
@@ -96,13 +111,18 @@ void compare()
     c1->cd();
 
     std::vector<TH1D*> histos;
-    std::vector<TH2D*> h2_histos;
+    // std::vector<TH2D*> h2_histos;
     std::vector<double> usefulPhotonIntegrals;
     // double globalMax = 0.0;
 
 for (size_t i = 0; i < chains.size(); i++) {
-    TChain *t = chains[i].second;
-    std::string label = chains[i].first;
+    // TChain *t = chains[i].second;
+    // std::string label = chains[i].first;
+
+    // double foilThickness = chains[i].third;
+    // // auto [label, t, foilThickness] = chains[i];  // Declare foilThickness here by unpacking the tuple
+
+    auto [label, t, foilThickness] = chains[i];
 
     if (!t || t->GetEntries() == 0) {
         std::cout << "Warning: Chain " << label << " is empty!" << std::endl;
@@ -110,13 +130,16 @@ for (size_t i = 0; i < chains.size(); i++) {
     }
 
     TH1D *h = new TH1D(TString::Format("h_thread_%zu", i),
-                       "Photon Depth", 100, Decoration.xMin, Decoration.xMax);
-    TH2D *h2 = new TH2D(TString::Format("h2_thread_%zu", i),
-                        "Photon Energy vs Depth", 100, photonDecoration.xMin, photonDecoration.xMax, 200, 0, 50);
+                       "Photon Depth", 2000, Decoration.xMin, Decoration.xMax); 
+    
+
+
+    // TH2D *h2 = new TH2D(TString::Format("h2_thread_%zu", i),
+    //                     "Photon Energy vs Depth", 100, photonDecoration.xMin, photonDecoration.xMax, 200, 0, 50);
 
     // Disable global ROOT directory writing for safety
     h->SetDirectory(nullptr);
-    h2->SetDirectory(nullptr);
+    // h2->SetDirectory(nullptr);
 
     Float_t z, kineticE;
     Int_t pdg;
@@ -129,11 +152,12 @@ for (size_t i = 0; i < chains.size(); i++) {
         t->GetEntry(j);
         if (pdg == 1 && kineticE > 15 && kineticE < 22)
             h->Fill(z);
-        if (pdg == 1 && kineticE > 0)
-            h2->Fill(z, kineticE);
+        // if (pdg == 1 && kineticE > 0)
+        //     h2->Fill(z, kineticE);
     }
 
-    double integral = h->Integral(0, 100);
+
+    double integral = h->Integral(foilThickness/10, 20 + foilThickness/10);
 
     {
         h->SetLineColor(colors[i % nColors]);
@@ -142,7 +166,7 @@ for (size_t i = 0; i < chains.size(); i++) {
         h->GetYaxis()->SetTitle(Decoration.yTitle);
 
         histos.push_back(h);
-        h2_histos.push_back(h2);
+        // h2_histos.push_back(h2);
         usefulPhotonIntegrals.push_back(integral);
         legend->AddEntry(h, label.c_str(), "l");
     }
@@ -161,7 +185,8 @@ for (size_t i = 0; i < chains.size(); i++) {
     int idxSF6=0, idxC3F8=0, idxCF4=0, idxPF5=0, idxUF6=0, idxVacuum=0;
 
     for (size_t i=0; i<chains.size(); i++) {
-        std::string label = chains[i].first;
+        // std::string label = chains[i].first;
+        auto [label, _, __] = chains[i]; 
         double beamEnergy = 0.0;
 
 
