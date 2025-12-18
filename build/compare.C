@@ -131,7 +131,8 @@ for (size_t i = 0; i < chains.size(); i++) {
     }
 
     TH1D *h = new TH1D(TString::Format("h_thread_%zu", i),
-                       "Photon Depth", 2000, Decoration.xMin, Decoration.xMax);
+                       "Photon Depth", 1000, Decoration.xMin, Decoration.xMax);
+                       //does not work with 2000 bins! How many should I try?
     h->SetDirectory(nullptr);
 
     float_t z, kineticE;
