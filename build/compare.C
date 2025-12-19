@@ -122,11 +122,15 @@ for (size_t i = 0; i < chains.size(); i++) {
         continue;
     }
 
+    double foilThickness = 4.0; //mm
+
     TH1D *h = new TH1D(
         TString::Format("h_%zu", i),
         TString::Format("Depth Distribution of Electrons"),
-        2000, 0, 20
+        (foilThickness + vacuumLength*10 + 0.5)*10, 0, (foilThickness + vacuumLength*10 + 0.5)/10
     );
+
+    //0.1mm bins. Range is from 0 to end of steel layer
     h->SetDirectory(nullptr);
 
     float_t z, kineticE, r;
@@ -151,7 +155,7 @@ for (size_t i = 0; i < chains.size(); i++) {
         }
     }
 
-    double foilThickness = 4.0; //mm
+    // double foilThickness = 4.0; //mm
     double integral = h->Integral(foilThickness/10 + vacuumLength, foilThickness/10 + vacuumLength + 0.05);
     
     std::cout << "Integral for " << label << ": " << integral << std::endl;
