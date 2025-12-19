@@ -90,7 +90,7 @@ void compare()
     //===============================
     HistogramDecoration Decoration = {
        1, kP10Brown, "Depth (cm)", "#photons in range 15-22 MeV", nullptr, 0., 100., 0., 0.
-    };
+    }; //NEED TO CHANGE RANGE IF USING DIFFERENT SIZE DETECTOR ETC
 
     int colors[] = {kP10Red, kP10Cyan, kP10Ash, kP10Green, kP10Orange, kP10Brown, kP10Violet, kP10Gray,
                     kP10Yellow, kP10Blue};
@@ -131,8 +131,8 @@ for (size_t i = 0; i < chains.size(); i++) {
     }
 
     TH1D *h = new TH1D(TString::Format("h_thread_%zu", i),
-                       "Photon Depth", 200+foilThickness, Decoration.xMin, Decoration.xMax);
-                       //does not work with 2000 bins! How many should I try?
+                       "Photon Depth", 2000, foilThickness/10, 20 + foilThickness/10);
+                       //this is 1mm bins.
     h->SetDirectory(nullptr);
 
     float_t z, kineticE;
