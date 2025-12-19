@@ -59,8 +59,8 @@ void compare()
 
     std::vector<std::tuple<std::string, TChain*, double>> chains;
 
-    // std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "PF5", "UF6", "Vacuum"};
-    std::vector<std::string> mediums = {"SF6"};
+    std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "PF5", "UF6", "Vacuum"};
+    // std::vector<std::string> mediums = {"SF6"};
     // std::vector<std::string> energies = {"20MeV", "25MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
 
     //vector pairs fr energy and foil thicknesses:
@@ -95,7 +95,7 @@ void compare()
     //===============================
     HistogramDecoration Decoration = {
        1, kBlack, "Depth (cm)", "#photons in range 15-22 MeV", nullptr, 0., 100., 0., 0.
-    };
+    }; //do not use this range
 
     // HistogramDecoration photonDecoration = {
     //    1, kBlack, "Depth (cm)", "Photon Energy (MeV)", nullptr, 0., 100., 0., 0.
@@ -130,8 +130,8 @@ for (size_t i = 0; i < chains.size(); i++) {
     }
 
     TH1D *h = new TH1D(TString::Format("h_thread_%zu", i),
-                       "Photon Depth", 200+foilThickness, Decoration.xMin, Decoration.xMax); 
-    
+                       "Photon Depth", 2000, foilThickness/10, 20 + foilThickness/10); 
+    //1mm bins. May or may not be optimal
 
 
     // TH2D *h2 = new TH2D(TString::Format("h2_thread_%zu", i),
