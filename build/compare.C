@@ -124,11 +124,22 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     double foilThickness = 4.0; //mm
 
+    // TH1D *h = new TH1D(
+    //     TString::Format("h_%zu", i),
+    //     TString::Format("Depth Distribution of Electrons"),
+    //     (foilThickness + vacuumLength*10 + 0.5)*10, 0, (foilThickness + vacuumLength*10 + 0.5)/10
+    // );
+
     TH1D *h = new TH1D(
         TString::Format("h_%zu", i),
         TString::Format("Depth Distribution of Electrons"),
-        (foilThickness + vacuumLength*10 + 0.5)*10, 0, (foilThickness + vacuumLength*10 + 0.5)/10
+        5, foilThickness/10 + vacuumLength, foilThickness/10 + vacuumLength + 0.05
     );
+
+
+    //maybe just do range over steel part instead. So foil + vacuum length to foil + vacuum length + steel thickness
+
+
 
     //0.1mm bins. Range is from 0 to end of steel layer
     h->SetDirectory(nullptr);
@@ -156,7 +167,8 @@ for (size_t i = 0; i < chains.size(); i++) {
     }
 
     // double foilThickness = 4.0; //mm
-    double integral = h->Integral(foilThickness/10 + vacuumLength, foilThickness/10 + vacuumLength + 0.05);
+    // double integral = h->Integral(foilThickness/10 + vacuumLength, foilThickness/10 + vacuumLength + 0.05);
+    double integral = h->Integral();
     
     std::cout << "Integral for " << label << ": " << integral << std::endl;
 
