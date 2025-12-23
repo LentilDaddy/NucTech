@@ -131,7 +131,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     }
 
     TH1D *h = new TH1D(TString::Format("h_thread_%zu", i),
-                       "Photon Depth", 2000, foilThickness/10, 20 + foilThickness/10);
+                       "Photon Depth", 200, foilThickness/10, 20 + foilThickness/10);
                        //this is 1mm bins.
     h->SetDirectory(nullptr);
 
