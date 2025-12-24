@@ -157,7 +157,8 @@ for (size_t i = 0; i < chains.size(); i++) {
     }
 
 
-    double integral = h->Integral(foilThickness/10, 20 + foilThickness/10);
+    // double integral = h->Integral(foilThickness/10, 20 + foilThickness/10);
+    double integral = h->Integral(); //since the x range is already adjusted
 
     {
         h->SetLineColor(colors[i % nColors]);
