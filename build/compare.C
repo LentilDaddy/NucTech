@@ -128,20 +128,17 @@ for (size_t i = 0; i < chains.size(); i++) {
     //     TString::Format("h_%zu", i),
     //     TString::Format("Depth Distribution of Electrons"),
     //     (foilThickness + vacuumLength*10 + 0.5)*10, 0, (foilThickness + vacuumLength*10 + 0.5)/10
-    // );
+    // ); //0.1mm bin size
 
     TH1D *h = new TH1D(
         TString::Format("h_%zu", i),
         TString::Format("Depth Distribution of Electrons"),
-        5, foilThickness/10 + vacuumLength, foilThickness/10 + vacuumLength + 0.05
-    );
+        1, foilThickness/10 + vacuumLength, foilThickness/10 + vacuumLength + 0.05
+    ); //0.5mm bin size
 
 
     //maybe just do range over steel part instead. So foil + vacuum length to foil + vacuum length + steel thickness
 
-
-
-    //0.1mm bins. Range is from 0 to end of steel layer
     h->SetDirectory(nullptr);
 
     float_t z, kineticE, r;
