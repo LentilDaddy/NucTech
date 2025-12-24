@@ -167,7 +167,7 @@ for (size_t i = 0; i < chains.size(); i++) {
 
         histos.push_back(h);
         // h2_histos.push_back(h2);
-        usefulPhotonIntegrals.push_back(integral);
+        usefulPhotonIntegrals.push_back(integral/10e6); //per electron
         legend->AddEntry(h, label.c_str(), "l");
     }
 }
@@ -252,7 +252,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     scatterLegend->AddEntry(gVacuum, "Vacuum", "p");
 
     TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Beam Energy", 600, 500);
-    mg->SetTitle("#Useful photons (15-22MeV) vs beam energy;Beam energy (MeV);#Useful photons");
+    mg->SetTitle("#Useful photons (15-22MeV) per Primary Electron vs beam energy;Beam energy (MeV);#Useful photons per Primary Electron");
     mg->Draw("AP");
     mg->GetXaxis()->SetLimits(19, 51);
     scatterLegend->Draw();
