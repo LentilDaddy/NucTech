@@ -68,11 +68,11 @@ void compare()
     std::vector<std::pair<std::string, double>> energyFoilPairs = {
         {"20MeV", 3},
         {"25MeV", 3},
-        {"30MeV", 4},
-        {"35MeV", 6},
-        {"40MeV", 6},
-        {"45MeV", 8},
-        {"50MeV", 10}
+        {"30MeV", 6},
+        {"35MeV", 10},
+        {"40MeV", 10},
+        {"45MeV", 12},
+        {"50MeV", 12}
     };
 
     // std::vector<std::string> energies = {"30MeV"};
