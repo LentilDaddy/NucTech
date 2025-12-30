@@ -59,9 +59,9 @@ void compare()
 
     std::vector<std::tuple<std::string, TChain*, double>> chains;
 
-    // std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "PF5", "UF6", "Vacuum"};
-    std::vector<std::string> mediums = {"SF6", "C3F8"};
-    // std::vector<std::string> energies = {"20MeV", "25MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
+    std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "UF6", "vacuum"};
+    // std::vector<std::string> mediums = {"SF6", "C3F8"};
+    std::vector<std::string> energies = {"20MeV", "25MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
 
     //vector pairs fr energy and foil thicknesses:
 
