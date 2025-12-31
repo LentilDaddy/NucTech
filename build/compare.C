@@ -212,7 +212,7 @@ for (size_t i = 0; i < chains.size(); i++) {
             gPF5->SetPoint(idxPF5++, beamEnergy, usefulPhotons);
         else if (label.find("UF6") != std::string::npos)
             gUF6->SetPoint(idxUF6++, beamEnergy, usefulPhotons);
-        else if (label.find("Vacuum") != std::string::npos)
+        else if (label.find("vacuum") != std::string::npos)
             gVacuum->SetPoint(idxVacuum++, beamEnergy, usefulPhotons);
     }
 
