@@ -116,61 +116,45 @@ void compare()
     // double globalMax = 0.0;
 
 for (size_t i = 0; i < chains.size(); i++) {
-    // TChain *t = chains[i].second;
-    // std::string label = chains[i].first;
-
-    // double foilThickness = chains[i].third;
-    // // auto [label, t, foilThickness] = chains[i];  // Declare foilThickness here by unpacking the tuple
-
     auto [label, t, foilThickness] = chains[i];
+
+    double integral = 0.0; // Initialize to 0
 
     if (!t || t->GetEntries() == 0) {
         std::cout << "Warning: Chain " << label << " is empty!" << std::endl;
-        continue;
-    }
+    } else {
+        TH1D *h = new TH1D(TString::Format("h_thread_%zu", i),
+                           "Photon Depth", 200, foilThickness/10, 20 + foilThickness/10); 
+        //1mm bins. May or may not be optimal
 
-    TH1D *h = new TH1D(TString::Format("h_thread_%zu", i),
-                       "Photon Depth", 200, foilThickness/10, 20 + foilThickness/10); 
-    //1mm bins. May or may not be optimal
+        // Disable global ROOT directory writing for safety
+        h->SetDirectory(nullptr);
 
+        Float_t z, kineticE;
+        Int_t pdg;
+        t->SetBranchAddress("HitZ", &z);
+        t->SetBranchAddress("HitPDG", &pdg);
+        t->SetBranchAddress("HitKineticEnergy", &kineticE);
 
-    // TH2D *h2 = new TH2D(TString::Format("h2_thread_%zu", i),
-    //                     "Photon Energy vs Depth", 100, photonDecoration.xMin, photonDecoration.xMax, 200, 0, 50);
+        Long64_t nentries = t->GetEntries();
+        for (Long64_t j = 0; j < nentries; ++j) {
+            t->GetEntry(j);
+            if (pdg == 1 && kineticE > 15 && kineticE < 22)
+                h->Fill(z);
+        }
 
-    // Disable global ROOT directory writing for safety
-    h->SetDirectory(nullptr);
-    // h2->SetDirectory(nullptr);
+        integral = h->Integral(); //since the x range is already adjusted
 
-    Float_t z, kineticE;
-    Int_t pdg;
-    t->SetBranchAddress("HitZ", &z);
-    t->SetBranchAddress("HitPDG", &pdg);
-    t->SetBranchAddress("HitKineticEnergy", &kineticE);
-
-    Long64_t nentries = t->GetEntries();
-    for (Long64_t j = 0; j < nentries; ++j) {
-        t->GetEntry(j);
-        if (pdg == 1 && kineticE > 15 && kineticE < 22)
-            h->Fill(z);
-        // if (pdg == 1 && kineticE > 0)
-        //     h2->Fill(z, kineticE);
-    }
-
-
-    // double integral = h->Integral(foilThickness/10, 20 + foilThickness/10);
-    double integral = h->Integral(); //since the x range is already adjusted
-
-    {
         h->SetLineColor(colors[i % nColors]);
         h->SetLineWidth(Decoration.lineWidth);
         h->GetXaxis()->SetTitle(Decoration.xTitle);
         h->GetYaxis()->SetTitle(Decoration.yTitle);
 
         histos.push_back(h);
-        // h2_histos.push_back(h2);
-        usefulPhotonIntegrals.push_back(integral/10e6); //per electron
         legend->AddEntry(h, label.c_str(), "l");
     }
+
+    usefulPhotonIntegrals.push_back(integral / 10e6); // Always push, even if 0
 }
 
     //===============================
