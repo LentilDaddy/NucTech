@@ -73,7 +73,7 @@ void compare()
 
     std::vector<EnergyResult> results;
 
-    std::vector<std::string> vacuumLengths = {"1cm", "2cm", "3cm", "4cm", "5cm", "10cm", "15cm"};
+    std::vector<std::string> vacuumLengths = {"1cm", "2cm", "3cm", "4cm", "5cm", "6cm", "7cm", "8cm", "9cm", "10cm", "11cm", "12cm", "13cm", "14cm", "15cm"};
 
     std::vector<std::string> BFields = {"0.0T", "0.1T", "1.0T"};;
 
