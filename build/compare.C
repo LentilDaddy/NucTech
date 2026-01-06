@@ -196,14 +196,15 @@ for (size_t i = 0; i < chains.size(); i++) {
 
 
     // // Style graphs
-    gScatter_0T->SetMarkerColor(kRed);
+    gScatter_0T->SetMarkerColor(kP10Red);
     gScatter_0T->SetMarkerStyle(21);
 
-    gScatter_01T->SetMarkerColor(kBlue);
+    gScatter_01T->SetMarkerColor(kP10Cyan);
     gScatter_01T->SetMarkerStyle(23);
 
-    gScatter_1T->SetMarkerColor(kGreen+2);
+    gScatter_1T->SetMarkerColor(kP10Green);
     gScatter_1T->SetMarkerStyle(22);
+
 
     double YMax = -1e9;
     for (auto g : {gScatter_01T, gScatter_1T, gScatter_0T}) {
