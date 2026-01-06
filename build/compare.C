@@ -201,12 +201,13 @@ for (size_t i = 0; i < chains.size(); i++) {
     }
 
     // Style graphs
-    gSF6->SetMarkerColor(kBlue);   gSF6->SetMarkerStyle(21);
-    gC3F8->SetMarkerColor(kRed);   gC3F8->SetMarkerStyle(23);
-    gCF4->SetMarkerColor(kBlack);  gCF4->SetMarkerStyle(24);
-    gPF5->SetMarkerColor(kMagenta);gPF5->SetMarkerStyle(22);
-    gUF6->SetMarkerColor(kOrange); gUF6->SetMarkerStyle(25);
-    gVacuum->SetMarkerColor(kGreen);gVacuum->SetMarkerStyle(26);
+    gSF6->SetMarkerColor(kP10Red);   gSF6->SetMarkerStyle(21);
+    gC3F8->SetMarkerColor(kP10Cyan);   gC3F8->SetMarkerStyle(23);
+    gCF4->SetMarkerColor(kP10Ash);  gCF4->SetMarkerStyle(24);
+    gPF5->SetMarkerColor(kP10Green); ;gPF5->SetMarkerStyle(22);
+    gUF6->SetMarkerColor(kP10Orange); gUF6->SetMarkerStyle(25);
+    gVacuum->SetMarkerColor(kP10Brown) ;gVacuum->SetMarkerStyle(26);
+
 
     double YMax = -1e9;
     for (auto g : {gSF6, gC3F8, gCF4, gPF5, gUF6, gVacuum}) {
