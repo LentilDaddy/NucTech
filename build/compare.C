@@ -113,8 +113,8 @@ for (size_t i = 0; i < chains.size(); i++) {
    TH1D *h = new TH1D(
         TString::Format("h_%zu", i),
         TString::Format("Depth Distribution of Electrons"),
-        1, foilThickness/10 + vacuumLength, foilThickness/10 + vacuumLength + 0.05
-    ); //0.5mm bin size
+        150, 0, 15
+    ); //1mm bin size (15cm radius)
 
     // Disable global ROOT directory writing for safety
     h->SetDirectory(nullptr);
