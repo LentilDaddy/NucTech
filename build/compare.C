@@ -61,10 +61,10 @@ void compare()
 
     // std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "PF5", "UF6", "vacuum"};
     std::vector<std::string> mediums = {"SF6","C3F8","CF4","UF6"};
-    // std::vector<std::string> energies = {"20MeV", "22MeV", "25MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
-    std::vector<std::string> energies = {"25MeV"};
+    // std::vector<std::string> energies = {"20MeV", "22MeV", "30MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
+    std::vector<std::string> energies = {"30MeV"};
 
-    double foilThickness = 10; //10mm for example
+    double foilThickness = 3; //10mm for example
     
 
     // create one TChain per (medium, energy) and add matching files immediately
@@ -130,7 +130,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     Long64_t nentries = t->GetEntries();
     for (Long64_t j = 0; j < nentries; ++j) {
         t->GetEntry(j);
-        if (pdg == 1 && kineticE >= 15 && kineticE <= 22 && z > foilThickness)
+        if (pdg == 1 && kineticE >= 15 && kineticE <= 22 && z > foilThickness/10)
             h->Fill(r);
         if (pdg == 1 && kineticE >= 0)
             h2->Fill(r, kineticE);
@@ -323,7 +323,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     scatterLegend->AddEntry(gUF6, "UF6_3.630g/cm3", "p");
     scatterLegend->AddEntry(gVacuum, "vacuum", "p");
 
-    TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Radius [25MeV beam]", 600, 500);
+    TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Radius [30MeV beam]", 600, 500);
     mg->SetTitle("#Useful photons (15-22MeV) per Primary Electron vs Radius;Detector Radius (cm);#Useful photons per Primary Electron");
     mg->Draw("AP");
     mg->GetXaxis()->SetLimits(0, 15);
