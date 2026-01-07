@@ -76,18 +76,6 @@ void compare()
             chains.push_back({label, ch});
         }
     }
-    
-
-    //===============================
-    // Decorations and setup
-    //===============================
-    HistogramDecoration Decoration = {
-       1, kBlack, "Radius (cm)", "#photons in range 15-22 MeV", nullptr, 0., 110., 0., 0.
-    }; // lineWidth, lineColor, xTitle, yTitle, title, xMin, xMax, yMin, yMax
-
-    HistogramDecoration photonDecoration = {
-       1, kBlack, "Radius (cm)", "Photon Energy (MeV)", nullptr, 0., 110., 0., 0.
-    };
 
     int colors[] = {kRed, kSpring+5, kBlack, kMagenta+2, kViolet-2, kBlue-7,
                     kAzure-1, kCyan, kTeal+10, kGreen+3, kYellow, kGray,
@@ -122,11 +110,11 @@ for (size_t i = 0; i < chains.size(); i++) {
         continue;
     }
 
-    TH1D *h = new TH1D(TString::Format("h_thread_%zu", i),
-                       "Photon Depth", 1100, Decoration.xMin, Decoration.xMax);
-                       //
-    TH2D *h2 = new TH2D(TString::Format("h2_thread_%zu", i),
-                        "Photon Energy vs Depth", 1000, photonDecoration.xMin, photonDecoration.xMax, 1000, 0, 50);
+   TH1D *h = new TH1D(
+        TString::Format("h_%zu", i),
+        TString::Format("Depth Distribution of Electrons"),
+        1, foilThickness/10 + vacuumLength, foilThickness/10 + vacuumLength + 0.05
+    ); //0.5mm bin size
 
     // Disable global ROOT directory writing for safety
     h->SetDirectory(nullptr);
@@ -161,9 +149,6 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     {
         h->SetLineColor(colors[i % nColors]);
-        h->SetLineWidth(Decoration.lineWidth);
-        h->GetXaxis()->SetTitle(Decoration.xTitle);
-        h->GetYaxis()->SetTitle(Decoration.yTitle);
 
         histos.push_back(h);
         h2_histos.push_back(h2);
