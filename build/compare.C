@@ -64,7 +64,7 @@ void compare()
     // std::vector<std::string> energies = {"20MeV", "22MeV", "30MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
     std::vector<std::string> energies = {"30MeV"};
 
-    double foilThickness = 3; //10mm for example
+    double foilThickness = 6; //10mm for example
     
 
     // create one TChain per (medium, energy) and add matching files immediately
