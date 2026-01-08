@@ -87,7 +87,7 @@ void compare()
     c1->cd();
 
     std::vector<TH1D*> histos;
-    std::vector<TH2D*> h2_histos;
+    // std::vector<TH2D*> h2_histos;
     std::vector<double> usefulPhotonIntegrals100;
     std::vector<double> usefulPhotonIntegrals10;
     std::vector<double> usefulPhotonIntegrals20;
@@ -118,7 +118,7 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     // Disable global ROOT directory writing for safety
     h->SetDirectory(nullptr);
-    h2->SetDirectory(nullptr);
+    // h2->SetDirectory(nullptr);
 
     Float_t z, kineticE, r;
     Int_t pdg;
@@ -132,8 +132,8 @@ for (size_t i = 0; i < chains.size(); i++) {
         t->GetEntry(j);
         if (pdg == 1 && kineticE >= 15 && kineticE <= 22 && z > foilThickness/10)
             h->Fill(r);
-        if (pdg == 1 && kineticE >= 0)
-            h2->Fill(r, kineticE);
+        // if (pdg == 1 && kineticE >= 0)
+        //     h2->Fill(r, kineticE);
     }
 
     double integral100 = h->Integral(0, 10); //repeat over different lengths NOT includiing foil part
@@ -151,7 +151,7 @@ for (size_t i = 0; i < chains.size(); i++) {
         h->SetLineColor(colors[i % nColors]);
 
         histos.push_back(h);
-        h2_histos.push_back(h2);
+        // h2_histos.push_back(h2);
         usefulPhotonIntegrals100.push_back(integral100);
         usefulPhotonIntegrals10.push_back(integral10);
         usefulPhotonIntegrals20.push_back(integral20);
@@ -288,12 +288,20 @@ for (size_t i = 0; i < chains.size(); i++) {
     }
 
     // Style graphs
-    gSF6->SetMarkerColor(kP10Red);   gSF6->SetMarkerStyle(21);
-    gC3F8->SetMarkerColor(kP10Cyan);   gC3F8->SetMarkerStyle(23);
-    gCF4->SetMarkerColor(kP10Ash);  gCF4->SetMarkerStyle(24);
-    gPF5->SetMarkerColor(kP10Green); ;gPF5->SetMarkerStyle(22);
-    gUF6->SetMarkerColor(kP10Orange); gUF6->SetMarkerStyle(25);
-    gVacuum->SetMarkerColor(kP10Brown) ;gVacuum->SetMarkerStyle(26);
+    // gSF6->SetMarkerColor(kP10Red);   gSF6->SetMarkerStyle(21);
+    // gC3F8->SetMarkerColor(kP10Cyan);   gC3F8->SetMarkerStyle(23);
+    // gCF4->SetMarkerColor(kP10Ash);  gCF4->SetMarkerStyle(24);
+    // gPF5->SetMarkerColor(kP10Green); ;gPF5->SetMarkerStyle(22);
+    // gUF6->SetMarkerColor(kP10Orange); gUF6->SetMarkerStyle(25);
+    // gVacuum->SetMarkerColor(kP10Brown) ;gVacuum->SetMarkerStyle(26);
+
+
+    gSF6->SetMarkerColor(kRed);   gSF6->SetMarkerStyle(21);
+    gC3F8->SetMarkerColor(kCyan);   gC3F8->SetMarkerStyle(23);
+    gCF4->SetMarkerColor(kYellow);  gCF4->SetMarkerStyle(24);
+    gPF5->SetMarkerColor(kGreen); ;gPF5->SetMarkerStyle(22);
+    gUF6->SetMarkerColor(kOrange); gUF6->SetMarkerStyle(25);
+    gVacuum->SetMarkerColor(kBlack) ;gVacuum->SetMarkerStyle(26);
 
     double YMax = -1e9;
     for (auto g : {gSF6, gC3F8, gCF4, gPF5, gUF6, gVacuum}) {
