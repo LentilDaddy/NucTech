@@ -98,6 +98,11 @@ void compare()
     std::vector<double> usefulPhotonIntegrals70;
     std::vector<double> usefulPhotonIntegrals80;
     std::vector<double> usefulPhotonIntegrals90;
+    std::vector<double> usefulPhotonIntegrals11;
+    std::vector<double> usefulPhotonIntegrals12;
+    std::vector<double> usefulPhotonIntegrals13;
+    std::vector<double> usefulPhotonIntegrals14;
+    std::vector<double> usefulPhotonIntegrals15;
     
     // double globalMax = 0.0;
 
@@ -136,7 +141,7 @@ for (size_t i = 0; i < chains.size(); i++) {
         //     h2->Fill(r, kineticE);
     }
 
-    double integral100 = h->Integral(0, 10); //repeat over different lengths NOT includiing foil part
+    
     double integral10 = h->Integral(0, 1); //repeat over different lengths
     double integral20 = h->Integral(0, 2); //repeat over different lengths
     double integral30 = h->Integral(0, 3); //repeat over different lengths
@@ -146,6 +151,12 @@ for (size_t i = 0; i < chains.size(); i++) {
     double integral70 = h->Integral(0, 7); //repeat over different lengths
     double integral80 = h->Integral(0, 8); //repeat over different lengths
     double integral90 = h->Integral(0, 9); //repeat over different lengths
+    double integral100 = h->Integral(0, 10); //repeat over different lengths NOT includiing foil part
+    double integral11 = h->Integral(0, 11);
+    double integral12 = h->Integral(0, 12);
+    double integral13 = h->Integral(0, 13);
+    double integral14 = h->Integral(0, 14);
+    double integral15 = h->Integral(0, 15);
 
     {
         h->SetLineColor(colors[i % nColors]);
@@ -162,6 +173,11 @@ for (size_t i = 0; i < chains.size(); i++) {
         usefulPhotonIntegrals70.push_back(integral70);
         usefulPhotonIntegrals80.push_back(integral80);
         usefulPhotonIntegrals90.push_back(integral90);
+        usefulPhotonIntegrals11.push_back(integral11);
+        usefulPhotonIntegrals12.push_back(integral12);
+        usefulPhotonIntegrals13.push_back(integral13);
+        usefulPhotonIntegrals14.push_back(integral14);
+        usefulPhotonIntegrals15.push_back(integral15);
         legend->AddEntry(h, label.c_str(), "l");
     }
 }
@@ -202,10 +218,15 @@ for (size_t i = 0; i < chains.size(); i++) {
         double usefulPhotons60 = (i < usefulPhotonIntegrals60.size()) ? usefulPhotonIntegrals60[i] : 0; //make sure index is valid
         double usefulPhotons70 = (i < usefulPhotonIntegrals70.size()) ? usefulPhotonIntegrals70[i] : 0; //make sure index is valid
         double usefulPhotons80 = (i < usefulPhotonIntegrals80.size()) ? usefulPhotonIntegrals80[i] : 0; //make sure index is valid
-        double usefulPhotons90 = (i < usefulPhotonIntegrals90.size()) ? usefulPhotonIntegrals90[i] : 0; //make sure index is valid
+        double usefulPhotons90 = (i < usefulPhotonIntegrals90.size()) ? usefulPhotonIntegrals90[i] : 0; 
+        double usefulPhotons11 = (i < usefulPhotonIntegrals11.size()) ? usefulPhotonIntegrals11[i] : 0; //make sure index is valid
+        double usefulPhotons12 = (i < usefulPhotonIntegrals12.size()) ? usefulPhotonIntegrals12[i] : 0; //make sure index is valid
+        double usefulPhotons13 = (i < usefulPhotonIntegrals13.size()) ? usefulPhotonIntegrals13[i] : 0; //make sure index is valid
+        double usefulPhotons14 = (i < usefulPhotonIntegrals14.size()) ? usefulPhotonIntegrals14[i] : 0; //make sure index is valid
+        double usefulPhotons15 = (i < usefulPhotonIntegrals15.size()) ? usefulPhotonIntegrals15[i] : 0; //make sure index is valid
         
         std::cout << "Label: " << label << ", Useful Photons at 10cm: " << usefulPhotons10 << std::endl;
-        usefulPhotons100 = usefulPhotons100 / 1e6; 
+        
         usefulPhotons10 = usefulPhotons10 / 1e6; 
         usefulPhotons20 = usefulPhotons20 / 1e6; 
         usefulPhotons30 = usefulPhotons30 / 1e6; 
@@ -215,6 +236,12 @@ for (size_t i = 0; i < chains.size(); i++) {
         usefulPhotons70 = usefulPhotons70 / 1e6; 
         usefulPhotons80 = usefulPhotons80 / 1e6; 
         usefulPhotons90 = usefulPhotons90 / 1e6;
+        usefulPhotons100 = usefulPhotons100 / 1e6; 
+        usefulPhotonIntegrals11[i] = usefulPhotons11 / 1e6; 
+        usefulPhotonIntegrals12[i] = usefulPhotons12 / 1e6; 
+        usefulPhotonIntegrals13[i] = usefulPhotons13 / 1e6; 
+        usefulPhotonIntegrals14[i] = usefulPhotons14 / 1e6;
+        usefulPhotonIntegrals15[i] = usefulPhotons15 / 1e6;
 
         // std::cout << "Label: " << label << ", Useful Photons at 10cm per primary electron: " << usefulPhotons10 << std::endl;
         if (label.find("SF6") != std::string::npos){ //swap beam energy for lengths
@@ -228,6 +255,11 @@ for (size_t i = 0; i < chains.size(); i++) {
             gSF6->SetPoint(idxSF6++, 8, usefulPhotons80);
             gSF6->SetPoint(idxSF6++, 9, usefulPhotons90);
             gSF6->SetPoint(idxSF6++, 10, usefulPhotons100);
+            gSF6->SetPoint(idxSF6++, 11, usefulPhotons11);
+            gSF6->SetPoint(idxSF6++, 12, usefulPhotons12);
+            gSF6->SetPoint(idxSF6++, 13, usefulPhotons13);
+            gSF6->SetPoint(idxSF6++, 14, usefulPhotons14);
+            gSF6->SetPoint(idxSF6++, 15, usefulPhotons15);
         }
         else if (label.find("C3F8") != std::string::npos){
             gC3F8->SetPoint(idxC3F8++, 1, usefulPhotons10);
@@ -240,6 +272,11 @@ for (size_t i = 0; i < chains.size(); i++) {
             gC3F8->SetPoint(idxC3F8++, 8, usefulPhotons80);
             gC3F8->SetPoint(idxC3F8++, 9, usefulPhotons90);
             gC3F8->SetPoint(idxC3F8++, 10, usefulPhotons100);
+            gC3F8->SetPoint(idxC3F8++, 11, usefulPhotons11);
+            gC3F8->SetPoint(idxC3F8++, 12, usefulPhotons12);
+            gC3F8->SetPoint(idxC3F8++, 13, usefulPhotons13);
+            gC3F8->SetPoint(idxC3F8++, 14, usefulPhotons14);
+            gC3F8->SetPoint(idxC3F8++, 15, usefulPhotons15);
         }
         else if (label.find("CF4") != std::string::npos){
             gCF4->SetPoint(idxCF4++, 1, usefulPhotons10);
@@ -252,6 +289,11 @@ for (size_t i = 0; i < chains.size(); i++) {
             gCF4->SetPoint(idxCF4++, 8, usefulPhotons80);
             gCF4->SetPoint(idxCF4++, 9, usefulPhotons90);
             gCF4->SetPoint(idxCF4++, 10, usefulPhotons100);
+            gCF4->SetPoint(idxCF4++, 11, usefulPhotons11);
+            gCF4->SetPoint(idxCF4++, 12, usefulPhotons12);
+            gCF4->SetPoint(idxCF4++, 13, usefulPhotons13);
+            gCF4->SetPoint(idxCF4++, 14, usefulPhotons14);
+            gCF4->SetPoint(idxCF4++, 15, usefulPhotons15);
         }
         else if (label.find("PF5") != std::string::npos){
             gPF5->SetPoint(idxPF5++, 1, usefulPhotons10);
@@ -272,6 +314,11 @@ for (size_t i = 0; i < chains.size(); i++) {
             gUF6->SetPoint(idxUF6++, 8, usefulPhotons80);
             gUF6->SetPoint(idxUF6++, 9, usefulPhotons90);
             gUF6->SetPoint(idxUF6++, 10, usefulPhotons100);
+            gUF6->SetPoint(idxUF6++, 11, usefulPhotons11);
+            gUF6->SetPoint(idxUF6++, 12, usefulPhotons12);
+            gUF6->SetPoint(idxUF6++, 13, usefulPhotons13);
+            gUF6->SetPoint(idxUF6++, 14, usefulPhotons14);
+            gUF6->SetPoint(idxUF6++, 15, usefulPhotons15);
         }
         else if (label.find("vacuum") != std::string::npos){
             gVacuum->SetPoint(idxVacuum++, 1, usefulPhotons10);
@@ -284,24 +331,29 @@ for (size_t i = 0; i < chains.size(); i++) {
             gVacuum->SetPoint(idxVacuum++, 8, usefulPhotons80);
             gVacuum->SetPoint(idxVacuum++, 9, usefulPhotons90);
             gVacuum->SetPoint(idxVacuum++, 10, usefulPhotons100);
+            gVacuum->SetPoint(idxVacuum++, 11, usefulPhotons11);
+            gVacuum->SetPoint(idxVacuum++, 12, usefulPhotons12);
+            gVacuum->SetPoint(idxVacuum++, 13, usefulPhotons13);
+            gVacuum->SetPoint(idxVacuum++, 14, usefulPhotons14);
+            gVacuum->SetPoint(idxVacuum++, 15, usefulPhotons15);
         }
     }
 
     // Style graphs
-    // gSF6->SetMarkerColor(kP10Red);   gSF6->SetMarkerStyle(21);
-    // gC3F8->SetMarkerColor(kP10Cyan);   gC3F8->SetMarkerStyle(23);
-    // gCF4->SetMarkerColor(kP10Ash);  gCF4->SetMarkerStyle(24);
-    // gPF5->SetMarkerColor(kP10Green); ;gPF5->SetMarkerStyle(22);
-    // gUF6->SetMarkerColor(kP10Orange); gUF6->SetMarkerStyle(25);
-    // gVacuum->SetMarkerColor(kP10Brown) ;gVacuum->SetMarkerStyle(26);
+    gSF6->SetMarkerColor(kP10Red);   gSF6->SetMarkerStyle(21);
+    gC3F8->SetMarkerColor(kP10Cyan);   gC3F8->SetMarkerStyle(23);
+    gCF4->SetMarkerColor(kP10Ash);  gCF4->SetMarkerStyle(24);
+    gPF5->SetMarkerColor(kP10Green); ;gPF5->SetMarkerStyle(22);
+    gUF6->SetMarkerColor(kP10Orange); gUF6->SetMarkerStyle(25);
+    gVacuum->SetMarkerColor(kP10Brown) ;gVacuum->SetMarkerStyle(26);
 
 
-    gSF6->SetMarkerColor(kRed);   gSF6->SetMarkerStyle(21);
-    gC3F8->SetMarkerColor(kCyan);   gC3F8->SetMarkerStyle(23);
-    gCF4->SetMarkerColor(kYellow);  gCF4->SetMarkerStyle(24);
-    gPF5->SetMarkerColor(kGreen); ;gPF5->SetMarkerStyle(22);
-    gUF6->SetMarkerColor(kOrange); gUF6->SetMarkerStyle(25);
-    gVacuum->SetMarkerColor(kBlack) ;gVacuum->SetMarkerStyle(26);
+    // gSF6->SetMarkerColor(kRed);   gSF6->SetMarkerStyle(21);
+    // gC3F8->SetMarkerColor(kCyan);   gC3F8->SetMarkerStyle(23);
+    // gCF4->SetMarkerColor(kYellow);  gCF4->SetMarkerStyle(24);
+    // gPF5->SetMarkerColor(kGreen); ;gPF5->SetMarkerStyle(22);
+    // gUF6->SetMarkerColor(kOrange); gUF6->SetMarkerStyle(25);
+    // gVacuum->SetMarkerColor(kBlack) ;gVacuum->SetMarkerStyle(26);
 
     double YMax = -1e9;
     for (auto g : {gSF6, gC3F8, gCF4, gPF5, gUF6, gVacuum}) {
@@ -334,7 +386,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Radius [30MeV beam]", 600, 500);
     mg->SetTitle("#Useful photons (15-22MeV) per Primary Electron vs Radius;Detector Radius (cm);#Useful photons per Primary Electron");
     mg->Draw("AP");
-    mg->GetXaxis()->SetLimits(0, 15);
+    mg->GetXaxis()->SetLimits(0, 16);
     scatterLegend->Draw();
     c3->Update();
     c3->SaveAs("Photons_Radius.png");
