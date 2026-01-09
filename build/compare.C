@@ -218,72 +218,72 @@ for (size_t i = 0; i < chains.size(); i++) {
 
         // std::cout << "Label: " << label << ", Useful Photons at 10cm per primary electron: " << usefulPhotons10 << std::endl;
         if (label.find("SF6") != std::string::npos){ //swap beam energy for lengths
-            gSF6->SetPoint(idxSF6++, 10, usefulPhotons10);
-            gSF6->SetPoint(idxSF6++, 20, usefulPhotons20);
-            gSF6->SetPoint(idxSF6++, 30, usefulPhotons30);
-            gSF6->SetPoint(idxSF6++, 40, usefulPhotons40);
-            gSF6->SetPoint(idxSF6++, 50, usefulPhotons50);
-            gSF6->SetPoint(idxSF6++, 60, usefulPhotons60);
-            gSF6->SetPoint(idxSF6++, 70, usefulPhotons70);
-            gSF6->SetPoint(idxSF6++, 80, usefulPhotons80);
-            gSF6->SetPoint(idxSF6++, 90, usefulPhotons90);
-            gSF6->SetPoint(idxSF6++, 100, usefulPhotons100);
+            gSF6->SetPoint(idxSF6++, 1, usefulPhotons10);
+            gSF6->SetPoint(idxSF6++, 2, usefulPhotons20);
+            gSF6->SetPoint(idxSF6++, 3, usefulPhotons30);
+            gSF6->SetPoint(idxSF6++, 4, usefulPhotons40);
+            gSF6->SetPoint(idxSF6++, 5, usefulPhotons50);
+            gSF6->SetPoint(idxSF6++, 6, usefulPhotons60);
+            gSF6->SetPoint(idxSF6++, 7, usefulPhotons70);
+            gSF6->SetPoint(idxSF6++, 8, usefulPhotons80);
+            gSF6->SetPoint(idxSF6++, 9, usefulPhotons90);
+            gSF6->SetPoint(idxSF6++, 10, usefulPhotons100);
         }
         else if (label.find("C3F8") != std::string::npos){
-            gC3F8->SetPoint(idxC3F8++, 10, usefulPhotons10);
-            gC3F8->SetPoint(idxC3F8++, 20, usefulPhotons20);
-            gC3F8->SetPoint(idxC3F8++, 30, usefulPhotons30);
-            gC3F8->SetPoint(idxC3F8++, 40, usefulPhotons40);
-            gC3F8->SetPoint(idxC3F8++, 50, usefulPhotons50);
-            gC3F8->SetPoint(idxC3F8++, 60, usefulPhotons60);
-            gC3F8->SetPoint(idxC3F8++, 70, usefulPhotons70);
-            gC3F8->SetPoint(idxC3F8++, 80, usefulPhotons80);
-            gC3F8->SetPoint(idxC3F8++, 90, usefulPhotons90);
-            gC3F8->SetPoint(idxC3F8++, 100, usefulPhotons100);
+            gC3F8->SetPoint(idxC3F8++, 1, usefulPhotons10);
+            gC3F8->SetPoint(idxC3F8++, 2, usefulPhotons20);
+            gC3F8->SetPoint(idxC3F8++, 3, usefulPhotons30);
+            gC3F8->SetPoint(idxC3F8++, 4, usefulPhotons40);
+            gC3F8->SetPoint(idxC3F8++, 5, usefulPhotons50);
+            gC3F8->SetPoint(idxC3F8++, 6, usefulPhotons60);
+            gC3F8->SetPoint(idxC3F8++, 7, usefulPhotons70);
+            gC3F8->SetPoint(idxC3F8++, 8, usefulPhotons80);
+            gC3F8->SetPoint(idxC3F8++, 9, usefulPhotons90);
+            gC3F8->SetPoint(idxC3F8++, 10, usefulPhotons100);
         }
         else if (label.find("CF4") != std::string::npos){
-            gCF4->SetPoint(idxCF4++, 10, usefulPhotons10);
-            gCF4->SetPoint(idxCF4++, 20, usefulPhotons20);
-            gCF4->SetPoint(idxCF4++, 30, usefulPhotons30);
-            gCF4->SetPoint(idxCF4++, 40, usefulPhotons40);
-            gCF4->SetPoint(idxCF4++, 50, usefulPhotons50);
-            gCF4->SetPoint(idxCF4++, 60, usefulPhotons60);
-            gCF4->SetPoint(idxCF4++, 70, usefulPhotons70);
-            gCF4->SetPoint(idxCF4++, 80, usefulPhotons80);
-            gCF4->SetPoint(idxCF4++, 90, usefulPhotons90);
-            gCF4->SetPoint(idxCF4++, 100, usefulPhotons100);
+            gCF4->SetPoint(idxCF4++, 1, usefulPhotons10);
+            gCF4->SetPoint(idxCF4++, 2, usefulPhotons20);
+            gCF4->SetPoint(idxCF4++, 3, usefulPhotons30);
+            gCF4->SetPoint(idxCF4++, 4, usefulPhotons40);
+            gCF4->SetPoint(idxCF4++, 5, usefulPhotons50);
+            gCF4->SetPoint(idxCF4++, 6, usefulPhotons60);
+            gCF4->SetPoint(idxCF4++, 7, usefulPhotons70);
+            gCF4->SetPoint(idxCF4++, 8, usefulPhotons80);
+            gCF4->SetPoint(idxCF4++, 9, usefulPhotons90);
+            gCF4->SetPoint(idxCF4++, 10, usefulPhotons100);
         }
         else if (label.find("PF5") != std::string::npos){
-            gPF5->SetPoint(idxPF5++, 10, usefulPhotons10);
-            gPF5->SetPoint(idxPF5++, 20, usefulPhotons20);
-            gPF5->SetPoint(idxPF5++, 30, usefulPhotons30);
-            gPF5->SetPoint(idxPF5++, 40, usefulPhotons40);
-            gPF5->SetPoint(idxPF5++, 50, usefulPhotons50);
-            gPF5->SetPoint(idxPF5++, 100, usefulPhotons100);
+            gPF5->SetPoint(idxPF5++, 1, usefulPhotons10);
+            gPF5->SetPoint(idxPF5++, 2, usefulPhotons20);
+            gPF5->SetPoint(idxPF5++, 3, usefulPhotons30);
+            gPF5->SetPoint(idxPF5++, 4, usefulPhotons40);
+            gPF5->SetPoint(idxPF5++, 5, usefulPhotons50);
+            gPF5->SetPoint(idxPF5++, 10, usefulPhotons100);
         }
         else if (label.find("UF6") != std::string::npos){
-            gUF6->SetPoint(idxUF6++, 10, usefulPhotons10);
-            gUF6->SetPoint(idxUF6++, 20, usefulPhotons20);
-            gUF6->SetPoint(idxUF6++, 30, usefulPhotons30);
-            gUF6->SetPoint(idxUF6++, 40, usefulPhotons40);
-            gUF6->SetPoint(idxUF6++, 50, usefulPhotons50);
-            gUF6->SetPoint(idxUF6++, 60, usefulPhotons60);
-            gUF6->SetPoint(idxUF6++, 70, usefulPhotons70);
-            gUF6->SetPoint(idxUF6++, 80, usefulPhotons80);
-            gUF6->SetPoint(idxUF6++, 90, usefulPhotons90);
-            gUF6->SetPoint(idxUF6++, 100, usefulPhotons100);
+            gUF6->SetPoint(idxUF6++, 1, usefulPhotons10);
+            gUF6->SetPoint(idxUF6++, 2, usefulPhotons20);
+            gUF6->SetPoint(idxUF6++, 3, usefulPhotons30);
+            gUF6->SetPoint(idxUF6++, 4, usefulPhotons40);
+            gUF6->SetPoint(idxUF6++, 5, usefulPhotons50);
+            gUF6->SetPoint(idxUF6++, 6, usefulPhotons60);
+            gUF6->SetPoint(idxUF6++, 7, usefulPhotons70);
+            gUF6->SetPoint(idxUF6++, 8, usefulPhotons80);
+            gUF6->SetPoint(idxUF6++, 9, usefulPhotons90);
+            gUF6->SetPoint(idxUF6++, 10, usefulPhotons100);
         }
         else if (label.find("vacuum") != std::string::npos){
-            gVacuum->SetPoint(idxVacuum++, 10, usefulPhotons10);
-            gVacuum->SetPoint(idxVacuum++, 20, usefulPhotons20);
-            gVacuum->SetPoint(idxVacuum++, 30, usefulPhotons30);
-            gVacuum->SetPoint(idxVacuum++, 40, usefulPhotons40);
-            gVacuum->SetPoint(idxVacuum++, 50, usefulPhotons50);
-            gVacuum->SetPoint(idxVacuum++, 60, usefulPhotons60);
-            gVacuum->SetPoint(idxVacuum++, 70, usefulPhotons70);
-            gVacuum->SetPoint(idxVacuum++, 80, usefulPhotons80);
-            gVacuum->SetPoint(idxVacuum++, 90, usefulPhotons90);
-            gVacuum->SetPoint(idxVacuum++, 100, usefulPhotons100);
+            gVacuum->SetPoint(idxVacuum++, 1, usefulPhotons10);
+            gVacuum->SetPoint(idxVacuum++, 2, usefulPhotons20);
+            gVacuum->SetPoint(idxVacuum++, 3, usefulPhotons30);
+            gVacuum->SetPoint(idxVacuum++, 4, usefulPhotons40);
+            gVacuum->SetPoint(idxVacuum++, 5, usefulPhotons50);
+            gVacuum->SetPoint(idxVacuum++, 6, usefulPhotons60);
+            gVacuum->SetPoint(idxVacuum++, 7, usefulPhotons70);
+            gVacuum->SetPoint(idxVacuum++, 8, usefulPhotons80);
+            gVacuum->SetPoint(idxVacuum++, 9, usefulPhotons90);
+            gVacuum->SetPoint(idxVacuum++, 10, usefulPhotons100);
         }
     }
 
