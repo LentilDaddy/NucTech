@@ -237,11 +237,11 @@ for (size_t i = 0; i < chains.size(); i++) {
         usefulPhotons80 = usefulPhotons80 / 1e6; 
         usefulPhotons90 = usefulPhotons90 / 1e6;
         usefulPhotons100 = usefulPhotons100 / 1e6; 
-        usefulPhotonIntegrals11[i] = usefulPhotons11 / 1e6; 
-        usefulPhotonIntegrals12[i] = usefulPhotons12 / 1e6; 
-        usefulPhotonIntegrals13[i] = usefulPhotons13 / 1e6; 
-        usefulPhotonIntegrals14[i] = usefulPhotons14 / 1e6;
-        usefulPhotonIntegrals15[i] = usefulPhotons15 / 1e6;
+        usefulPhotons11 = usefulPhotons11 / 1e6; 
+        usefulPhotons12 = usefulPhotons12 / 1e6; 
+        usefulPhotons13 = usefulPhotons13 / 1e6; 
+        usefulPhotons14 = usefulPhotons14 / 1e6;
+        usefulPhotons15 = usefulPhotons15 / 1e6;
 
         // std::cout << "Label: " << label << ", Useful Photons at 10cm per primary electron: " << usefulPhotons10 << std::endl;
         if (label.find("SF6") != std::string::npos){ //swap beam energy for lengths
