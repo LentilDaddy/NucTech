@@ -60,7 +60,7 @@ void compare()
     std::vector<std::pair<std::string, TChain*>> chains;
 
     // std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "PF5", "UF6", "vacuum"};
-    std::vector<std::string> mediums = {"SF6","C3F8","CF4","UF6"};
+    std::vector<std::string> mediums = {"SF6","C3F8","CF4","UF6", "vacuum"};
     // std::vector<std::string> energies = {"20MeV", "22MeV", "30MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
     std::vector<std::string> energies = {"30MeV"};
 
@@ -196,17 +196,16 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     for (size_t i=0; i<chains.size(); i++) {
         std::string label = chains[i].first;
-        double beamEnergy = 0.0;
 
 
-        std::regex energyRegex(R"((\d+(?:\.\d+)?)\s*MeV)");
-        std::smatch match;
-        if (std::regex_search(label, match, energyRegex)) {
-            beamEnergy = std::stod(match[1].str());
-        } else {
-            continue;
+        // std::regex energyRegex(R"((\d+(?:\.\d+)?)\s*MeV)");
+        // std::smatch match;
+        // if (std::regex_search(label, match, energyRegex)) {
+        //     beamEnergy = std::stod(match[1].str());
+        // } else {
+        //     continue;
 
-        }
+        // }
 
 
         double usefulPhotons100 = (i < usefulPhotonIntegrals100.size()) ? usefulPhotonIntegrals100[i] : 0; //make sure index is valid
