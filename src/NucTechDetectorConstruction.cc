@@ -220,6 +220,8 @@ new G4PVReplica("SlicePhysical",   // name
   fStepLimit = new G4UserLimits(maxStep);
   det_logical->SetUserLimits(fStepLimit); //assigned to detector 1
   midLayer_log->SetUserLimits(fStepLimit); //assigned to detector 2 (the foil?)
+  vacuumLayer_log->SetUserLimits(fStepLimit); //assigned to vacuum layer
+  // stainlessSteel_log->SetUserLimits(fStepLimit); //assigned to stainless steel layer
   // sliceLogical->SetUserLimits(fStepLimit); //should this be applied to the slices?
 
   /***** Visualisation *****/
