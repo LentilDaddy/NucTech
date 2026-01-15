@@ -9,9 +9,7 @@
 #include <TH2D.h>
 #include <TCanvas.h>
 #include <TLegend.h>
-#include <TLine.h>
 #include <TGraph.h>
-#include <TGaxis.h>
 #include <TMultiGraph.h>
 #include <TStyle.h>
 #include <TString.h>
@@ -34,231 +32,83 @@ struct HistogramDecoration {
    double yMax;
 };
 
-
-// struct EnergyResult {
-//     std::string energyLabel;
-//     double energy;
-//     double foilThickness;
-//     double stoppedPrimaries;
-// };
-
-struct EnergyResult {
-    std::string BfieldLabel;
-    double vacuumLength;
-    double Bfield;
-    double electrons;
-};
-
-
-// int kP10Cyan = TColor::GetColor("#92dadd");
-// int kP10Ash = TColor::GetColor("#717581");
-// int kP10Green = TColor::GetColor("#b9ac70");
-// int kP10Orange = TColor::GetColor("#e76300");
-// int kP10Brown = TColor::GetColor("#a96b59");
-// int kP10Violet = TColor::GetColor("#832db6");
-// int kP10Gray = TColor::GetColor("#94a4a2");
-// int kP10Red = TColor::GetColor("#bd1f01");
-// int kP10Yellow = TColor::GetColor("#ffa90e");
-// int kP10Blue = TColor::GetColor("#3f90da");
-
-
-
-
 void compare()
 {
     gROOT->SetBatch(kTRUE);
 
+    //===============================
+    // Define TChains for each medium
+    //===============================
 
     std::vector<std::pair<std::string, TChain*>> chains;
 
-    std::vector<EnergyResult> results;
+    // std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "PF5", "UF6", "vacuum"};
+    std::vector<std::string> mediums = {"vacuum"};
+    // std::vector<std::string> energies = {"20MeV", "22MeV", "30MeV", "28MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
+    std::vector<std::string> energies = {"12GeV"};
 
-    std::vector<std::string> vacuumLengths = {"1cm", "2cm", "3cm", "4cm", "5cm", "6cm", "7cm", "8cm", "9cm", "10cm", "11cm", "12cm", "13cm", "14cm", "15cm"};
+    double foilThickness = 2; //2cm
+    
 
-    std::vector<std::string> BFields = {"0.0T", "0.1T", "1.0T"};;
-
-    for (const auto &m : vacuumLengths) {
-        for (const auto &e : BFields) {
+    // create one TChain per (medium, energy) and add matching files immediately
+    for (const auto &m : mediums) {
+        for (const auto &e : energies) {
             std::string label = m + "_" + e; //does this mean it has to be in this order?
             TChain *ch = new TChain("IndividualHits");
-            ch->Add(TString::Format("*_%sVacuum*%s*.root", m.c_str(), e.c_str()).Data());
+            ch->Add(TString::Format("%s_*%s*.root", m.c_str(), e.c_str()).Data());
             chains.push_back({label, ch});
         }
     }
-
-
-    //===============================
-    // Decorations and setup
-    //===============================
-    // HistogramDecoration Decoration = {
-    //    1, kBlack, "Depth (cm)", "#photons in range 15-22 MeV", nullptr, 0., 100., 0., 0.
-    // };
 
     TLegend *legend = new TLegend(0.7,0.7,0.9,0.9);
     TCanvas *c1 = new TCanvas("c1", "Compare Energy Deposition", 900, 700);
     c1->cd();
 
-    std::vector<TH1D*> histos;
-    std::vector<double> StopppedPrimariesIntegrals;
+    std::vector<TH2D*> h2_histos;
+
+    
 
 for (size_t i = 0; i < chains.size(); i++) {
     TChain *t = chains[i].second;
     std::string label = chains[i].first;
-
-    // Parse label: vacuumLength_Bfield (e.g., "15cm_0.1T")
-    size_t lastUnderscore = label.rfind("_");
-    std::string vacuumLengthStr = label.substr(0, lastUnderscore);
-    std::string BfieldStr = label.substr(lastUnderscore + 1);
-
-    // Extract numeric values
-    auto posCm = vacuumLengthStr.find("cm");
-    double vacuumLength = std::stod(vacuumLengthStr.substr(0, posCm));
-    
-    auto posT = BfieldStr.find("T");
-    double Bfield = std::stod(BfieldStr.substr(0, posT));
 
     if (!t || t->GetEntries() == 0) {
         std::cout << "Warning: Chain " << label << " is empty!" << std::endl;
         continue;
     }
 
-    double foilThickness = 4.0; //mm
+    // Disable global ROOT directory writing for safety
+    h2->SetDirectory(nullptr);
 
-    // TH1D *h = new TH1D(
-    //     TString::Format("h_%zu", i),
-    //     TString::Format("Depth Distribution of Electrons"),
-    //     (foilThickness + vacuumLength*10 + 0.5)*10, 0, (foilThickness + vacuumLength*10 + 0.5)/10
-    // ); //0.1mm bin size
-
-    TH1D *h = new TH1D(
-        TString::Format("h_%zu", i),
-        TString::Format("Depth Distribution of Electrons"),
-        1, foilThickness/10 + vacuumLength, foilThickness/10 + vacuumLength + 0.05
-    ); //0.5mm bin size
-
-
-    //maybe just do range over steel part instead. So foil + vacuum length to foil + vacuum length + steel thickness
-
-    h->SetDirectory(nullptr);
-
-    float_t z, kineticE, r;
-    Int_t pdg, parentID;
-
-    t->SetBranchStatus("*", 0);
-    t->SetBranchStatus("HitZ", 1);
-    t->SetBranchStatus("HitPDG", 1);
-    t->SetBranchStatus("HitKineticEnergy", 1);
-    t->SetBranchStatus("HitParentID", 1);
+    Float_t z, kineticE, r;
+    Int_t pdg;
     t->SetBranchAddress("HitZ", &z);
     t->SetBranchAddress("HitR", &r);
     t->SetBranchAddress("HitPDG", &pdg);
     t->SetBranchAddress("HitKineticEnergy", &kineticE);
-    t->SetBranchAddress("HitParentID", &parentID);
 
     Long64_t nentries = t->GetEntries();
     for (Long64_t j = 0; j < nentries; ++j) {
         t->GetEntry(j);
-        if (pdg == 0) {
-            h->Fill(z);
-        }
+        // if (pdg == 1 && kineticE >= 15 && kineticE <= 22 && z > foilThickness/10)
+        //     h->Fill(r);
+        if (pdg == 1 && kineticE >= 0 && z == foilThickness + 5000) //foilthickness and 500 are in cm! 
+            h2->Fill(r, kineticE);
     }
 
-    // double foilThickness = 4.0; //mm
-    // double integral = h->Integral(foilThickness/10 + vacuumLength, foilThickness/10 + vacuumLength + 0.05);
-    double integral = h->Integral();
-    
-    std::cout << "Integral for " << label << ": " << integral << std::endl;
-
-    histos.push_back(h);
-    legend->AddEntry(h, label.c_str(), "l");
-
-    results.push_back({BfieldStr, vacuumLength, Bfield, integral});
-}
-
-    // //===============================
-    // // Scatter plot of useful photons vs beam energy
-    // //===============================
-
-    TGraph *gScatter_0T = new TGraph();
-    TGraph *gScatter_01T = new TGraph();
-    TGraph *gScatter_1T = new TGraph();
-
-
-    for (const auto& r : results) {
-        if (r.BfieldLabel == "0.0T") {
-            gScatter_0T->SetPoint(gScatter_0T->GetN(), r.vacuumLength, r.electrons);
-        } else if (r.BfieldLabel == "0.1T") {
-            gScatter_01T->SetPoint(gScatter_01T->GetN(), r.vacuumLength, r.electrons);
-        } else if (r.BfieldLabel == "1.0T") {
-            gScatter_1T->SetPoint(gScatter_1T->GetN(), r.vacuumLength, r.electrons);
-        }
-    }  
-
-
-    // // Style graphs
-    gScatter_0T->SetMarkerColor(kP10Red);
-    gScatter_0T->SetMarkerStyle(21);
-
-    gScatter_01T->SetMarkerColor(kP10Cyan);
-    gScatter_01T->SetMarkerStyle(23);
-
-    gScatter_1T->SetMarkerColor(kP10Green);
-    gScatter_1T->SetMarkerStyle(22);
-
-
-    double YMax = -1e9;
-    for (auto g : {gScatter_01T, gScatter_1T, gScatter_0T}) {
-        int n = g->GetN(); //number of points in each graph
-        for (int i = 0; i < n; ++i) {
-            double x, y;
-            g->GetPoint(i, x, y);
-            if (y > YMax) YMax = y;
-        }
+    {
+        h2_histos.push_back(h2);
+        //now draw and save the histogram as a png
+        h2->SetTitle("Energy vs Radius at 50m from copper foil");
+        h2->GetXaxis()->SetTitle("Radius (cm)");
+        h2->GetYaxis()->SetTitle("Photon Energy (MeV)");
+        // h2->SetStats(0);
+        h2->Draw("COLZ");
+        c1->SaveAs("Energy_vs_Radius.png");
     }
-    TMultiGraph *mg = new TMultiGraph();
-    mg->Add(gScatter_0T, "P");
-    mg->Add(gScatter_01T, "P");
-    mg->Add(gScatter_1T, "P");
-
-    //Fix y axis range to 100
-
-    mg->SetMinimum(0);
-    mg->SetMaximum(YMax*1.1);
- 
-
-    TCanvas *c3 = new TCanvas("c3", "#Electrons entering Stainless Steel Layer vs Bfield region Length", 600, 500);
-    // c3->SetRightMargin(0.15);
-    c3->SetLeftMargin(0.15);
-
-
-    mg->SetTitle("#Electrons entering Stainless Steel Layer against length of B field region");
-    mg->GetXaxis()->SetTitle("Length (cm)");
-    mg->GetYaxis()->SetTitle("#Electrons entering Stainless Steel Layer");
-    mg->GetXaxis()->SetTitleSize(0.05);
-    mg->GetYaxis()->SetTitleSize(0.05);
-    mg->GetXaxis()->SetLabelSize(0.04);
-    mg->GetYaxis()->SetLabelSize(0.04);
-
-    mg->Draw("AP");
-    mg->GetXaxis()->SetLimits(0, 20); //this was too low
-    mg->GetYaxis()->SetRangeUser(0, YMax*1.1);   // << FIXED
-    TLegend *lgb = new TLegend(0.75, 0.75, 0.95, 0.95);
-    lgb->SetBorderSize(0);
-    lgb->SetFillStyle(0);
-    lgb->AddEntry(gScatter_0T, "B = 0.0 T", "P");
-    lgb->AddEntry(gScatter_01T, "B = 0.1 T", "P");
-    lgb->AddEntry(gScatter_1T, "B = 1.0 T", "P");
-    lgb->Draw();
-
-    c3->cd();
-    c3->Update();
-    c3->SaveAs("ElectronsSteel.png");
-
-
 }
 
-
-
+}
 
 int main() {
     compare();
