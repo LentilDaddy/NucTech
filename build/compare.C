@@ -64,7 +64,9 @@ void compare()
     TCanvas *c1 = new TCanvas("c1", "Compare Energy Deposition", 900, 700);
     c1->cd();
 
-    std::vector<TH2D*> h2_histos;
+    // std::vector<TH2D*> h2_histos;
+
+TH2D *h2 = new TH2D("h2", "Energy vs Radius", 20, -1, 1, 100, 0, 12000);
 
     
 
@@ -97,7 +99,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     }
 
     {
-        h2_histos.push_back(h2);
+        // h2_histos.push_back(h2);
         //now draw and save the histogram as a png
         h2->SetTitle("Energy vs Radius at 50m from copper foil");
         h2->GetXaxis()->SetTitle("Radius (cm)");
