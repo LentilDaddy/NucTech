@@ -177,11 +177,11 @@ new G4PVReplica("SlicePhysical",   // name
 
 
 
-  // G4VSolid *stainlessSteel =
-  //   new G4Tubs("stainlessSteel", 0.*cm, det_radius, dzSteel / 2, 0.*deg, 360.*deg);  
+  G4VSolid *stainlessSteel =
+    new G4Tubs("stainlessSteel", 0.*cm, det_radius, dzSteel / 2, 0.*deg, 360.*deg);  
 
-  // G4LogicalVolume *stainlessSteel_log =
-  //     new G4LogicalVolume(stainlessSteel, Fe_Steel, "stainlessSteel");
+  G4LogicalVolume *stainlessSteel_log =
+      new G4LogicalVolume(stainlessSteel, Fe_Steel, "stainlessSteel");
 
 
   //     /*Place the steel layer*/
