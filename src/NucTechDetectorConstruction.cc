@@ -75,7 +75,7 @@ C3F8->AddElement(elF, natoms=8);
 
   /***** Experimental hall *****/
 
-  G4double worldHalfLength = 10 * m; //doubled this to ensure no overlap with detector
+  G4double worldHalfLength = 100 * m; //doubled this to ensure no overlap with detector
 
   G4VSolid *world =
       new G4Box("World", worldHalfLength, worldHalfLength, worldHalfLength);
@@ -107,7 +107,8 @@ C3F8->AddElement(elF, natoms=8);
    G4double &det_PosZ = det_halfDepth; // place it so no overlap with foil
 
   new G4PVPlacement(nullptr,                         // No rotation
-		    G4ThreeVector(0., 0., det_PosZ + dzFoil + dzVacuum + dzSteel), // Translation (so no overlap with foil)
+		    G4ThreeVector(0., 0., det_PosZ + dzFoil + dzVacuum), // Translation (so no overlap with foil)
+		    // G4ThreeVector(0., 0., det_PosZ + dzFoil + dzVacuum + dzSteel), // Translation (so no overlap with foil)
                     det_logical,                     // Logical volume
                     "Detector1",                     // Name
                     world_logical,                   // Mother volume
@@ -214,7 +215,8 @@ new G4PVReplica("SlicePhysical",   // name
 
   /***** Step limit *****/
 
-  G4double maxStep = .01 * mm; //changed from 0.05
+  // G4double maxStep = .01 * mm; //changed from 0.05
+  G4double maxStep = .1 * mm; //changed from 0.05
   fStepLimit = new G4UserLimits(maxStep);
   det_logical->SetUserLimits(fStepLimit); //assigned to detector 1
   midLayer_log->SetUserLimits(fStepLimit); //assigned to detector 2 (the foil?)
