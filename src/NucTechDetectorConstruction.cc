@@ -183,17 +183,16 @@ new G4PVReplica("SlicePhysical",   // name
   //     new G4LogicalVolume(stainlessSteel, Fe_Steel, "stainlessSteel");
 
 
-      /*Place the vacuum layer*/
-  new G4PVPlacement(nullptr,                   
-		    G4ThreeVector(0., 0., dzFoil + dzVacuum), //there is a thin layer of foil at end - eventually need to change this to stainless steel
-		    // G4ThreeVector(0., 0., dzFoil + dzVacuum + dzSteel/2 ), //there is a thin layer of foil at end - eventually need to change this to stainless steel
-                    stainlessSteel_log,              // its logical volume
-                    "stainlessSteel",               // name
-                    world_logical,               // mother is Detector 2 volume
-                    false,                     // not parameterized
-                    0,                         // copy number
-                    !checkOverlaps              // overlap checking
-  );
+  //     /*Place the steel layer*/
+  // new G4PVPlacement(nullptr,                   
+	// 	    G4ThreeVector(0., 0., dzFoil + dzVacuum + dzSteel/2 ), //there is a thin layer of foil at end - eventually need to change this to stainless steel
+  //                   stainlessSteel_log,              // its logical volume
+  //                   "stainlessSteel",               // name
+  //                   world_logical,               // mother is Detector 2 volume
+  //                   false,                     // not parameterized
+  //                   0,                         // copy number
+  //                   !checkOverlaps              // overlap checking
+  // );
 
 
 
