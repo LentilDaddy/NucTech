@@ -9,10 +9,10 @@
 
 #include "G4Electron.hh"
 #include "G4Gamma.hh"
-#include "G4LowEGammaNuclearModel.hh"
-#include "G4EmExtraPhysics.hh"
-#include "G4PhotoNuclearProcess.hh"
-#include "G4PhotoNuclearCrossSection.hh"
+#include "G4Neutron.hh"
+// #include "G4LowEGammaNuclearModel.hh"
+// #include "G4EmExtraPhysics.hh"
+// #include "G4PhotoNuclearCrossSection.hh"
 
 // NucTechSteppingAction::NucTechSteppingAction(G4double foilThickness)
 //     : fV_hitEdep(), fV_hitPos(), fV_hitTime(),
@@ -193,7 +193,7 @@ bool hasFluorine18 = false;
 
 for (const auto* secondary : *secondaries) {
     G4int Z = secondary->GetDefinition()->GetAtomicNumber();
-    G4int A = secondary->GetDefinition()->GetMassNumber();
+    G4int A = secondary->GetDefinition()->GetBaryonNumber();
     
     // Check for neutron (Z=0, A=1)
     if (secondary->GetDefinition() == G4Neutron::NeutronDefinition()) {

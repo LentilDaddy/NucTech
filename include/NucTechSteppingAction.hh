@@ -18,6 +18,8 @@ public:
   virtual void UserSteppingAction(const G4Step*);
   virtual void EndOfEventAction();
 
+  void CheckPhotonuclearReaction(const G4Step* step);
+
 private:
   // These are used to remember quantities from call to call of
   // UserSteppingAction
