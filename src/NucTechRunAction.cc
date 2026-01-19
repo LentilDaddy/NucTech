@@ -58,6 +58,7 @@ void NucTechRunAction::BeginOfRunAction(const G4Run* /*run*/)
   mgr->CreateNtupleIColumn("HitPDG"); // <-- Add this line for PDG code
   mgr->CreateNtupleFColumn("HitKineticEnergy");
   mgr->CreateNtupleIColumn("HitParentID"); // <-- Add this line for Parent ID
+  mgr->CreateNtupleIColumn("ReactionCount");
   
   
   mgr->FinishNtuple();

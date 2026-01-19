@@ -9,7 +9,10 @@
 
 #include "G4Electron.hh"
 #include "G4Gamma.hh"
-
+#include "G4LowEGammaNuclearModel.hh"
+#include "G4EmExtraPhysics.hh"
+#include "G4PhotoNuclearProcess.hh"
+#include "G4PhotoNuclearCrossSection.hh"
 
 // NucTechSteppingAction::NucTechSteppingAction(G4double foilThickness)
 //     : fV_hitEdep(), fV_hitPos(), fV_hitTime(),
@@ -18,7 +21,7 @@
 // {}
 
 NucTechSteppingAction::NucTechSteppingAction()
-    : fV_hitEdep(), fV_hitPos(), fV_hitPDG(), fV_KineticEnergy(), fV_hitParentID()
+    : fV_hitEdep(), fV_hitPos(), fV_hitPDG(), fV_KineticEnergy(), fV_hitParentID(), fReactionCount(0)
 {}
 
 void NucTechSteppingAction::BeginOfEventAction() {
@@ -29,6 +32,7 @@ void NucTechSteppingAction::BeginOfEventAction() {
   fV_hitPDG.clear();
   fV_KineticEnergy.clear();
   fV_hitParentID.clear();
+  fReactionCount = 0;
 }
 
 void NucTechSteppingAction::EndOfEventAction() {
@@ -71,6 +75,7 @@ void NucTechSteppingAction::EndOfEventAction() {
     mgr->FillNtupleIColumn(1, 2, fV_hitPDG[i]); // Assuming column 5 is for PDG code
     mgr->FillNtupleFColumn(1, 3, kinEnergy);
     mgr->FillNtupleIColumn(1, 4, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
+    mgr->FillNtupleIColumn(1, 5, fReactionCount);
     mgr->AddNtupleRow(1);
   }
 }
@@ -156,4 +161,53 @@ if (currentName != "Detector1" &&
   fV_hitPDG.push_back(particleType);
   fV_hitParentID.push_back(ParentID);
 
+
+  CheckPhotonuclearReaction(step);
+
+}
+
+void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
+    const G4VProcess* process = step->GetPostStepPoint()->GetProcessDefinedStep();
+    if (!process) return;
+    
+    G4String processName = process->GetProcessName();
+    if (processName.find("photonNuclear") == std::string::npos && 
+        processName.find("PhotoNuclear") == std::string::npos) {
+        return;
+    }
+    
+// CHECK 1: Verify parent track is a gamma
+const G4Track* track = step->GetTrack();
+if (track->GetDefinition() != G4Gamma::GammaDefinition()) {
+    return;
+}
+
+// CHECK 2 & 3: Look for reaction products (neutron + 18F residual)
+const std::vector<const G4Track*>* secondaries = step->GetSecondaryInCurrentStep();
+if (!secondaries || secondaries->empty()) {
+    return;
+}
+
+bool hasNeutron = false;
+bool hasFluorine18 = false;
+
+for (const auto* secondary : *secondaries) {
+    G4int Z = secondary->GetDefinition()->GetAtomicNumber();
+    G4int A = secondary->GetDefinition()->GetMassNumber();
+    
+    // Check for neutron (Z=0, A=1)
+    if (secondary->GetDefinition() == G4Neutron::NeutronDefinition()) {
+        hasNeutron = true;
+    }
+    
+    // Check for 18F nucleus (Z=9, A=18)
+    if (Z == 9 && A == 18) {
+        hasFluorine18 = true;
+    }
+}
+
+// If we have both products, the reaction occurred (implies target was 19F)
+if (hasNeutron && hasFluorine18) {
+    fReactionCount++;
+}
 }

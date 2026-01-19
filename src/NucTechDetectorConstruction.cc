@@ -19,6 +19,7 @@
 
 
 
+
 NucTechDetectorConstruction::NucTechDetectorConstruction()
     : fStepLimit(nullptr) {}
 
@@ -90,11 +91,11 @@ C3F8->AddElement(elF, natoms=8);
 
   G4double det_radius = 9. * cm;
   // G4double dzFoilPart = 5. * mm; // foil thickness. 4mm of initial layer!
-  G4double dzVacuum = 15. * cm;
-  G4double dzFoil = 4*mm;
+  G4double dzVacuum = 10. * cm;
+  G4double dzFoil = 6*mm;
   G4double dzSteel = 0.5*mm;
-  G4double det_halfDepth = 5. * cm;
-  G4int nSlices = 100;
+  G4double det_halfDepth = 10. * cm;
+  G4int nSlices = 200;
 
 
   G4VSolid *det_solid =
@@ -203,7 +204,7 @@ new G4PVReplica("SlicePhysical",   // name
 
   // --- local magnetic field attached to vacuumLayer_log ---
   // Option A: uniform B-field (simple, recommended)
-  G4ThreeVector bVec(0., 0.1*tesla, 0.); // change vector/magnitude as needed
+  G4ThreeVector bVec(0., 1.0*tesla, 0.); // change vector/magnitude as needed
   G4UniformMagField* uniformField = new G4UniformMagField(bVec);
   G4FieldManager* vacFieldMgr = new G4FieldManager(uniformField);
   vacFieldMgr->CreateChordFinder(uniformField);
