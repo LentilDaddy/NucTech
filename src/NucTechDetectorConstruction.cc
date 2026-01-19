@@ -70,12 +70,12 @@ C3F8->AddElement(elF, natoms=8);
 
   //G4Material *foil = nist->FindOrBuildMaterial("G4_Au");
   G4Material *foil = nist->FindOrBuildMaterial("G4_Cu"); //swap target to tungsten
-  G4Material *medium = vacuum;
+  G4Material *medium = SF6;
   G4Material *Fe_Steel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
 
   /***** Experimental hall *****/
 
-  G4double worldHalfLength = 100 * m; //doubled this to ensure no overlap with detector
+  G4double worldHalfLength = 0.5 * m; //doubled this to ensure no overlap with detector
 
   G4VSolid *world =
       new G4Box("World", worldHalfLength, worldHalfLength, worldHalfLength);
@@ -88,13 +88,13 @@ C3F8->AddElement(elF, natoms=8);
 
   /***** Detector *****/
 
-  G4double det_radius = 1. * cm;
+  G4double det_radius = 9. * cm;
   // G4double dzFoilPart = 5. * mm; // foil thickness. 4mm of initial layer!
-  G4double dzVacuum = 2 * m;
-  G4double dzFoil = 2*cm;
+  G4double dzVacuum = 15. * cm;
+  G4double dzFoil = 4*mm;
   G4double dzSteel = 0.5*mm;
-  G4double det_halfDepth = 25 * m;
-  G4int nSlices = 50000;
+  G4double det_halfDepth = 5. * cm;
+  G4int nSlices = 100;
 
 
   G4VSolid *det_solid =
@@ -107,8 +107,7 @@ C3F8->AddElement(elF, natoms=8);
    G4double &det_PosZ = det_halfDepth; // place it so no overlap with foil
 
   new G4PVPlacement(nullptr,                         // No rotation
-		    G4ThreeVector(0., 0., det_PosZ + dzFoil + dzVacuum), // Translation (so no overlap with foil)
-		    // G4ThreeVector(0., 0., det_PosZ + dzFoil + dzVacuum + dzSteel), // Translation (so no overlap with foil)
+		    G4ThreeVector(0., 0., det_PosZ + dzFoil + dzVacuum + dzSteel), // Translation (so no overlap with foil)
                     det_logical,                     // Logical volume
                     "Detector1",                     // Name
                     world_logical,                   // Mother volume
@@ -184,16 +183,16 @@ new G4PVReplica("SlicePhysical",   // name
       new G4LogicalVolume(stainlessSteel, Fe_Steel, "stainlessSteel");
 
 
-  //     /*Place the steel layer*/
-  // new G4PVPlacement(nullptr,                   
-	// 	    G4ThreeVector(0., 0., dzFoil + dzVacuum + dzSteel/2 ), //there is a thin layer of foil at end - eventually need to change this to stainless steel
-  //                   stainlessSteel_log,              // its logical volume
-  //                   "stainlessSteel",               // name
-  //                   world_logical,               // mother is Detector 2 volume
-  //                   false,                     // not parameterized
-  //                   0,                         // copy number
-  //                   !checkOverlaps              // overlap checking
-  // );
+      /*Place the vacuum layer*/
+  new G4PVPlacement(nullptr,                   
+		    G4ThreeVector(0., 0., dzFoil + dzVacuum + dzSteel/2 ), //there is a thin layer of foil at end - eventually need to change this to stainless steel
+                    stainlessSteel_log,              // its logical volume
+                    "stainlessSteel",               // name
+                    world_logical,               // mother is Detector 2 volume
+                    false,                     // not parameterized
+                    0,                         // copy number
+                    !checkOverlaps              // overlap checking
+  );
 
 
 
@@ -204,7 +203,7 @@ new G4PVReplica("SlicePhysical",   // name
 
   // --- local magnetic field attached to vacuumLayer_log ---
   // Option A: uniform B-field (simple, recommended)
-  G4ThreeVector bVec(0., 10*tesla, 0.); // change vector/magnitude as needed
+  G4ThreeVector bVec(0., 0.1*tesla, 0.); // change vector/magnitude as needed
   G4UniformMagField* uniformField = new G4UniformMagField(bVec);
   G4FieldManager* vacFieldMgr = new G4FieldManager(uniformField);
   vacFieldMgr->CreateChordFinder(uniformField);
@@ -215,13 +214,10 @@ new G4PVReplica("SlicePhysical",   // name
 
   /***** Step limit *****/
 
-  // G4double maxStep = .01 * mm; //changed from 0.05
-  G4double maxStep = .1 * mm; //changed from 0.05
+  G4double maxStep = .01 * mm; //changed from 0.05
   fStepLimit = new G4UserLimits(maxStep);
   det_logical->SetUserLimits(fStepLimit); //assigned to detector 1
   midLayer_log->SetUserLimits(fStepLimit); //assigned to detector 2 (the foil?)
-  vacuumLayer_log->SetUserLimits(fStepLimit); //assigned to vacuum layer
-  // stainlessSteel_log->SetUserLimits(fStepLimit); //assigned to stainless steel layer
   // sliceLogical->SetUserLimits(fStepLimit); //should this be applied to the slices?
 
   /***** Visualisation *****/
