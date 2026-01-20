@@ -1,3 +1,11 @@
+//root -l -b -q 'compare.C++()'
+//compiled version in Makefile
+
+//why does it take so long to run
+//figure out how to create tchains only for exisiting files
+//batch processing?
+//ask for help with profiling in ROOT 
+//in parallel on Viking instead
 
 #include <TSystem.h>
 #include <TPluginManager.h> 
@@ -9,9 +17,7 @@
 #include <TH2D.h>
 #include <TCanvas.h>
 #include <TLegend.h>
-#include <TLine.h>
 #include <TGraph.h>
-#include <TGaxis.h>
 #include <TMultiGraph.h>
 #include <TStyle.h>
 #include <TString.h>
@@ -21,6 +27,7 @@
 #include <string>
 #include <regex>
 #include <cmath>
+// #include <omp.h>
 
 struct HistogramDecoration {
    int lineWidth;
@@ -34,180 +41,190 @@ struct HistogramDecoration {
    double yMax;
 };
 
-
-// struct EnergyResult {
-//     std::string energyLabel;
-//     double energy;
-//     double foilThickness;
-//     double stoppedPrimaries;
-// };
-
-struct EnergyResult {
-    std::string BfieldLabel;
-    double vacuumLength;
-    double Bfield;
-    double electrons;
-};
-
-
-// int kP10Cyan = TColor::GetColor("#92dadd");
-// int kP10Ash = TColor::GetColor("#717581");
-// int kP10Green = TColor::GetColor("#b9ac70");
-// int kP10Orange = TColor::GetColor("#e76300");
-// int kP10Brown = TColor::GetColor("#a96b59");
-// int kP10Violet = TColor::GetColor("#832db6");
-// int kP10Gray = TColor::GetColor("#94a4a2");
-// int kP10Red = TColor::GetColor("#bd1f01");
-// int kP10Yellow = TColor::GetColor("#ffa90e");
-// int kP10Blue = TColor::GetColor("#3f90da");
-
-
-
-
 void compare()
 {
     gROOT->SetBatch(kTRUE);
 
 
-    std::vector<std::pair<std::string, TChain*>> chains;
+    // #pragma omp parallel
+    // {
+    //     int tid = omp_get_thread_num();
+    //     #pragma omp critical
+    //     std::cout << "Hello from thread " << tid << std::endl;
+    // }
 
-    std::vector<EnergyResult> results;
+    //===============================
+    // Define TChains for each medium
+    //===============================
 
-    std::vector<std::string> vacuumLengths = {"1cm", "2cm", "3cm", "4cm", "5cm", "6cm", "7cm", "8cm", "9cm", "10cm", "11cm", "12cm", "13cm", "14cm", "15cm"};
+    std::vector<std::tuple<std::string, TChain*, double>> chains;
 
-    std::vector<std::string> BFields = {"0.0T", "0.1T", "1.0T"};;
+    std::vector<std::string> mediums = {"SF6", "C3F8", "CF4", "UF6", "vacuum"};
+    // std::vector<std::string> mediums = {"SF6", "C3F8"};
+    std::vector<std::string> energies = {"20MeV", "25MeV", "30MeV", "35MeV", "40MeV", "45MeV", "50MeV"};
 
-    for (const auto &m : vacuumLengths) {
-        for (const auto &e : BFields) {
+    //vector pairs fr energy and foil thicknesses:
+
+    std::vector<std::pair<std::string, double>> energyFoilPairs = {
+        {"20MeV", 3},
+        {"25MeV", 3},
+        {"30MeV", 6},
+        {"35MeV", 10},
+        {"40MeV", 10},
+        {"45MeV", 12},
+        {"50MeV", 12}
+    };
+
+    // std::vector<std::string> energies = {"30MeV"};
+
+    // create one TChain per (medium, energy) and add matching files immediately
+    for (const auto &m : mediums) {
+        for (const auto &pair : energyFoilPairs) {
+            std::string e = pair.first;
+            double foilThickness = pair.second;
             std::string label = m + "_" + e; //does this mean it has to be in this order?
             TChain *ch = new TChain("IndividualHits");
-            ch->Add(TString::Format("*_%sVacuum*%s*.root", m.c_str(), e.c_str()).Data());
-            chains.push_back({label, ch});
+            ch->Add(TString::Format("%s_*%s_*.root", m.c_str(), e.c_str()).Data());
+            chains.push_back(std::make_tuple(label, ch, foilThickness));
         }
     }
-
+    
 
     //===============================
     // Decorations and setup
     //===============================
-    // HistogramDecoration Decoration = {
-    //    1, kBlack, "Depth (cm)", "#photons in range 15-22 MeV", nullptr, 0., 100., 0., 0.
+    HistogramDecoration Decoration = {
+       1, kBlack, "Depth (cm)", "#photons in range 15-22 MeV", nullptr, 0., 100., 0., 0.
+    }; //do not use this range
+
+    // HistogramDecoration photonDecoration = {
+    //    1, kBlack, "Depth (cm)", "Photon Energy (MeV)", nullptr, 0., 100., 0., 0.
     // };
+
+    int colors[] = {kRed, kSpring+5, kBlack, kMagenta+2, kViolet-2, kBlue-7,
+                    kAzure-1, kCyan, kTeal+10, kGreen+3, kYellow, kGray,
+                    kOrange-7, kPink+7};
+    int nColors = sizeof(colors)/sizeof(int);
 
     TLegend *legend = new TLegend(0.7,0.7,0.9,0.9);
     TCanvas *c1 = new TCanvas("c1", "Compare Energy Deposition", 900, 700);
     c1->cd();
 
     std::vector<TH1D*> histos;
-    std::vector<double> StopppedPrimariesIntegrals;
+    // std::vector<TH2D*> h2_histos;
+    std::vector<double> usefulPhotonIntegrals;
+    // double globalMax = 0.0;
 
 for (size_t i = 0; i < chains.size(); i++) {
-    TChain *t = chains[i].second;
-    std::string label = chains[i].first;
+    auto [label, t, foilThickness] = chains[i];
 
-    // Parse label: vacuumLength_Bfield (e.g., "15cm_0.1T")
-    size_t lastUnderscore = label.rfind("_");
-    std::string vacuumLengthStr = label.substr(0, lastUnderscore);
-    std::string BfieldStr = label.substr(lastUnderscore + 1);
-
-    // Extract numeric values
-    auto posCm = vacuumLengthStr.find("cm");
-    double vacuumLength = std::stod(vacuumLengthStr.substr(0, posCm));
-    
-    auto posT = BfieldStr.find("T");
-    double Bfield = std::stod(BfieldStr.substr(0, posT));
+    double integral = 0.0; // Initialize to 0
 
     if (!t || t->GetEntries() == 0) {
         std::cout << "Warning: Chain " << label << " is empty!" << std::endl;
-        continue;
-    }
+    } else {
 
-    double foilThickness = 4.0; //mm
 
-    // TH1D *h = new TH1D(
-    //     TString::Format("h_%zu", i),
-    //     TString::Format("Depth Distribution of Electrons"),
-    //     (foilThickness + vacuumLength*10 + 0.5)*10, 0, (foilThickness + vacuumLength*10 + 0.5)/10
-    // ); //0.1mm bin size
-
+        Float_t vacuumLength = 10.0; //cm
     TH1D *h = new TH1D(
         TString::Format("h_%zu", i),
         TString::Format("Depth Distribution of Electrons"),
-        1, foilThickness/10 + vacuumLength, foilThickness/10 + vacuumLength + 0.05
-    ); //0.5mm bin size
+        200, foilThickness/10 + vacuumLength+0.05, foilThickness/10 + vacuumLength + 0.05 + 20
+    ); //1mm bin size
 
+        // Disable global ROOT directory writing for safety
+        h->SetDirectory(nullptr);
 
-    //maybe just do range over steel part instead. So foil + vacuum length to foil + vacuum length + steel thickness
+        Float_t z, kineticE;
+        Int_t pdg, reactionCount;
+        t->SetBranchAddress("HitZ", &z);
+        t->SetBranchAddress("HitPDG", &pdg);
+        t->SetBranchAddress("HitKineticEnergy", &kineticE);
+        t->SetBranchAddress("ReactionCount", &reactionCount);
 
-    h->SetDirectory(nullptr);
-
-    float_t z, kineticE, r;
-    Int_t pdg, parentID;
-
-    t->SetBranchStatus("*", 0);
-    t->SetBranchStatus("HitZ", 1);
-    t->SetBranchStatus("HitPDG", 1);
-    t->SetBranchStatus("HitKineticEnergy", 1);
-    t->SetBranchStatus("HitParentID", 1);
-    t->SetBranchAddress("HitZ", &z);
-    t->SetBranchAddress("HitR", &r);
-    t->SetBranchAddress("HitPDG", &pdg);
-    t->SetBranchAddress("HitKineticEnergy", &kineticE);
-    t->SetBranchAddress("HitParentID", &parentID);
-
-    Long64_t nentries = t->GetEntries();
-    for (Long64_t j = 0; j < nentries; ++j) {
-        t->GetEntry(j);
-        if (pdg == 0) {
-            h->Fill(z);
+        Long64_t nentries = t->GetEntries();
+        for (Long64_t j = 0; j < nentries; ++j) {
+            t->GetEntry(j);
+            h->Fill(reactionCount);
+            // if (pdg == 1 && kineticE > 15 && kineticE < 22)
+            //     h->Fill(z);
         }
+
+        integral = h->Integral(); //since the x range is already adjusted
+
+        h->SetLineColor(colors[i % nColors]);
+        h->SetLineWidth(Decoration.lineWidth);
+        h->GetXaxis()->SetTitle(Decoration.xTitle);
+        h->GetYaxis()->SetTitle(Decoration.yTitle);
+
+        histos.push_back(h);
+        legend->AddEntry(h, label.c_str(), "l");
     }
 
-    // double foilThickness = 4.0; //mm
-    // double integral = h->Integral(foilThickness/10 + vacuumLength, foilThickness/10 + vacuumLength + 0.05);
-    double integral = h->Integral();
-    
-    std::cout << "Integral for " << label << ": " << integral << std::endl;
-
-    histos.push_back(h);
-    legend->AddEntry(h, label.c_str(), "l");
-
-    results.push_back({BfieldStr, vacuumLength, Bfield, integral});
+    // usefulPhotonIntegrals.push_back(integral / 10e6); // Always push, even if 0
+    usefulPhotonIntegrals.push_back(integral); // now pushing back reaction count
 }
 
-    // //===============================
-    // // Scatter plot of useful photons vs beam energy
-    // //===============================
+    //===============================
+    // Scatter plot of useful photons vs beam energy
+    //===============================
+    TGraph *gSF6 = new TGraph();
+    TGraph *gC3F8 = new TGraph();
+    TGraph *gCF4 = new TGraph();
+    TGraph *gPF5 = new TGraph();
+    TGraph *gUF6 = new TGraph();
+    TGraph *gVacuum = new TGraph();
 
-    TGraph *gScatter_0T = new TGraph();
-    TGraph *gScatter_01T = new TGraph();
-    TGraph *gScatter_1T = new TGraph();
+    int idxSF6=0, idxC3F8=0, idxCF4=0, idxPF5=0, idxUF6=0, idxVacuum=0;
+
+    for (size_t i=0; i<chains.size(); i++) {
+        // std::string label = chains[i].first;
+        auto [label, _, __] = chains[i]; 
+        double beamEnergy = 0.0;
 
 
-    for (const auto& r : results) {
-        if (r.BfieldLabel == "0.0T") {
-            gScatter_0T->SetPoint(gScatter_0T->GetN(), r.vacuumLength, r.electrons);
-        } else if (r.BfieldLabel == "0.1T") {
-            gScatter_01T->SetPoint(gScatter_01T->GetN(), r.vacuumLength, r.electrons);
-        } else if (r.BfieldLabel == "1.0T") {
-            gScatter_1T->SetPoint(gScatter_1T->GetN(), r.vacuumLength, r.electrons);
+        std::regex energyRegex(R"((\d+(?:\.\d+)?)\s*MeV)");
+        std::smatch match;
+        if (std::regex_search(label, match, energyRegex)) {
+            beamEnergy = std::stod(match[1].str());
+        } else {
+            continue;
+
         }
-    }  
 
+        double usefulPhotons = (i < usefulPhotonIntegrals.size()) ? usefulPhotonIntegrals[i] : 0; // what does this mean
 
-    // // Style graphs
-    gScatter_0T->SetMarkerColor(kP10Red);
-    gScatter_0T->SetMarkerStyle(21);
+        if (label.find("SF6") != std::string::npos)
+            gSF6->SetPoint(idxSF6++, beamEnergy, usefulPhotons);
+        else if (label.find("C3F8") != std::string::npos)
+            gC3F8->SetPoint(idxC3F8++, beamEnergy, usefulPhotons);
+        else if (label.find("CF4") != std::string::npos)
+            gCF4->SetPoint(idxCF4++, beamEnergy, usefulPhotons);
+        else if (label.find("PF5") != std::string::npos)
+            gPF5->SetPoint(idxPF5++, beamEnergy, usefulPhotons);
+        else if (label.find("UF6") != std::string::npos)
+            gUF6->SetPoint(idxUF6++, beamEnergy, usefulPhotons);
+        else if (label.find("vacuum") != std::string::npos)
+            gVacuum->SetPoint(idxVacuum++, beamEnergy, usefulPhotons);
+    }
 
-    gScatter_01T->SetMarkerColor(kP10Cyan);
-    gScatter_01T->SetMarkerStyle(23);
+    // Style graphs
+    // gSF6->SetMarkerColor(kP10Red);   gSF6->SetMarkerStyle(21);
+    // gC3F8->SetMarkerColor(kP10Cyan);   gC3F8->SetMarkerStyle(23);
+    // gCF4->SetMarkerColor(kP10Ash);  gCF4->SetMarkerStyle(24);
+    // gPF5->SetMarkerColor(kP10Green); ;gPF5->SetMarkerStyle(22);
+    // gUF6->SetMarkerColor(kP10Orange); gUF6->SetMarkerStyle(25);
+    // gVacuum->SetMarkerColor(kP10Brown) ;gVacuum->SetMarkerStyle(26);
 
-    gScatter_1T->SetMarkerColor(kP10Green);
-    gScatter_1T->SetMarkerStyle(22);
-
+    gSF6->SetMarkerColor(kRed);   gSF6->SetMarkerStyle(21);
+    gC3F8->SetMarkerColor(kCyan);   gC3F8->SetMarkerStyle(23);
+    gCF4->SetMarkerColor(kBlue);  gCF4->SetMarkerStyle(24);
+    gPF5->SetMarkerColor(kGreen); gPF5->SetMarkerStyle(22);
+    gUF6->SetMarkerColor(kOrange); gUF6->SetMarkerStyle(25);
+    gVacuum->SetMarkerColor(kPink) ;gVacuum->SetMarkerStyle(26);
 
     double YMax = -1e9;
-    for (auto g : {gScatter_01T, gScatter_1T, gScatter_0T}) {
+    for (auto g : {gSF6, gC3F8, gCF4, gPF5, gUF6, gVacuum}) {
         int n = g->GetN(); //number of points in each graph
         for (int i = 0; i < n; ++i) {
             double x, y;
@@ -215,50 +232,33 @@ for (size_t i = 0; i < chains.size(); i++) {
             if (y > YMax) YMax = y;
         }
     }
+
+    //rest should be serial
     TMultiGraph *mg = new TMultiGraph();
-    mg->Add(gScatter_0T, "P");
-    mg->Add(gScatter_01T, "P");
-    mg->Add(gScatter_1T, "P");
+    mg->Add(gSF6, "P");
+    mg->Add(gC3F8, "P");
+    mg->Add(gCF4, "P");
+    mg->Add(gPF5, "P");
+    mg->Add(gUF6, "P");
+    mg->Add(gVacuum, "P");
+    mg->SetMaximum(YMax * 1.1);
 
-    //Fix y axis range to 100
+    TLegend *scatterLegend = new TLegend(0.1, 0.78, 0.3, 0.88);
+    scatterLegend->AddEntry(gSF6, "SF6", "p");
+    scatterLegend->AddEntry(gC3F8, "C3F8", "p");
+    scatterLegend->AddEntry(gCF4, "CF4", "p");
+    scatterLegend->AddEntry(gPF5, "PF5", "p");
+    scatterLegend->AddEntry(gUF6, "UF6", "p");
+    scatterLegend->AddEntry(gVacuum, "Vacuum", "p");
 
-    mg->SetMinimum(0);
-    mg->SetMaximum(YMax*1.1);
- 
-
-    TCanvas *c3 = new TCanvas("c3", "#Electrons entering Stainless Steel Layer vs Bfield region Length", 600, 500);
-    // c3->SetRightMargin(0.15);
-    c3->SetLeftMargin(0.15);
-
-
-    mg->SetTitle("#Electrons entering Stainless Steel Layer against length of B field region");
-    mg->GetXaxis()->SetTitle("Length (cm)");
-    mg->GetYaxis()->SetTitle("#Electrons entering Stainless Steel Layer");
-    mg->GetXaxis()->SetTitleSize(0.05);
-    mg->GetYaxis()->SetTitleSize(0.05);
-    mg->GetXaxis()->SetLabelSize(0.04);
-    mg->GetYaxis()->SetLabelSize(0.04);
-
+    TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Beam Energy", 600, 500);
+    mg->SetTitle("#19F(gamma, 18F)n reactions vs beam energy;Beam energy (MeV);#19F(gamma, 18F)n reactions");
     mg->Draw("AP");
-    mg->GetXaxis()->SetLimits(0, 20); //this was too low
-    mg->GetYaxis()->SetRangeUser(0, YMax*1.1);   // << FIXED
-    TLegend *lgb = new TLegend(0.75, 0.75, 0.95, 0.95);
-    lgb->SetBorderSize(0);
-    lgb->SetFillStyle(0);
-    lgb->AddEntry(gScatter_0T, "B = 0.0 T", "P");
-    lgb->AddEntry(gScatter_01T, "B = 0.1 T", "P");
-    lgb->AddEntry(gScatter_1T, "B = 1.0 T", "P");
-    lgb->Draw();
-
-    c3->cd();
+    mg->GetXaxis()->SetLimits(19, 51);
+    scatterLegend->Draw();
     c3->Update();
-    c3->SaveAs("ElectronsSteel.png");
-
-
+    c3->SaveAs("scatter.png");
 }
-
-
-
 
 int main() {
     compare();
