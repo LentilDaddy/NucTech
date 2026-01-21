@@ -259,8 +259,8 @@ for (size_t i = 0; i < chains.size(); i++) {
     scatterLegend->AddEntry(gUF6, "UF6", "p");
     scatterLegend->AddEntry(gVacuum, "Vacuum", "p");
 
-    TCanvas *c3 = new TCanvas("c3", "#Useful Photons vs Beam Energy", 600, 500);
-    mg->SetTitle("#19F(gamma, 18F)n reactions vs beam energy;Beam energy (MeV);#19F(gamma, 18F)n reactions");
+    TCanvas *c3 = new TCanvas("c3", "#Reactions per Primary Electron vs Beam Energy", 600, 500);
+    mg->SetTitle("#19F(gamma, 18F)n reactions per primary electron vs beam energy;Beam energy (MeV);#19F(gamma, 18F)n reactions");
     mg->Draw("AP");
     mg->GetXaxis()->SetLimits(19, 51);
     scatterLegend->Draw();
