@@ -170,8 +170,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     }
 
     // usefulPhotonIntegrals.push_back(integral / 10e6); // Always push, even if 0
-    usefulPhotonIntegrals.push_back(integral / 1e6); // now pushing back reaction count
-}
+    usefulPhotonIntegrals.push_back(integral / 1e5); //for 100,000 electrons
 
     //===============================
     // Scatter plot of useful photons vs beam energy
