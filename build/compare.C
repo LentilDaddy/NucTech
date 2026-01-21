@@ -126,11 +126,19 @@ for (size_t i = 0; i < chains.size(); i++) {
 
 
         Float_t vacuumLength = 10.0; //cm
+        Float_t steel = 0.05; //cm
+
+    // TH1D *h = new TH1D(
+    //     TString::Format("h_%zu", i),
+    //     TString::Format("Depth Distribution of Electrons"),
+    //     200, foilThickness/10 + vacuumLength+0.05, foilThickness/10 + vacuumLength + 0.05 + 20
+    // ); //1mm bin size
+
     TH1D *h = new TH1D(
         TString::Format("h_%zu", i),
         TString::Format("Depth Distribution of Electrons"),
-        200, foilThickness/10 + vacuumLength+0.05, foilThickness/10 + vacuumLength + 0.05 + 20
-    ); //1mm bin size
+        2, 0, 2
+    ); 
 
         // Disable global ROOT directory writing for safety
         h->SetDirectory(nullptr);
@@ -145,9 +153,9 @@ for (size_t i = 0; i < chains.size(); i++) {
         Long64_t nentries = t->GetEntries();
         for (Long64_t j = 0; j < nentries; ++j) {
             t->GetEntry(j);
-            h->Fill(reactionCount);
-            // if (pdg == 1 && kineticE > 15 && kineticE < 22)
-            //     h->Fill(z);
+            if (z >= (foilThickness/10 + vacuumLength + steel) && z <= (foilThickness/10 + vacuumLength + steel + 20))
+                h->Fill(reactionCount);
+
         }
 
         integral = h->Integral(); //since the x range is already adjusted
@@ -162,7 +170,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     }
 
     // usefulPhotonIntegrals.push_back(integral / 10e6); // Always push, even if 0
-    usefulPhotonIntegrals.push_back(integral); // now pushing back reaction count
+    usefulPhotonIntegrals.push_back(integral / 10e3); // now pushing back reaction count
 }
 
     //===============================
