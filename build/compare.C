@@ -202,18 +202,20 @@ for (size_t i = 0; i < chains.size(); i++) {
 
         double usefulPhotons = (i < usefulPhotonIntegrals.size()) ? usefulPhotonIntegrals[i] : 0; // what does this mean
 
-        if (label.find("SF6") != std::string::npos)
-            gSF6->SetPoint(idxSF6++, beamEnergy, usefulPhotons);
-        else if (label.find("C3F8") != std::string::npos)
-            gC3F8->SetPoint(idxC3F8++, beamEnergy, usefulPhotons);
-        else if (label.find("CF4") != std::string::npos)
-            gCF4->SetPoint(idxCF4++, beamEnergy, usefulPhotons);
-        else if (label.find("PF5") != std::string::npos)
-            gPF5->SetPoint(idxPF5++, beamEnergy, usefulPhotons);
-        else if (label.find("UF6") != std::string::npos)
-            gUF6->SetPoint(idxUF6++, beamEnergy, usefulPhotons);
-        else if (label.find("vacuum") != std::string::npos)
-            gVacuum->SetPoint(idxVacuum++, beamEnergy, usefulPhotons);
+        if (usefulPhotons > 0) {  // Only add point if there is data
+            if (label.find("SF6") != std::string::npos)
+                gSF6->SetPoint(idxSF6++, beamEnergy, usefulPhotons);
+            else if (label.find("C3F8") != std::string::npos)
+                gC3F8->SetPoint(idxC3F8++, beamEnergy, usefulPhotons);
+            else if (label.find("CF4") != std::string::npos)
+                gCF4->SetPoint(idxCF4++, beamEnergy, usefulPhotons);
+            else if (label.find("PF5") != std::string::npos)
+                gPF5->SetPoint(idxPF5++, beamEnergy, usefulPhotons);
+            else if (label.find("UF6") != std::string::npos)
+                gUF6->SetPoint(idxUF6++, beamEnergy, usefulPhotons);
+            else if (label.find("vacuum") != std::string::npos)
+                gVacuum->SetPoint(idxVacuum++, beamEnergy, usefulPhotons);
+        }
     }
 
     // Style graphs
@@ -260,7 +262,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     scatterLegend->AddEntry(gVacuum, "Vacuum", "p");
 
     TCanvas *c3 = new TCanvas("c3", "#Reactions per Primary Electron vs Beam Energy", 600, 500);
-    mg->SetTitle("#19F(gamma, 18F)n reactions per primary electron vs beam energy;Beam energy (MeV);#19F(gamma, 18F)n reactions");
+    mg->SetTitle("#19F(gamma, 18F)n reactions per primary electron vs beam energy;Beam energy (MeV);#19F(gamma, 18F)n reactions per primary electron");
     mg->Draw("AP");
     mg->GetXaxis()->SetLimits(19, 51);
     scatterLegend->Draw();
