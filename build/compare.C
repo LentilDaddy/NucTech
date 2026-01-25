@@ -1,11 +1,4 @@
-//root -l -b -q 'compare.C++()'
-//compiled version in Makefile
 
-//why does it take so long to run
-//figure out how to create tchains only for exisiting files
-//batch processing?
-//ask for help with profiling in ROOT 
-//in parallel on Viking instead
 
 #include <TSystem.h>
 #include <TPluginManager.h> 
@@ -170,7 +163,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     }
 
     // usefulPhotonIntegrals.push_back(integral / 10e6); // Always push, even if 0
-    usefulPhotonIntegrals.push_back(integral / 1e5); // now pushing back reaction count
+    usefulPhotonIntegrals.push_back(integral / (2*1e5)); // now pushing back reaction count
 }
 
     //===============================
