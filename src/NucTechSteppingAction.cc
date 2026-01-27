@@ -167,31 +167,31 @@ if (currentName != "Detector1" &&
 }
 
 void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
-    const G4VProcess* process = step->GetPostStepPoint()->GetProcessDefinedStep();
-    if (!process) return;
+  const G4VProcess* process = step->GetPostStepPoint()->GetProcessDefinedStep();
+  if (!process) return;
+  
+  G4String processName = process->GetProcessName();
+  if (processName.find("photonNuclear") != std::string::npos && 
+      processName.find("PhotoNuclear") != std::string::npos) {
+      return;
+  }
     
-    G4String processName = process->GetProcessName();
-    if (processName.find("photonNuclear") == std::string::npos && 
-        processName.find("PhotoNuclear") == std::string::npos) {
-        return;
-    }
-    
-// CHECK 1: Verify parent track is a gamma
-const G4Track* track = step->GetTrack();
-if (track->GetDefinition() != G4Gamma::GammaDefinition()) {
-    return;
-}
+  // CHECK 1: Verify parent track is a gamma
+  const G4Track* track = step->GetTrack();
+  if (track->GetDefinition() != G4Gamma::GammaDefinition()) {
+      return;
+  }
 
-// CHECK 2 & 3: Look for reaction products (neutron + 18F residual)
-const std::vector<const G4Track*>* secondaries = step->GetSecondaryInCurrentStep();
-if (!secondaries || secondaries->empty()) {
-    return;
-}
+  // CHECK 2 & 3: Look for reaction products (neutron + 18F residual)
+  const std::vector<const G4Track*>* secondaries = step->GetSecondaryInCurrentStep();
+  if (!secondaries || secondaries->empty()) {
+      return;
+  }
 
-bool hasNeutron = false;
-bool hasFluorine18 = false;
+  bool hasNeutron = false;
+  bool hasFluorine18 = false;
 
-for (const auto* secondary : *secondaries) {
+  for (const auto* secondary : *secondaries) {
     G4int Z = secondary->GetDefinition()->GetAtomicNumber();
     G4int A = secondary->GetDefinition()->GetBaryonNumber();
     
@@ -204,10 +204,23 @@ for (const auto* secondary : *secondaries) {
     if (Z == 9 && A == 18) {
         hasFluorine18 = true;
     }
-}
+  }
+  // If we have both products, the reaction occurred (implies target was 19F)
+  if (hasNeutron && hasFluorine18) {
+    //print all particle types produced in the reaction
+    std::cout << "Photonuclear reaction particles A and Z:" << std::endl;
+    for (const auto* secondary : *secondaries) {
+        G4int Z = secondary->GetDefinition()->GetAtomicNumber();
+        G4int A = secondary->GetDefinition()->GetBaryonNumber();
+        std::cout << "Particle: A=" << A << ", Z=" << Z << std::endl;
+    }
 
-// If we have both products, the reaction occurred (implies target was 19F)
-if (hasNeutron && hasFluorine18) {
-    fReactionCount++;
-}
+      fReactionCount++;
+      std::cout << "Count incremented to: " << fReactionCount << std::endl;
+  }
+  else {
+    std::cout << "Photonuclear reaction did not produce both neutron and 18F." << std::endl;
+    std::cout << "Count incremented to: " << fReactionCount << std::endl;
+    return;
+  }
 }

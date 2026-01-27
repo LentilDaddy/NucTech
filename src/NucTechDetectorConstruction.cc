@@ -71,7 +71,7 @@ C3F8->AddElement(elF, natoms=8);
 
   //G4Material *foil = nist->FindOrBuildMaterial("G4_Au");
   G4Material *foil = nist->FindOrBuildMaterial("G4_Cu"); //swap target to tungsten
-  G4Material *medium = SF6;
+  G4Material *medium = vacuum;
   G4Material *Fe_Steel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
 
   /***** Experimental hall *****/
@@ -95,7 +95,7 @@ C3F8->AddElement(elF, natoms=8);
   G4double dzFoil = 6*mm;
   G4double dzSteel = 0.5*mm;
   G4double det_halfDepth = 10. * cm;
-  G4int nSlices = 200;
+  // G4int nSlices = 200;
 
 
   G4VSolid *det_solid =
@@ -129,19 +129,19 @@ C3F8->AddElement(elF, natoms=8);
 
   /***** Slices in detector *****/
 
-G4double sliceHalfThickness = 0.5 * mm;
-G4VSolid* sliceSolid = new G4Tubs("SliceSolid", 0.*cm, det_radius, sliceHalfThickness, 0.*deg, 360.*deg);
+// G4double sliceHalfThickness = 0.5 * mm;
+// G4VSolid* sliceSolid = new G4Tubs("SliceSolid", 0.*cm, det_radius, sliceHalfThickness, 0.*deg, 360.*deg);
 
-G4LogicalVolume* sliceLogical =
-    new G4LogicalVolume(sliceSolid, medium, "SliceLogical");
+// G4LogicalVolume* sliceLogical =
+//     new G4LogicalVolume(sliceSolid, medium, "SliceLogical");
 
 
-new G4PVReplica("SlicePhysical",   // name
-                sliceLogical,      // logical volume of slice
-                det_logical,       // mother volume (Detector1)
-                kZAxis,            // replicate along Z (the cylinder axis). kZAxis is predefined in G4PhysicalConstants.hh
-                nSlices,              // number of slices (Detector1 half-depth × 2 / 1 mm)
-                1.0 * mm);         // slice thickness
+// new G4PVReplica("SlicePhysical",   // name
+//                 sliceLogical,      // logical volume of slice
+//                 det_logical,       // mother volume (Detector1)
+//                 kZAxis,            // replicate along Z (the cylinder axis). kZAxis is predefined in G4PhysicalConstants.hh
+//                 nSlices,              // number of slices (Detector1 half-depth × 2 / 1 mm)
+//                 1.0 * mm);         // slice thickness
 
       /*Place the foil*/
   new G4PVPlacement(nullptr,                   // no rotation
