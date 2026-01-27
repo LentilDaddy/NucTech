@@ -146,7 +146,7 @@ for (size_t i = 0; i < chains.size(); i++) {
         Long64_t nentries = t->GetEntries();
         for (Long64_t j = 0; j < nentries; ++j) {
             t->GetEntry(j);
-            if (z >= (foilThickness/10 + vacuumLength + steel) && z <= (foilThickness/10 + vacuumLength + steel + 20))
+            if (z >= (foilThickness/10 + vacuumLength + steel) && z <= (foilThickness/10 + vacuumLength + steel + 20) && reactionCount)
                 h->Fill(reactionCount);
 
         }
@@ -162,7 +162,6 @@ for (size_t i = 0; i < chains.size(); i++) {
         legend->AddEntry(h, label.c_str(), "l");
     }
 
-    // usefulPhotonIntegrals.push_back(integral / 10e6); // Always push, even if 0
     usefulPhotonIntegrals.push_back(integral / (2*1e5)); // now pushing back reaction count
 }
 

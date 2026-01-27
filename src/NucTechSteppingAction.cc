@@ -75,7 +75,7 @@ void NucTechSteppingAction::EndOfEventAction() {
     mgr->FillNtupleIColumn(1, 2, fV_hitPDG[i]); // Assuming column 5 is for PDG code
     mgr->FillNtupleFColumn(1, 3, kinEnergy);
     mgr->FillNtupleIColumn(1, 4, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
-    mgr->FillNtupleIColumn(1, 5, fReactionCount);
+    mgr->FillNtupleIColumn(1, 5, fReactionCount); //i think it is filling this with 0 values... 
     mgr->AddNtupleRow(1);
   }
 }
@@ -219,8 +219,8 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
       std::cout << "Count incremented to: " << fReactionCount << std::endl;
   }
   else {
-    std::cout << "Photonuclear reaction did not produce both neutron and 18F." << std::endl;
-    std::cout << "Count incremented to: " << fReactionCount << std::endl;
+    // std::cout << "Photonuclear reaction did not produce both neutron and 18F." << std::endl;
+    // std::cout << "Count incremented to: " << fReactionCount << std::endl;
     return;
   }
 }

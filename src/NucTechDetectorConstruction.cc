@@ -71,7 +71,7 @@ C3F8->AddElement(elF, natoms=8);
 
   //G4Material *foil = nist->FindOrBuildMaterial("G4_Au");
   G4Material *foil = nist->FindOrBuildMaterial("G4_Cu"); //swap target to tungsten
-  G4Material *medium = vacuum;
+  G4Material *medium = SF6;
   G4Material *Fe_Steel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
 
   /***** Experimental hall *****/
