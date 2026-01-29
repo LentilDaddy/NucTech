@@ -34,7 +34,7 @@ private:
   // G4int fPrimariesDetector1;
   // std::set<G4int> fPrimariesDetector1;
   std::vector<int> fV_hitParentID;
-  int fReactionCount;
+  int HitReactionCount;
 
 };
 

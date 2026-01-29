@@ -71,12 +71,12 @@ C3F8->AddElement(elF, natoms=8);
 
   //G4Material *foil = nist->FindOrBuildMaterial("G4_Au");
   G4Material *foil = nist->FindOrBuildMaterial("G4_Cu"); //swap target to tungsten
-  G4Material *medium = SF6;
+  G4Material *medium = vacuum;
   G4Material *Fe_Steel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
 
   /***** Experimental hall *****/
 
-  G4double worldHalfLength = 0.5 * m; //doubled this to ensure no overlap with detector
+  G4double worldHalfLength = 5 * m; //doubled this to ensure no overlap with detector
 
   G4VSolid *world =
       new G4Box("World", worldHalfLength, worldHalfLength, worldHalfLength);
@@ -92,9 +92,9 @@ C3F8->AddElement(elF, natoms=8);
   G4double det_radius = 9. * cm;
   // G4double dzFoilPart = 5. * mm; // foil thickness. 4mm of initial layer!
   G4double dzVacuum = 10. * cm;
-  G4double dzFoil = 6*mm;
+  G4double dzFoil = 1*mm;
   G4double dzSteel = 0.5*mm;
-  G4double det_halfDepth = 10. * cm;
+  G4double det_halfDepth = 100. * cm;
   // G4int nSlices = 200;
 
 
@@ -215,7 +215,7 @@ C3F8->AddElement(elF, natoms=8);
 
   /***** Step limit *****/
 
-  G4double maxStep = .01 * mm; //changed from 0.05
+  G4double maxStep = .1 * mm; //changed from 0.05
   fStepLimit = new G4UserLimits(maxStep);
   det_logical->SetUserLimits(fStepLimit); //assigned to detector 1
   midLayer_log->SetUserLimits(fStepLimit); //assigned to detector 2 (the foil?)

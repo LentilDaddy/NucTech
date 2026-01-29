@@ -21,7 +21,7 @@
 // {}
 
 NucTechSteppingAction::NucTechSteppingAction()
-    : fV_hitEdep(), fV_hitPos(), fV_hitPDG(), fV_KineticEnergy(), fV_hitParentID(), fReactionCount(0)
+    : fV_hitEdep(), fV_hitPos(), fV_hitPDG(), fV_KineticEnergy(), fV_hitParentID(), HitReactionCount(0)
 {}
 
 void NucTechSteppingAction::BeginOfEventAction() {
@@ -32,7 +32,7 @@ void NucTechSteppingAction::BeginOfEventAction() {
   fV_hitPDG.clear();
   fV_KineticEnergy.clear();
   fV_hitParentID.clear();
-  fReactionCount = 0;
+  HitReactionCount = 0;
 }
 
 void NucTechSteppingAction::EndOfEventAction() {
@@ -40,11 +40,18 @@ void NucTechSteppingAction::EndOfEventAction() {
   if (fV_hitEdep.empty()) //why only for hitEdep?
     return;
 
+  if (HitReactionCount < 1)
+    return;
+
   G4AnalysisManager *mgr = G4AnalysisManager::Instance();
 
   // Store the total nergy deposited in the event
   const G4float Edep_event =
       std::accumulate(fV_hitEdep.begin(), fV_hitEdep.end(), 0.);
+
+  const G4int ReactionCount = HitReactionCount;
+
+  mgr->FillNtupleIColumn(0, 0, ReactionCount);
 
 
   // Then record the individual hit energy and coordinates of this event
@@ -54,10 +61,10 @@ void NucTechSteppingAction::EndOfEventAction() {
     G4float z = static_cast<G4float>(position.z() / cm);
     // G4float x = static_cast<G4float>(position.x() / cm);
     // G4float y = static_cast<G4float>(position.y() / cm);
-    G4float r = static_cast<G4float>(position.perp() / cm);
+    // G4float r = static_cast<G4float>(position.perp() / cm);
 
     // auto time = fV_hitTime[i] / ns;
-    auto kinEnergy = fV_KineticEnergy[i] / MeV;
+    // auto kinEnergy = fV_KineticEnergy[i] / MeV;
     // auto momentum = fV_hitMomentum[i];
 
     // mgr->FillNtupleDColumn(2, 0, energy);
@@ -67,15 +74,15 @@ void NucTechSteppingAction::EndOfEventAction() {
     mgr->FillNtupleFColumn(1, 0, z);
     // mgr->FillNtupleFColumn(1, 1, x);
     // mgr->FillNtupleFColumn(1, 2, y);
-    mgr->FillNtupleFColumn(1, 1, r);
+    // mgr->FillNtupleFColumn(1, 1, r);
     // mgr->FillNtupleDColumn(2, 2, momentum.x() / (MeV));
     // mgr->FillNtupleDColumn(2, 3, momentum.y() / (MeV));
     // mgr->FillNtupleDColumn(2, 2, momentum.z() / (MeV));
     // mgr->FillNtupleDColumn(2, 3, time / ns);
-    mgr->FillNtupleIColumn(1, 2, fV_hitPDG[i]); // Assuming column 5 is for PDG code
-    mgr->FillNtupleFColumn(1, 3, kinEnergy);
-    mgr->FillNtupleIColumn(1, 4, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
-    mgr->FillNtupleIColumn(1, 5, fReactionCount); //i think it is filling this with 0 values... 
+    // mgr->FillNtupleIColumn(1, 2, fV_hitPDG[i]); // Assuming column 5 is for PDG code
+    // mgr->FillNtupleFColumn(1, 3, kinEnergy);
+    // mgr->FillNtupleIColumn(1, 4, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
+    // mgr->FillNtupleIColumn(1, 5, fReactionCount); //i think it is filling this with 0 values... 
     mgr->AddNtupleRow(1);
   }
 }
@@ -207,16 +214,16 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
   }
   // If we have both products, the reaction occurred (implies target was 19F)
   if (hasNeutron && hasFluorine18) {
-    //print all particle types produced in the reaction
-    std::cout << "Photonuclear reaction particles A and Z:" << std::endl;
-    for (const auto* secondary : *secondaries) {
-        G4int Z = secondary->GetDefinition()->GetAtomicNumber();
-        G4int A = secondary->GetDefinition()->GetBaryonNumber();
-        std::cout << "Particle: A=" << A << ", Z=" << Z << std::endl;
-    }
+    // //print all particle types produced in the reaction
+    // std::cout << "Photonuclear reaction particles A and Z:" << std::endl;
+    // for (const auto* secondary : *secondaries) {
+    //     G4int Z = secondary->GetDefinition()->GetAtomicNumber();
+    //     G4int A = secondary->GetDefinition()->GetBaryonNumber();
+    //     std::cout << "Particle: A=" << A << ", Z=" << Z << std::endl;
+    // }
 
-      fReactionCount++;
-      std::cout << "Count incremented to: " << fReactionCount << std::endl;
+      HitReactionCount++;
+      // std::cout << "Count incremented to: " << fReactionCount << std::endl;
   }
   else {
     // std::cout << "Photonuclear reaction did not produce both neutron and 18F." << std::endl;

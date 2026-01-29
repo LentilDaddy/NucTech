@@ -136,17 +136,18 @@ for (size_t i = 0; i < chains.size(); i++) {
         // Disable global ROOT directory writing for safety
         h->SetDirectory(nullptr);
 
-        Float_t z, kineticE;
+        // Float_t z, kineticE;
+        Float_t z;
         Int_t pdg, reactionCount;
         t->SetBranchAddress("HitZ", &z);
-        t->SetBranchAddress("HitPDG", &pdg);
-        t->SetBranchAddress("HitKineticEnergy", &kineticE);
+        // t->SetBranchAddress("HitPDG", &pdg);
+        // t->SetBranchAddress("HitKineticEnergy", &kineticE);
         t->SetBranchAddress("ReactionCount", &reactionCount);
 
         Long64_t nentries = t->GetEntries();
         for (Long64_t j = 0; j < nentries; ++j) {
             t->GetEntry(j);
-            if (z >= (foilThickness/10 + vacuumLength + steel) && z <= (foilThickness/10 + vacuumLength + steel + 20) && reactionCount)
+            if (z >= (foilThickness/10 + vacuumLength + steel) && z <= (foilThickness/10 + vacuumLength + steel + 20) && reactionCount > 0 && pdg == 1) {
                 h->Fill(reactionCount);
 
         }
