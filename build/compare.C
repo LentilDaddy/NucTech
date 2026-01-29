@@ -65,17 +65,10 @@ void compare()
 for (const auto &m : energies) {
     for (const auto &e : foilThicknesses) {
         std::string label = e + "_" + m;
-        
-        // Main Chain
-        TChain *ch = new TChain("IndividualHits");
-        ch->Add(TString::Format("*_%s*_*%s*.root", e.c_str(), m.c_str()).Data());
-
-        // Friend Chain
-        TChain *chEnergySpectrum = new TChain("EnergySpectrum");
-        chEnergySpectrum->Add(TString::Format("*_%s*_*%s*.root", e.c_str(), m.c_str()).Data());
-
-        // Link them
-        ch->AddFriend(chEnergySpectrum);
+    
+        // // Main Chain
+        TChain *ch = new TChain("EnergySpectrum");
+        ch->Add(TString::Format("*_%s*_%s*.root", e.c_str(), m.c_str()).Data());
 
         chains.push_back({label, ch});
     }
@@ -116,7 +109,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     if (!t || t->GetEntries() == 0) {
         std::cout << "Warning: Chain " << label << " is empty!" << std::endl;
         continue;
-    }
+    } 
 
     Float_t vacuumLength = 10.0; //cm
     Float_t steel = 0.05; //cm
@@ -129,16 +122,16 @@ for (size_t i = 0; i < chains.size(); i++) {
     h->SetDirectory(nullptr);
 
     // float_t z, kineticE;
-    float_t z;
+    // float_t z;
     Int_t reactionCount;
 
     // Branch optimization
     t->SetBranchStatus("*", 0);
-    t->SetBranchStatus("HitZ", 1);
+    // t->SetBranchStatus("HitZ", 1);
     t->SetBranchStatus("ReactionCount", 1);
     // t->SetBranchStatus("HitPDG", 1);
     // t->SetBranchStatus("HitKineticEnergy", 1);
-    t->SetBranchAddress("HitZ", &z);
+    // t->SetBranchAddress("HitZ", &z);
     t->SetBranchAddress("ReactionCount", &reactionCount);
     // t->SetBranchAddress("HitPDG", &pdg);
     // t->SetBranchAddress("HitKineticEnergy", &kineticE);
@@ -146,13 +139,13 @@ for (size_t i = 0; i < chains.size(); i++) {
     Long64_t nentries = t->GetEntries();
     for (Long64_t j = 0; j < nentries; ++j) {
         t->GetEntry(j);
-        if (z >= (foilThickness/10 + vacuumLength + steel) && z <= (foilThickness/10 + vacuumLength + steel + 200)) 
-            h->Fill(reactionCount);
+        // if (z >= (foilThickness/10 + vacuumLength + steel) && z <= (foilThickness/10 + vacuumLength + steel + 200) && reactionCount>0) ) 
+        h->Fill(reactionCount);
 
     }
 
     integral = h->Integral(); //since the x range is already adjusted
-
+    std::cout << "Integral for " << label << ": " << integral << std::endl;
     histos.push_back(h);
     legend->AddEntry(h, label.c_str(), "l");
 
