@@ -37,12 +37,12 @@ void NucTechRunAction::BeginOfRunAction(const G4Run* /*run*/)
   }
 
   mgr->SetFirstNtupleId(1); //nTuple is a root tree. This part only defines the structure, it doesn't fill the variables.
-  // mgr->CreateNtuple("Events", "NucTech");
+  mgr->CreateNtuple("EnergySpectrum", "NucTech");
   // // mgr->CreateNtupleFColumn("EventEdep"); //total energy deposited PER EVENT
   // // // mgr->CreateNtupleDColumn("EventEdepDetector2"); // Add this branch
   // // // mgr->CreateNtupleDColumn("FoilThickness");      // Add this branch
-  // mgr->CreateNtupleIColumn("ReactionCount"); //total reaction count PER EVENT
-  // mgr->FinishNtuple();
+  mgr->CreateNtupleIColumn("ReactionCount"); //total reaction count PER EVENT
+  mgr->FinishNtuple();
   
   mgr->CreateNtuple("IndividualHits", "NucTech");
   // mgr->CreateNtupleDColumn("HitEdep");
@@ -58,7 +58,7 @@ void NucTechRunAction::BeginOfRunAction(const G4Run* /*run*/)
   // mgr->CreateNtupleIColumn("HitPDG"); // <-- Add this line for PDG code
   // mgr->CreateNtupleFColumn("HitKineticEnergy");
   // mgr->CreateNtupleIColumn("HitParentID"); // <-- Add this line for Parent ID
-  mgr->CreateNtupleIColumn("ReactionCount");
+  // mgr->CreateNtupleIColumn("ReactionCount");
   
   
   mgr->FinishNtuple();

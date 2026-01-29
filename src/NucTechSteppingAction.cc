@@ -49,10 +49,9 @@ void NucTechSteppingAction::EndOfEventAction() {
   const G4float Edep_event =
       std::accumulate(fV_hitEdep.begin(), fV_hitEdep.end(), 0.);
 
-  const G4int ReactionCount = HitReactionCount;
-
-  mgr->FillNtupleIColumn(0, 0, ReactionCount);
-
+// Fill Ntuple 1 (EnergySpectrum)
+  mgr->FillNtupleIColumn(1, 0, HitReactionCount); 
+  mgr->AddNtupleRow(1);
 
   // Then record the individual hit energy and coordinates of this event
   for (std::size_t i = 0; i < fV_hitEdep.size(); i++) {
@@ -71,7 +70,7 @@ void NucTechSteppingAction::EndOfEventAction() {
     // mgr->FillNtupleDColumn(2, 1, position.x() / cm);
     // mgr->FillNtupleDColumn(2, 2, position.y() / cm);
     // mgr->FillNtupleFColumn(2, 0, position.z() / cm);
-    mgr->FillNtupleFColumn(1, 0, z);
+    mgr->FillNtupleFColumn(2, 0, z); // Using ID 2
     // mgr->FillNtupleFColumn(1, 1, x);
     // mgr->FillNtupleFColumn(1, 2, y);
     // mgr->FillNtupleFColumn(1, 1, r);
@@ -83,7 +82,7 @@ void NucTechSteppingAction::EndOfEventAction() {
     // mgr->FillNtupleFColumn(1, 3, kinEnergy);
     // mgr->FillNtupleIColumn(1, 4, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
     // mgr->FillNtupleIColumn(1, 5, fReactionCount); //i think it is filling this with 0 values... 
-    mgr->AddNtupleRow(1);
+    mgr->AddNtupleRow(2);
   }
 }
 

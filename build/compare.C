@@ -71,11 +71,11 @@ for (const auto &m : energies) {
         ch->Add(TString::Format("*_%s*_*%s*.root", e.c_str(), m.c_str()).Data());
 
         // Friend Chain
-        TChain *chEvents = new TChain("Events");
-        chEvents->Add(TString::Format("*_%s*_*%s*.root", e.c_str(), m.c_str()).Data());
+        TChain *chEnergySpectrum = new TChain("EnergySpectrum");
+        chEnergySpectrum->Add(TString::Format("*_%s*_*%s*.root", e.c_str(), m.c_str()).Data());
 
         // Link them
-        ch->AddFriend(chEvents);
+        ch->AddFriend(chEnergySpectrum);
 
         chains.push_back({label, ch});
     }
@@ -124,7 +124,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     TH1D *h = new TH1D(
         TString::Format("h_%zu", i),
         TString::Format("Depth Distribution of Electrons"),
-        1, 0, 1
+        1, 1, 2
     ); 
     h->SetDirectory(nullptr);
 
