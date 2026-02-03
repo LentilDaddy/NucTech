@@ -231,6 +231,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     mg->SetTitle("Total Reactions in Detector per Primary Electron vs Foil Thickness");
     mg->GetXaxis()->SetTitle("Foil Thickness (mm)");
     mg->GetYaxis()->SetTitle("#Reactions per Primary Electron");
+    mg->GetYaxis()->SetTitleOffset(1.4); // Default is usually 1.0 or 1.2
     mg->GetXaxis()->SetTitleSize(0.05);
     mg->GetYaxis()->SetTitleSize(0.05);
     mg->GetXaxis()->SetLabelSize(0.04);
@@ -311,7 +312,7 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     // TLegend *scatterLegend_Price = new TLegend(0.15, 0.7, 0.35, 0.9);
     //price legend shoudl be n top right
-    TLegend *scatterLegend_Price = new TLegend(0.05, 0.75, 0.25, 0.95);
+    TLegend *scatterLegend_Price = new TLegend(0.70, 0.75, 0.90, 0.95);
     scatterLegend_Price->AddEntry(g20MeV_Price, "20MeV", "p");
     scatterLegend_Price->AddEntry(g25MeV_Price, "25MeV", "p");
     scatterLegend_Price->AddEntry(g30MeV_Price, "30MeV", "p");
@@ -327,6 +328,7 @@ for (size_t i = 0; i < chains.size(); i++) {
     mg_Price->SetTitle("Relative Cost per Reaction vs Foil Thickness");
     mg_Price->GetXaxis()->SetTitle("Foil Thickness (mm)");
     mg_Price->GetYaxis()->SetTitle("Cost per Reaction");
+    mg_Price->GetYaxis()->SetTitleOffset(1.4); // Default is usually 1.0 or 1.2
     mg_Price->GetXaxis()->SetTitleSize(0.05);
     mg_Price->GetYaxis()->SetTitleSize(0.05);
     mg_Price->GetXaxis()->SetLabelSize(0.04);

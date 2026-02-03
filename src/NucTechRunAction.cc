@@ -44,24 +44,24 @@ void NucTechRunAction::BeginOfRunAction(const G4Run* /*run*/)
   mgr->CreateNtupleIColumn("ReactionCount"); //total reaction count PER EVENT
   mgr->FinishNtuple();
   
-  mgr->CreateNtuple("IndividualHits", "NucTech");
-  // mgr->CreateNtupleDColumn("HitEdep");
+  // mgr->CreateNtuple("IndividualHits", "NucTech");
+  // // mgr->CreateNtupleDColumn("HitEdep");
 
-  mgr->CreateNtupleFColumn("HitZ");
-  // mgr->CreateNtupleFColumn("HitX"); //positions of each hit
-  // mgr->CreateNtupleFColumn("HitY");
-  // mgr->CreateNtupleFColumn("HitR");
-  // mgr->CreateNtupleDColumn("HitPx");
-  // mgr->CreateNtupleDColumn("HitPy");
-  // mgr->CreateNtupleDColumn("HitPz");
-  // mgr->CreateNtupleDColumn("HitTime"); // <-- Add this line
-  // mgr->CreateNtupleIColumn("HitPDG"); // <-- Add this line for PDG code
-  // mgr->CreateNtupleFColumn("HitKineticEnergy");
-  // mgr->CreateNtupleIColumn("HitParentID"); // <-- Add this line for Parent ID
-  // mgr->CreateNtupleIColumn("ReactionCount");
+  // mgr->CreateNtupleFColumn("HitZ");
+  // // mgr->CreateNtupleFColumn("HitX"); //positions of each hit
+  // // mgr->CreateNtupleFColumn("HitY");
+  // // mgr->CreateNtupleFColumn("HitR");
+  // // mgr->CreateNtupleDColumn("HitPx");
+  // // mgr->CreateNtupleDColumn("HitPy");
+  // // mgr->CreateNtupleDColumn("HitPz");
+  // // mgr->CreateNtupleDColumn("HitTime"); // <-- Add this line
+  // // mgr->CreateNtupleIColumn("HitPDG"); // <-- Add this line for PDG code
+  // // mgr->CreateNtupleFColumn("HitKineticEnergy");
+  // // mgr->CreateNtupleIColumn("HitParentID"); // <-- Add this line for Parent ID
+  // // mgr->CreateNtupleIColumn("ReactionCount");
   
   
-  mgr->FinishNtuple();
+  // mgr->FinishNtuple();
 
   if (IsMaster())
   {

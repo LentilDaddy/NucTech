@@ -20,70 +20,75 @@
 //     fV_hitMomentum()
 // {}
 
+// NucTechSteppingAction::NucTechSteppingAction()
+//     : fV_hitEdep(), fV_hitPos(), fV_hitPDG(), fV_KineticEnergy(), fV_hitParentID(), HitReactionCount(0)
+// {}
+
 NucTechSteppingAction::NucTechSteppingAction()
-    : fV_hitEdep(), fV_hitPos(), fV_hitPDG(), fV_KineticEnergy(), fV_hitParentID(), HitReactionCount(0)
+    : HitReactionCount(0)
 {}
 
+
 void NucTechSteppingAction::BeginOfEventAction() {
-  fV_hitEdep.clear();
-  fV_hitPos.clear();
-  // fV_hitMomentum.clear();
-  // fV_hitTime.clear();
-  fV_hitPDG.clear();
-  fV_KineticEnergy.clear();
-  fV_hitParentID.clear();
+  // fV_hitEdep.clear();
+  // fV_hitPos.clear();
+  // // fV_hitMomentum.clear();
+  // // fV_hitTime.clear();
+  // fV_hitPDG.clear();
+  // fV_KineticEnergy.clear();
+  // fV_hitParentID.clear();
   HitReactionCount = 0;
 }
 
 void NucTechSteppingAction::EndOfEventAction() {
   // Check at least one phantom hit happened during the event
-  if (fV_hitEdep.empty()) //why only for hitEdep?
-    return;
+  // if (fV_hitEdep.empty()) //why only for hitEdep?
+  //   return;
 
   if (HitReactionCount < 1)
     return;
 
   G4AnalysisManager *mgr = G4AnalysisManager::Instance();
 
-  // Store the total nergy deposited in the event
-  const G4float Edep_event =
-      std::accumulate(fV_hitEdep.begin(), fV_hitEdep.end(), 0.);
+  // // Store the total nergy deposited in the event
+  // const G4float Edep_event =
+  //     std::accumulate(fV_hitEdep.begin(), fV_hitEdep.end(), 0.);
 
 // Fill Ntuple 1 (EnergySpectrum)
   mgr->FillNtupleIColumn(1, 0, HitReactionCount); 
   mgr->AddNtupleRow(1);
 
-  // Then record the individual hit energy and coordinates of this event
-  for (std::size_t i = 0; i < fV_hitEdep.size(); i++) {
-    // auto energy = fV_hitEdep[i] / MeV;
-    auto position = fV_hitPos[i];
-    G4float z = static_cast<G4float>(position.z() / cm);
-    // G4float x = static_cast<G4float>(position.x() / cm);
-    // G4float y = static_cast<G4float>(position.y() / cm);
-    // G4float r = static_cast<G4float>(position.perp() / cm);
+  // // Then record the individual hit energy and coordinates of this event
+  // for (std::size_t i = 0; i < fV_hitEdep.size(); i++) {
+  //   // auto energy = fV_hitEdep[i] / MeV;
+  //   auto position = fV_hitPos[i];
+  //   G4float z = static_cast<G4float>(position.z() / cm);
+  //   // G4float x = static_cast<G4float>(position.x() / cm);
+  //   // G4float y = static_cast<G4float>(position.y() / cm);
+  //   // G4float r = static_cast<G4float>(position.perp() / cm);
 
-    // auto time = fV_hitTime[i] / ns;
-    // auto kinEnergy = fV_KineticEnergy[i] / MeV;
-    // auto momentum = fV_hitMomentum[i];
+  //   // auto time = fV_hitTime[i] / ns;
+  //   // auto kinEnergy = fV_KineticEnergy[i] / MeV;
+  //   // auto momentum = fV_hitMomentum[i];
 
-    // mgr->FillNtupleDColumn(2, 0, energy);
-    // mgr->FillNtupleDColumn(2, 1, position.x() / cm);
-    // mgr->FillNtupleDColumn(2, 2, position.y() / cm);
-    // mgr->FillNtupleFColumn(2, 0, position.z() / cm);
-    mgr->FillNtupleFColumn(2, 0, z); // Using ID 2
-    // mgr->FillNtupleFColumn(1, 1, x);
-    // mgr->FillNtupleFColumn(1, 2, y);
-    // mgr->FillNtupleFColumn(1, 1, r);
-    // mgr->FillNtupleDColumn(2, 2, momentum.x() / (MeV));
-    // mgr->FillNtupleDColumn(2, 3, momentum.y() / (MeV));
-    // mgr->FillNtupleDColumn(2, 2, momentum.z() / (MeV));
-    // mgr->FillNtupleDColumn(2, 3, time / ns);
-    // mgr->FillNtupleIColumn(1, 2, fV_hitPDG[i]); // Assuming column 5 is for PDG code
-    // mgr->FillNtupleFColumn(1, 3, kinEnergy);
-    // mgr->FillNtupleIColumn(1, 4, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
-    // mgr->FillNtupleIColumn(1, 5, fReactionCount); //i think it is filling this with 0 values... 
-    mgr->AddNtupleRow(2);
-  }
+  //   // mgr->FillNtupleDColumn(2, 0, energy);
+  //   // mgr->FillNtupleDColumn(2, 1, position.x() / cm);
+  //   // mgr->FillNtupleDColumn(2, 2, position.y() / cm);
+  //   // mgr->FillNtupleFColumn(2, 0, position.z() / cm);
+  //   mgr->FillNtupleFColumn(2, 0, z); // Using ID 2
+  //   // mgr->FillNtupleFColumn(1, 1, x);
+  //   // mgr->FillNtupleFColumn(1, 2, y);
+  //   // mgr->FillNtupleFColumn(1, 1, r);
+  //   // mgr->FillNtupleDColumn(2, 2, momentum.x() / (MeV));
+  //   // mgr->FillNtupleDColumn(2, 3, momentum.y() / (MeV));
+  //   // mgr->FillNtupleDColumn(2, 2, momentum.z() / (MeV));
+  //   // mgr->FillNtupleDColumn(2, 3, time / ns);
+  //   // mgr->FillNtupleIColumn(1, 2, fV_hitPDG[i]); // Assuming column 5 is for PDG code
+  //   // mgr->FillNtupleFColumn(1, 3, kinEnergy);
+  //   // mgr->FillNtupleIColumn(1, 4, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
+  //   // mgr->FillNtupleIColumn(1, 5, fReactionCount); //i think it is filling this with 0 values... 
+  //   mgr->AddNtupleRow(2);
+  // }
 }
 
 void NucTechSteppingAction::UserSteppingAction(const G4Step *step) {
@@ -127,18 +132,18 @@ if (currentName != "Detector1" &&
 
 
 
-  // Store the energy deposited in the phantom
-  const G4float Edep = step->GetTotalEnergyDeposit();
+  // // Store the energy deposited in the phantom
+  // const G4float Edep = step->GetTotalEnergyDeposit();
 
-  if (Edep < 0.) { //changed from <= to < to include 0 energy deposits
-    return;
-  }
+  // if (Edep < 0.) { //changed from <= to < to include 0 energy deposits
+  //   return;
+  // }
 
-  fV_hitEdep.push_back(Edep);
+  // fV_hitEdep.push_back(Edep);
 
-  // Store the hit position
-  const G4ThreeVector hitPos = postStepPoint->GetPosition();
-  fV_hitPos.push_back(hitPos);
+  // // Store the hit position
+  // const G4ThreeVector hitPos = postStepPoint->GetPosition();
+  // fV_hitPos.push_back(hitPos);
 
   // const G4ThreeVector hitMomentum = postStepPoint->GetMomentum();
   // fV_hitMomentum.push_back(hitMomentum);
@@ -147,25 +152,25 @@ if (currentName != "Detector1" &&
   // const G4double hitTime = step->GetPostStepPoint()->GetGlobalTime();
   // fV_hitTime.push_back(hitTime);
 
-  const G4float kinEnergy = step->GetPostStepPoint()->GetKineticEnergy();
-  fV_KineticEnergy.push_back(kinEnergy);
+  // const G4float kinEnergy = step->GetPostStepPoint()->GetKineticEnergy();
+  // fV_KineticEnergy.push_back(kinEnergy);
 
     // Store PDG code
   const G4Track* track = step->GetTrack();
-  const G4ParticleDefinition* pd = track->GetDefinition();
-  // int pdgCode = track->GetDefinition()->GetPDGEncoding();
-  int particleType = 2; // default: other
-  int ParentID = track->GetParentID();
+  // const G4ParticleDefinition* pd = track->GetDefinition();
+  // // int pdgCode = track->GetDefinition()->GetPDGEncoding();
+  // int particleType = 2; // default: other
+  // int ParentID = track->GetParentID();
 
   // fV_hitPDG.push_back(pdgCode);
 
-  if (pd == G4Electron::ElectronDefinition()) {
-    particleType = 0;
-  } else if (pd == G4Gamma::GammaDefinition()) {
-    particleType = 1;
-  }
-  fV_hitPDG.push_back(particleType);
-  fV_hitParentID.push_back(ParentID);
+  // if (pd == G4Electron::ElectronDefinition()) {
+  //   particleType = 0;
+  // } else if (pd == G4Gamma::GammaDefinition()) {
+  //   particleType = 1;
+  // }
+  // fV_hitPDG.push_back(particleType);
+  // fV_hitParentID.push_back(ParentID);
 
 
   CheckPhotonuclearReaction(step);
