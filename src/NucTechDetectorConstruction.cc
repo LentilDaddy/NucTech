@@ -92,7 +92,7 @@ C3F8->AddElement(elF, natoms=8);
   G4double det_radius = 9. * cm;
   // G4double dzFoilPart = 5. * mm; // foil thickness. 4mm of initial layer!
   G4double dzVacuum = 10. * cm;
-  G4double dzFoil = 1*mm;
+  G4double dzFoil = 10*mm;
   G4double dzSteel = 0.5*mm;
   G4double det_halfDepth = 100. * cm;
   // G4int nSlices = 200;
@@ -171,7 +171,7 @@ C3F8->AddElement(elF, natoms=8);
                     world_logical,               // mother is Detector 2 volume
                     false,                     // not parameterized
                     0,                         // copy number
-                    !checkOverlaps              // overlap checking
+                    checkOverlaps              // overlap checking
   );
 
 
@@ -192,7 +192,7 @@ C3F8->AddElement(elF, natoms=8);
                     world_logical,               // mother is Detector 2 volume
                     false,                     // not parameterized
                     0,                         // copy number
-                    !checkOverlaps              // overlap checking
+                    checkOverlaps              // overlap checking
   );
 
 
@@ -215,10 +215,10 @@ C3F8->AddElement(elF, natoms=8);
 
   /***** Step limit *****/
 
-  G4double maxStep = .1 * mm; //changed from 0.05
-  fStepLimit = new G4UserLimits(maxStep);
-  det_logical->SetUserLimits(fStepLimit); //assigned to detector 1
-  midLayer_log->SetUserLimits(fStepLimit); //assigned to detector 2 (the foil?)
+  // G4double maxStep = .1 * mm; //changed from 0.05
+  // fStepLimit = new G4UserLimits(maxStep);
+  // det_logical->SetUserLimits(fStepLimit); //assigned to detector 1
+  // midLayer_log->SetUserLimits(fStepLimit); //assigned to detector 2 (the foil?)
   // sliceLogical->SetUserLimits(fStepLimit); //should this be applied to the slices?
 
   /***** Visualisation *****/
