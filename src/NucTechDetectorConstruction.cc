@@ -108,7 +108,7 @@ C3F8->AddElement(elF, natoms=8);
    G4double &det_PosZ = det_halfDepth; // place it so no overlap with foil
 
   new G4PVPlacement(nullptr,                         // No rotation
-		    G4ThreeVector(0., 0., det_PosZ + dzFoil + dzVacuum + dzSteel), // Translation (so no overlap with foil)
+		    G4ThreeVector(0., 0., det_PosZ + dzFoil), // Translation (so no overlap with foil)
                     det_logical,                     // Logical volume
                     "Detector1",                     // Name
                     world_logical,                   // Mother volume
@@ -156,44 +156,44 @@ C3F8->AddElement(elF, natoms=8);
 
 
 
-  G4VSolid *vacuumLayer =
-    new G4Tubs("vacuumLayer", 0.*cm, det_radius, dzVacuum / 2, 0.*deg, 360.*deg);  
+  // G4VSolid *vacuumLayer =
+  //   new G4Tubs("vacuumLayer", 0.*cm, det_radius, dzVacuum / 2, 0.*deg, 360.*deg);  
 
-  G4LogicalVolume *vacuumLayer_log =
-      new G4LogicalVolume(vacuumLayer, vacuum, "vacuumLayer");
-
-
-      /*Place the vacuum layer*/
-  new G4PVPlacement(nullptr,                   
-		    G4ThreeVector(0., 0., dzFoil + dzVacuum/2 ), //there is a thin layer of foil at end - eventually need to change this to stainless steel
-                    vacuumLayer_log,              // its logical volume
-                    "vacuumLayer",               // name
-                    world_logical,               // mother is Detector 2 volume
-                    false,                     // not parameterized
-                    0,                         // copy number
-                    checkOverlaps              // overlap checking
-  );
+  // G4LogicalVolume *vacuumLayer_log =
+  //     new G4LogicalVolume(vacuumLayer, vacuum, "vacuumLayer");
 
 
+  //     /*Place the vacuum layer*/
+  // new G4PVPlacement(nullptr,                   
+	// 	    G4ThreeVector(0., 0., dzFoil + dzVacuum/2 ), //there is a thin layer of foil at end - eventually need to change this to stainless steel
+  //                   vacuumLayer_log,              // its logical volume
+  //                   "vacuumLayer",               // name
+  //                   world_logical,               // mother is Detector 2 volume
+  //                   false,                     // not parameterized
+  //                   0,                         // copy number
+  //                   checkOverlaps              // overlap checking
+  // );
 
 
-  G4VSolid *stainlessSteel =
-    new G4Tubs("stainlessSteel", 0.*cm, det_radius, dzSteel / 2, 0.*deg, 360.*deg);  
-
-  G4LogicalVolume *stainlessSteel_log =
-      new G4LogicalVolume(stainlessSteel, Fe_Steel, "stainlessSteel");
 
 
-      /*Place the vacuum layer*/
-  new G4PVPlacement(nullptr,                   
-		    G4ThreeVector(0., 0., dzFoil + dzVacuum + dzSteel/2 ), //there is a thin layer of foil at end - eventually need to change this to stainless steel
-                    stainlessSteel_log,              // its logical volume
-                    "stainlessSteel",               // name
-                    world_logical,               // mother is Detector 2 volume
-                    false,                     // not parameterized
-                    0,                         // copy number
-                    checkOverlaps              // overlap checking
-  );
+  // G4VSolid *stainlessSteel =
+  //   new G4Tubs("stainlessSteel", 0.*cm, det_radius, dzSteel / 2, 0.*deg, 360.*deg);  
+
+  // G4LogicalVolume *stainlessSteel_log =
+  //     new G4LogicalVolume(stainlessSteel, Fe_Steel, "stainlessSteel");
+
+
+  //     /*Place the steel layer*/
+  // new G4PVPlacement(nullptr,                   
+	// 	    G4ThreeVector(0., 0., dzFoil + dzVacuum + dzSteel/2 ), //there is a thin layer of foil at end - eventually need to change this to stainless steel
+  //                   stainlessSteel_log,              // its logical volume
+  //                   "stainlessSteel",               // name
+  //                   world_logical,               // mother is Detector 2 volume
+  //                   false,                     // not parameterized
+  //                   0,                         // copy number
+  //                   checkOverlaps              // overlap checking
+  // );
 
 
 
@@ -204,11 +204,11 @@ C3F8->AddElement(elF, natoms=8);
 
   // --- local magnetic field attached to vacuumLayer_log ---
   // Option A: uniform B-field (simple, recommended)
-  G4ThreeVector bVec(0., 1.0*tesla, 0.); // change vector/magnitude as needed
-  G4UniformMagField* uniformField = new G4UniformMagField(bVec);
-  G4FieldManager* vacFieldMgr = new G4FieldManager(uniformField);
-  vacFieldMgr->CreateChordFinder(uniformField);
-  vacuumLayer_log->SetFieldManager(vacFieldMgr, true);
+  // G4ThreeVector bVec(0., 1.0*tesla, 0.); // change vector/magnitude as needed
+  // G4UniformMagField* uniformField = new G4UniformMagField(bVec);
+  // G4FieldManager* vacFieldMgr = new G4FieldManager(uniformField);
+  // vacFieldMgr->CreateChordFinder(uniformField);
+  // vacuumLayer_log->SetFieldManager(vacFieldMgr, true);
 
 
 

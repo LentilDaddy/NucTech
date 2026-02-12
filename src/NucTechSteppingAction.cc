@@ -112,18 +112,18 @@ G4String motherName = (depth > 1 && touchable->GetVolume(1))
                         ? touchable->GetVolume(1)->GetName()
                         : "";
 
-if (currentName != "Detector1" &&
-    currentName != "Detector2" &&
-    motherName != "Detector1" && currentName != "vacuumLayer"
-  && currentName != "stainlessSteel"){
-    return;
-    }
-
 // if (currentName != "Detector1" &&
 //     currentName != "Detector2" &&
-//     motherName != "Detector1"){
+//     motherName != "Detector1" && currentName != "vacuumLayer"
+//   && currentName != "stainlessSteel"){
 //     return;
 //     }
+
+if (currentName != "Detector1" &&
+    currentName != "Detector2" &&
+    motherName != "Detector1"){
+    return;
+    }
 
 
   // if (postStepPoint->GetPhysicalVolume()->GetName() != "Detector1" &&
@@ -182,10 +182,12 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
   if (!process) return;
   
   G4String processName = process->GetProcessName();
-  if (processName.find("photonNuclear") != std::string::npos && 
-      processName.find("PhotoNuclear") != std::string::npos) {
-      return;
+  if (processName.find("photonNuclear") == std::string::npos && 
+      processName.find("PhotoNuclear") == std::string::npos) { 
+        return;//if BOTH are NOT found, return.
   }
+
+  //std::string::npos means NOT found
     
   // CHECK 1: Verify parent track is a gamma
   const G4Track* track = step->GetTrack();
