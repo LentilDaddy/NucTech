@@ -48,3 +48,7 @@ include/*
 !include/NucTechRunAction.hh
 !include/NucTechPrimaryGeneratorAction.hh
 !include/NucTechEventAction.hh
+
+
+# Allow Git to see the CMakeLists.txt file
+!NucTech/CMakeLists.txt
