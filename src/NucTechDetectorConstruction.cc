@@ -92,30 +92,30 @@ C3F8->AddElement(elF, natoms=8);
   G4double det_radius = 9. * cm;
   // G4double dzFoilPart = 5. * mm; // foil thickness. 4mm of initial layer!
   G4double dzVacuum = 10. * cm;
-  G4double dzFoil =10*mm;
+  G4double dzFoil =30*mm;
   G4double dzSteel = 0.5*mm;
   G4double det_halfDepth = 100. * cm;
   // G4int nSlices = 200;
 
 
-  G4VSolid *det_solid =
-    new G4Tubs("Detector1", 0.*cm, det_radius, det_halfDepth, 0.*deg, 360.*deg); //i think this is just the dimensions
+  // G4VSolid *det_solid =
+  //   new G4Tubs("Detector1", 0.*cm, det_radius, det_halfDepth, 0.*deg, 360.*deg); //i think this is just the dimensions
 
 
-  G4LogicalVolume *det_logical =
-      new G4LogicalVolume(det_solid, medium, "Detector1");
+  // G4LogicalVolume *det_logical =
+  //     new G4LogicalVolume(det_solid, medium, "Detector1");
 
-   G4double &det_PosZ = det_halfDepth; // place it so no overlap with foil
+  //  G4double &det_PosZ = det_halfDepth; // place it so no overlap with foil
 
-  new G4PVPlacement(nullptr,                         // No rotation
-		    G4ThreeVector(0., 0., det_PosZ), // Translation (so no overlap with foil)
-		    // G4ThreeVector(0., 0., det_PosZ + dzFoil), // Translation (so no overlap with foil)
-                    det_logical,                     // Logical volume
-                    "Detector1",                     // Name
-                    world_logical,                   // Mother volume
-                    false,          // Not a parameterized volume
-                    0,              // Copy number
-                    checkOverlaps); // Overlap checking
+  // new G4PVPlacement(nullptr,                         // No rotation
+	// 	    G4ThreeVector(0., 0., det_PosZ), // Translation (so no overlap with foil)
+	// 	    // G4ThreeVector(0., 0., det_PosZ + dzFoil), // Translation (so no overlap with foil)
+  //                   det_logical,                     // Logical volume
+  //                   "Detector1",                     // Name
+  //                   world_logical,                   // Mother volume
+  //                   false,          // Not a parameterized volume
+  //                   0,              // Copy number
+  //                   checkOverlaps); // Overlap checking
 
 
 
@@ -144,16 +144,16 @@ C3F8->AddElement(elF, natoms=8);
 //                 nSlices,              // number of slices (Detector1 half-depth × 2 / 1 mm)
 //                 1.0 * mm);         // slice thickness
 
-  //     /*Place the foil*/
-  // new G4PVPlacement(nullptr,                   // no rotation
-	// 	    G4ThreeVector(0., 0., dzFoil/2 ), // at detector start
-  //                   midLayer_log,              // its logical volume
-  //                   "Detector2",               // name
-  //                   world_logical,               // mother is your world volume
-  //                   false,                     // not parameterized
-  //                   0,                         // copy number
-  //                   checkOverlaps              // overlap checking
-  // );
+      /*Place the foil*/
+  new G4PVPlacement(nullptr,                   // no rotation
+		    G4ThreeVector(0., 0., dzFoil/2 ), // at detector start
+                    midLayer_log,              // its logical volume
+                    "Detector2",               // name
+                    world_logical,               // mother is your world volume
+                    false,                     // not parameterized
+                    0,                         // copy number
+                    checkOverlaps              // overlap checking
+  );
 
 
 

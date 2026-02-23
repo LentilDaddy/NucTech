@@ -48,3 +48,5 @@ include/*
 !include/NucTechRunAction.hh
 !include/NucTechPrimaryGeneratorAction.hh
 !include/NucTechEventAction.hh
+
+!CMakeLists.txt
