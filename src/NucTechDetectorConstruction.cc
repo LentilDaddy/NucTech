@@ -92,7 +92,7 @@ C3F8->AddElement(elF, natoms=8);
   G4double det_radius = 9. * cm;
   // G4double dzFoilPart = 5. * mm; // foil thickness. 4mm of initial layer!
   G4double dzVacuum = 10. * cm;
-  G4double dzFoil =9*mm;
+  G4double dzFoil =10*mm;
   G4double dzSteel = 0.5*mm;
   G4double det_halfDepth = 100. * cm;
   // G4int nSlices = 200;
@@ -128,7 +128,7 @@ C3F8->AddElement(elF, natoms=8);
 
 
 
-  /***** Slices in detector *****/
+//   /***** Slices in detector *****/
 
 // G4double sliceHalfThickness = 0.5 * mm;
 // G4VSolid* sliceSolid = new G4Tubs("SliceSolid", 0.*cm, det_radius, sliceHalfThickness, 0.*deg, 360.*deg);
@@ -219,7 +219,7 @@ C3F8->AddElement(elF, natoms=8);
   G4double maxStep = .1 * mm; //changed from 0.05
   fStepLimit = new G4UserLimits(maxStep);
   det_logical->SetUserLimits(fStepLimit); //assigned to detector 1
-  midLayer_log->SetUserLimits(fStepLimit); //assigned to detector 2 (the foil?)
+  // midLayer_log->SetUserLimits(fStepLimit); //assigned to detector 2 (the foil?)
   // sliceLogical->SetUserLimits(fStepLimit); //should this be applied to the slices?
 
   /***** Visualisation *****/
@@ -234,7 +234,7 @@ C3F8->AddElement(elF, natoms=8);
 
   G4VisAttributes *mixVis = new G4VisAttributes(G4Colour(1.0, 0.84, 0.0, 0.8));
   mixVis->SetForceSolid(true);
-  midLayer_log->SetVisAttributes(mixVis);
+  // midLayer_log->SetVisAttributes(mixVis);
 
   return world_physical;
 }

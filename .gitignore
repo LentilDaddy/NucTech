@@ -30,6 +30,8 @@ src/*
 !src/NucTechSteppingAction.cc
 !src/NucTechActionInitialization.cc
 !src/NucTechRunAction.cc
+!src/NucTechPrimaryGeneratorAction.cc
+!src/NucTechEventAction.cc
 
 
 # Allow Git to see the include directory itself
@@ -42,3 +44,7 @@ include/*
 !include/NucTechDetectorConstruction.hh
 !include/NucTechTechRunAction.hh
 !include/NucTechSteppingAction.hh
+!include/NucTechActionInitialization.hh
+!include/NucTechRunAction.hh
+!include/NucTechPrimaryGeneratorAction.hh
+!include/NucTechEventAction.hh
