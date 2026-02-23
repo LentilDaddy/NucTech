@@ -9,30 +9,40 @@
 #include "TH1D.h"
 
 NucTechPrimaryGeneratorAction::NucTechPrimaryGeneratorAction()
-  : fGPS(std::make_unique<G4GeneralParticleSource>()) 
+  : fGPS(std::make_unique<G4GeneralParticleSource>()),
+    fEnergyHist(nullptr) // Initialize to null
 {
-  // 1. Open the ROOT file created by your background script
+  // 1. Get thickness from Environment Variable
+  // Default to 10 if the variable isn't set
+  G4String thickness = "10"; 
+  char* envThickness = std::getenv("RADIATOR_THICKNESS");
+  
+  if (envThickness) {
+      thickness = G4String(envThickness);
+  }
+  
+  G4String histName = "proj_" + thickness + "mm";
+  G4cout << "--- Generator initializing for thickness: " << thickness << "mm ---" << G4endl;
+
+  // 2. Open the ROOT file
   TFile* inputFile = TFile::Open("all_spectra.root");
 
   if (inputFile && !inputFile->IsZombie()) {
-    // 2. Load the specific histogram you want to use
-    // Change "proj_10mm" to whichever thickness you are currently testing
-    fEnergyHist = (TH1D*)inputFile->Get("proj_10mm");
+    fEnergyHist = static_cast<TH1D*>(inputFile->Get(histName));
 
     if (fEnergyHist) {
-      // Disconnect the histogram from the file so it stays in memory 
-      // even after the file object is closed
       fEnergyHist->SetDirectory(0);
-      G4cout << "Successfully loaded spectrum: proj_10mm" << G4endl;
+      G4cout << "Successfully loaded spectrum: " << histName << G4endl;
     } else {
-      G4cerr << "Error: Could not find histogram proj_10mm in all_spectra.root" << G4endl;
+      G4Exception("NucTechPrimaryGeneratorAction", "001", FatalException, 
+                  ("Could not find " + histName + " in all_spectra.root").c_str());
     }
     inputFile->Close();
   } else {
-    G4cerr << "Error: Could not open all_spectra.root" << G4endl;
+    G4Exception("NucTechPrimaryGeneratorAction", "002", FatalException, 
+                "Could not open all_spectra.root");
   }
 }
-
 NucTechPrimaryGeneratorAction::~NucTechPrimaryGeneratorAction() {
   if (fEnergyHist) delete fEnergyHist;
 }

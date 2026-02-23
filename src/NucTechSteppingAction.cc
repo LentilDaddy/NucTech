@@ -25,33 +25,28 @@
 // {}
 
 NucTechSteppingAction::NucTechSteppingAction()
-    : fV_hitEdep(), fV_hitPos(), fV_hitPDG(), fV_KineticEnergy()
+    : HitReactionCount(0)
 {}
 
 
-// NucTechSteppingAction::NucTechSteppingAction()
-//     : HitReactionCount(0)
-// {}
-
-
 void NucTechSteppingAction::BeginOfEventAction() {
-  fV_hitEdep.clear();
-  fV_hitPos.clear();
+  // fV_hitEdep.clear();
+  // fV_hitPos.clear();
   // // fV_hitMomentum.clear();
   // // fV_hitTime.clear();
-  fV_hitPDG.clear();
-  fV_KineticEnergy.clear();
+  // fV_hitPDG.clear();
+  // fV_KineticEnergy.clear();
   // fV_hitParentID.clear();
-  // HitReactionCount = 0;
+  HitReactionCount = 0;
 }
 
 void NucTechSteppingAction::EndOfEventAction() {
   // Check at least one phantom hit happened during the event
-  if (fV_hitEdep.empty()) //why only for hitEdep?
-    return;
-
-  // if (HitReactionCount < 1)
+  // if (fV_hitEdep.empty()) //why only for hitEdep?
   //   return;
+
+  if (HitReactionCount < 1)
+    return;
 
   G4AnalysisManager *mgr = G4AnalysisManager::Instance();
 
@@ -60,27 +55,27 @@ void NucTechSteppingAction::EndOfEventAction() {
   //     std::accumulate(fV_hitEdep.begin(), fV_hitEdep.end(), 0.);
 
 // Fill Ntuple 1 (EnergySpectrum)
-  // mgr->FillNtupleIColumn(1, 0, HitReactionCount); 
-  // mgr->AddNtupleRow(1);
+  mgr->FillNtupleIColumn(1, 0, HitReactionCount); 
+  mgr->AddNtupleRow(1);
 
   // // Then record the individual hit energy and coordinates of this event
-  for (std::size_t i = 0; i < fV_hitEdep.size(); i++) {
-    auto energy = fV_hitEdep[i] / MeV;
-    auto position = fV_hitPos[i];
-    G4float z = static_cast<G4float>(position.z() / cm);
+  // for (std::size_t i = 0; i < fV_hitEdep.size(); i++) {
+  //   // auto energy = fV_hitEdep[i] / MeV;
+  //   auto position = fV_hitPos[i];
+  //   G4float z = static_cast<G4float>(position.z() / cm);
   //   // G4float x = static_cast<G4float>(position.x() / cm);
   //   // G4float y = static_cast<G4float>(position.y() / cm);
   //   // G4float r = static_cast<G4float>(position.perp() / cm);
 
   //   // auto time = fV_hitTime[i] / ns;
-    auto kinEnergy = fV_KineticEnergy[i] / MeV;
+  //   // auto kinEnergy = fV_KineticEnergy[i] / MeV;
   //   // auto momentum = fV_hitMomentum[i];
 
-    mgr->FillNtupleDColumn(1, 0, energy);
+  //   // mgr->FillNtupleDColumn(2, 0, energy);
   //   // mgr->FillNtupleDColumn(2, 1, position.x() / cm);
   //   // mgr->FillNtupleDColumn(2, 2, position.y() / cm);
   //   // mgr->FillNtupleFColumn(2, 0, position.z() / cm);
-    mgr->FillNtupleFColumn(1, 1, z); // Using ID 2
+  //   mgr->FillNtupleFColumn(2, 0, z); // Using ID 2
   //   // mgr->FillNtupleFColumn(1, 1, x);
   //   // mgr->FillNtupleFColumn(1, 2, y);
   //   // mgr->FillNtupleFColumn(1, 1, r);
@@ -88,12 +83,12 @@ void NucTechSteppingAction::EndOfEventAction() {
   //   // mgr->FillNtupleDColumn(2, 3, momentum.y() / (MeV));
   //   // mgr->FillNtupleDColumn(2, 2, momentum.z() / (MeV));
   //   // mgr->FillNtupleDColumn(2, 3, time / ns);
-    mgr->FillNtupleIColumn(1, 2, fV_hitPDG[i]); // Assuming column 5 is for PDG code
-    mgr->FillNtupleFColumn(1, 3, kinEnergy);
+  //   // mgr->FillNtupleIColumn(1, 2, fV_hitPDG[i]); // Assuming column 5 is for PDG code
+  //   // mgr->FillNtupleFColumn(1, 3, kinEnergy);
   //   // mgr->FillNtupleIColumn(1, 4, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
   //   // mgr->FillNtupleIColumn(1, 5, fReactionCount); //i think it is filling this with 0 values... 
-    mgr->AddNtupleRow(1);
-  }
+  //   mgr->AddNtupleRow(2);
+  // }
 }
 
 void NucTechSteppingAction::UserSteppingAction(const G4Step *step) {
@@ -124,15 +119,16 @@ G4String motherName = (depth > 1 && touchable->GetVolume(1))
 //     return;
 //     }
 
-// if (currentName != "Detector1" &&
-//     currentName != "Detector2" &&
-//     motherName != "Detector1"){
-//     return; //maybe returning here is what was causing the boundary issue (current volume world, previous volume vacuumlayer)
-//     }
-
-    if (currentName != "Detector1"){
-    return; //maybe returning here is what was causing the boundary issue (current volume world, previous volume vacuumlayer)
+if (currentName != "Detector1"){
+    return;
     }
+
+    // if (currentName != "Detector1" &&
+    // currentName != "Detector2" &&
+    // motherName != "Detector1"){
+    // return;
+    // }
+
 
   // if (postStepPoint->GetPhysicalVolume()->GetName() != "Detector1" &&
   //     postStepPoint->GetPhysicalVolume()->GetName() != "Detector2")
@@ -140,18 +136,18 @@ G4String motherName = (depth > 1 && touchable->GetVolume(1))
 
 
 
-  // Store the energy deposited in the phantom
-  const G4float Edep = step->GetTotalEnergyDeposit();
+  // // Store the energy deposited in the phantom
+  // const G4float Edep = step->GetTotalEnergyDeposit();
 
-  if (Edep < 0.) { //changed from <= to < to include 0 energy deposits
-    return;
-  }
+  // if (Edep < 0.) { //changed from <= to < to include 0 energy deposits
+  //   return;
+  // }
 
-  fV_hitEdep.push_back(Edep);
+  // fV_hitEdep.push_back(Edep);
 
-  // Store the hit position
-  const G4ThreeVector hitPos = postStepPoint->GetPosition();
-  fV_hitPos.push_back(hitPos);
+  // // Store the hit position
+  // const G4ThreeVector hitPos = postStepPoint->GetPosition();
+  // fV_hitPos.push_back(hitPos);
 
   // const G4ThreeVector hitMomentum = postStepPoint->GetMomentum();
   // fV_hitMomentum.push_back(hitMomentum);
@@ -160,88 +156,88 @@ G4String motherName = (depth > 1 && touchable->GetVolume(1))
   // const G4double hitTime = step->GetPostStepPoint()->GetGlobalTime();
   // fV_hitTime.push_back(hitTime);
 
-  const G4float kinEnergy = step->GetPostStepPoint()->GetKineticEnergy();
-  fV_KineticEnergy.push_back(kinEnergy);
+  // const G4float kinEnergy = step->GetPostStepPoint()->GetKineticEnergy();
+  // fV_KineticEnergy.push_back(kinEnergy);
 
     // Store PDG code
   const G4Track* track = step->GetTrack();
-  const G4ParticleDefinition* pd = track->GetDefinition();
-  int pdgCode = track->GetDefinition()->GetPDGEncoding();
-  int particleType = 2; // default: other
+  // const G4ParticleDefinition* pd = track->GetDefinition();
+  // // int pdgCode = track->GetDefinition()->GetPDGEncoding();
+  // int particleType = 2; // default: other
   // int ParentID = track->GetParentID();
 
-  fV_hitPDG.push_back(pdgCode);
+  // fV_hitPDG.push_back(pdgCode);
 
-  if (pd == G4Electron::ElectronDefinition()) {
-    particleType = 0;
-  } else if (pd == G4Gamma::GammaDefinition()) {
-    particleType = 1;
-  }
-  fV_hitPDG.push_back(particleType);
+  // if (pd == G4Electron::ElectronDefinition()) {
+  //   particleType = 0;
+  // } else if (pd == G4Gamma::GammaDefinition()) {
+  //   particleType = 1;
+  // }
+  // fV_hitPDG.push_back(particleType);
   // fV_hitParentID.push_back(ParentID);
 
 
-  // CheckPhotonuclearReaction(step);
+  CheckPhotonuclearReaction(step);
 
 }
 
-// void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
-//   const G4VProcess* process = step->GetPostStepPoint()->GetProcessDefinedStep();
-//   if (!process) return;
+void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
+  const G4VProcess* process = step->GetPostStepPoint()->GetProcessDefinedStep();
+  if (!process) return;
   
-//   G4String processName = process->GetProcessName();
-//   if (processName.find("photonNuclear") == std::string::npos && 
-//       processName.find("PhotoNuclear") == std::string::npos) { 
-//         return;//if BOTH are NOT found, return.
-//   }
+  G4String processName = process->GetProcessName();
+  if (processName.find("photonNuclear") == std::string::npos && 
+      processName.find("PhotoNuclear") == std::string::npos) { 
+        return;//if BOTH are NOT found, return.
+  }
 
-//   //std::string::npos means NOT found
+  //std::string::npos means NOT found
     
-//   // CHECK 1: Verify parent track is a gamma
-//   const G4Track* track = step->GetTrack();
-//   if (track->GetDefinition() != G4Gamma::GammaDefinition()) {
-//       return;
-//   }
+  // CHECK 1: Verify parent track is a gamma
+  const G4Track* track = step->GetTrack();
+  if (track->GetDefinition() != G4Gamma::GammaDefinition()) {
+      return;
+  }
 
-//   // CHECK 2 & 3: Look for reaction products (neutron + 18F residual)
-//   const std::vector<const G4Track*>* secondaries = step->GetSecondaryInCurrentStep();
-//   if (!secondaries || secondaries->empty()) {
-//       return;
-//   }
+  // CHECK 2 & 3: Look for reaction products (neutron + 18F residual)
+  const std::vector<const G4Track*>* secondaries = step->GetSecondaryInCurrentStep();
+  if (!secondaries || secondaries->empty()) {
+      return;
+  }
 
-//   bool hasNeutron = false;
-//   bool hasFluorine18 = false;
+  bool hasNeutron = false;
+  bool hasFluorine18 = false;
 
-//   for (const auto* secondary : *secondaries) {
-//     G4int Z = secondary->GetDefinition()->GetAtomicNumber();
-//     G4int A = secondary->GetDefinition()->GetBaryonNumber();
+  for (const auto* secondary : *secondaries) {
+    G4int Z = secondary->GetDefinition()->GetAtomicNumber();
+    G4int A = secondary->GetDefinition()->GetBaryonNumber();
     
-//     // Check for neutron (Z=0, A=1)
-//     if (secondary->GetDefinition() == G4Neutron::NeutronDefinition()) {
-//         hasNeutron = true;
-//     }
+    // Check for neutron (Z=0, A=1)
+    if (secondary->GetDefinition() == G4Neutron::NeutronDefinition()) {
+        hasNeutron = true;
+    }
     
-//     // Check for 18F nucleus (Z=9, A=18)
-//     if (Z == 9 && A == 18) {
-//         hasFluorine18 = true;
-//     }
-//   }
-//   // If we have both products, the reaction occurred (implies target was 19F)
-//   if (hasNeutron && hasFluorine18) {
-//     // //print all particle types produced in the reaction
-//     // std::cout << "Photonuclear reaction particles A and Z:" << std::endl;
-//     // for (const auto* secondary : *secondaries) {
-//     //     G4int Z = secondary->GetDefinition()->GetAtomicNumber();
-//     //     G4int A = secondary->GetDefinition()->GetBaryonNumber();
-//     //     std::cout << "Particle: A=" << A << ", Z=" << Z << std::endl;
-//     // }
+    // Check for 18F nucleus (Z=9, A=18)
+    if (Z == 9 && A == 18) {
+        hasFluorine18 = true;
+    }
+  }
+  // If we have both products, the reaction occurred (implies target was 19F)
+  if (hasNeutron && hasFluorine18) {
+    // //print all particle types produced in the reaction
+    // std::cout << "Photonuclear reaction particles A and Z:" << std::endl;
+    // for (const auto* secondary : *secondaries) {
+    //     G4int Z = secondary->GetDefinition()->GetAtomicNumber();
+    //     G4int A = secondary->GetDefinition()->GetBaryonNumber();
+    //     std::cout << "Particle: A=" << A << ", Z=" << Z << std::endl;
+    // }
 
-//       HitReactionCount++;
-//       // std::cout << "Count incremented to: " << fReactionCount << std::endl;
-//   }
-//   else {
-//     // std::cout << "Photonuclear reaction did not produce both neutron and 18F." << std::endl;
-//     // std::cout << "Count incremented to: " << fReactionCount << std::endl;
-//     return;
-//   }
-// }
+      HitReactionCount++;
+      // std::cout << "Count incremented to: " << fReactionCount << std::endl;
+  }
+  else {
+    // std::cout << "Photonuclear reaction did not produce both neutron and 18F." << std::endl;
+    // std::cout << "Count incremented to: " << fReactionCount << std::endl;
+    return;
+  }
+}

@@ -68,7 +68,8 @@ for (const auto &m : energies) {
     
         // // Main Chain
         TChain *ch = new TChain("EnergySpectrum");
-        ch->Add(TString::Format("*_%s*_%s*.root", e.c_str(), m.c_str()).Data());
+        // ch->Add(TString::Format("*_%s*_%s*.root", e.c_str(), m.c_str()).Data());
+        ch->Add(TString::Format("*_%s*_%s.root", e.c_str(), m.c_str()).Data()); //expected format: "proj_1mm_20MeV.root"
 
         chains.push_back({label, ch});
     }
@@ -150,7 +151,8 @@ for (size_t i = 0; i < chains.size(); i++) {
     legend->AddEntry(h, label.c_str(), "l");
 
 
-    results.push_back({energyLabel, energy, foilThickness, integral / 1e6}); //need to divide by 2e6 for 40 and 45MeV
+    results.push_back({energyLabel, energy, foilThickness, integral}); //need to divide by 2e6 for 40 and 45MeV
+    // results.push_back({energyLabel, energy, foilThickness, integral / 1e6}); //need to divide by 2e6 for 40 and 45MeV
 }
 
     //===============================
@@ -230,7 +232,8 @@ for (size_t i = 0; i < chains.size(); i++) {
 
     mg->SetTitle("Total Reactions in Detector per Primary Electron vs Foil Thickness");
     mg->GetXaxis()->SetTitle("Foil Thickness (mm)");
-    mg->GetYaxis()->SetTitle("#Reactions per Primary Electron");
+    // mg->GetYaxis()->SetTitle("#Reactions per Primary Electron");
+    mg->GetYaxis()->SetTitle("#Reactions");
     mg->GetYaxis()->SetTitleOffset(1.4); // Default is usually 1.0 or 1.2
     mg->GetXaxis()->SetTitleSize(0.05);
     mg->GetYaxis()->SetTitleSize(0.05);
