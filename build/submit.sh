@@ -6,17 +6,140 @@ export ROOT_TTREE_MAX_SIZE=500000000000  # e.g., 500 GB
 
 for i in {1..100}
 do
-  ./nucTech run.mac out_$i.root &
+  ./nucTech run.mac radiator_$i.root &
 done
 
 wait
-# hadd -f1 out.root out_*.root
-# rm out_*.root
 
-# Merge all ROOT output files safely using TChain (avoids hadd limits)
-# root -l -b -q -e '{ TChain c("IndividualHits"); c.Add("out_*.root"); c.Merge("out.root"); }'
-# root -l -b -q -e '{ TChain c("IndividualHits"); c.Add("out_*.root"); }' #creates a temprary chain called c.
-#don't bother with chain as it undoes the chain once root is exited. Might as well add them to a chain inside the compare.C macro.
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+wait
 
+rm radiator_*.root
 
-# rm out_*.root
+wait
+
+for i in {101..200}
+do
+  ./nucTech run.mac radiator_$i.root &
+done
+
+wait
+
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+wait
+
+rm radiator_*.root
+
+wait
+
+for i in {201..300}
+do
+  ./nucTech run.mac radiator_$i.root &
+done
+
+wait
+
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+wait
+
+rm radiator_*.root
+
+wait
+
+for i in {301..400}
+do
+  ./nucTech run.mac radiator_$i.root &
+done
+
+wait
+
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+wait
+
+rm radiator_*.root
+
+wait
+
+for i in {401..500}
+do
+  ./nucTech run.mac radiator_$i.root &
+done
+
+wait
+
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+wait
+
+rm radiator_*.root
+
+wait
+
+for i in {501..600}
+do
+  ./nucTech run.mac radiator_$i.root &
+done
+
+wait
+
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+wait
+
+rm radiator_*.root
+
+wait
+
+for i in {601..700}
+do
+  ./nucTech run.mac radiator_$i.root &
+done
+
+wait
+
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+wait
+
+rm radiator_*.root
+
+wait
+
+for i in {701..800}
+do
+  ./nucTech run.mac radiator_$i.root &
+done
+
+wait
+
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+wait
+
+rm radiator_*.root
+
+wait
+
+for i in {801..900}
+do
+  ./nucTech run.mac radiator_$i.root &
+done
+
+wait
+
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+wait
+
+rm radiator_*.root
+
+wait
+
+for i in {901..1000}
+do
+  ./nucTech run.mac radiator_$i.root &
+done
+
+wait
+
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+wait
+
+rm radiator_*.root
+
+wait
