@@ -11,7 +11,7 @@ done
 
 wait
 
-scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections
 wait
 
 rm radiator_*.root
@@ -25,7 +25,7 @@ done
 
 wait
 
-scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections
 wait
 
 rm radiator_*.root
@@ -39,7 +39,7 @@ done
 
 wait
 
-scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections
 wait
 
 rm radiator_*.root
@@ -53,7 +53,7 @@ done
 
 wait
 
-scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections
 wait
 
 rm radiator_*.root
@@ -67,7 +67,7 @@ done
 
 wait
 
-scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections
 wait
 
 rm radiator_*.root
@@ -81,7 +81,7 @@ done
 
 wait
 
-scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections
 wait
 
 rm radiator_*.root
@@ -95,7 +95,7 @@ done
 
 wait
 
-scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections
 wait
 
 rm radiator_*.root
@@ -109,7 +109,7 @@ done
 
 wait
 
-scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections
 wait
 
 rm radiator_*.root
@@ -123,7 +123,7 @@ done
 
 wait
 
-scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections
 wait
 
 rm radiator_*.root
@@ -137,7 +137,7 @@ done
 
 wait
 
-scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections2
+scp radiator_*.root hadron8:/old_disk/js3096/NucTech/projections
 wait
 
 rm radiator_*.root
