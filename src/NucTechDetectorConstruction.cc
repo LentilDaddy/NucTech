@@ -43,6 +43,7 @@ G4Element* elF = nist->FindOrBuildElement("F");  // Fluorine
 G4Element* elP = nist->FindOrBuildElement("P");  // Phosphorus
 G4Element* elC = nist->FindOrBuildElement("C");  // Carbon
 G4Element* elU = nist->FindOrBuildElement("U");  // Uranium
+G4Element* elH = nist->FindOrBuildElement("H");  // Hydrogen
 
 G4int ncomponents, natoms;
 G4String name;
@@ -68,6 +69,10 @@ CF4->AddElement(elF, natoms=4);
 G4Material* C3F8 = new G4Material(name="C3F8", medium_density, ncomponents=2);
 C3F8->AddElement(elC, natoms=3);
 C3F8->AddElement(elF, natoms=8);
+
+G4Material* HF = new G4Material(name="HF", medium_density, ncomponents=2);
+HF->AddElement(elH, natoms=1);
+HF->AddElement(elF, natoms=1);
 
   //G4Material *foil = nist->FindOrBuildMaterial("G4_Au");
   G4Material *foil = nist->FindOrBuildMaterial("G4_Cu"); //swap target to tungsten
