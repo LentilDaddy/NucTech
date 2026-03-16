@@ -16,6 +16,8 @@ build/*
 !build/compare3.C
 !build/compare4.C
 !build/submit.sh
+!build/init_hist.C
+!build/combine_hist.C
 
 
 # Allow Git to see the src directory itself
