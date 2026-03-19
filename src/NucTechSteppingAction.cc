@@ -233,6 +233,9 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
     // }
 
       HitReactionCount++;
+      G4double z = step->GetPostStepPoint()->GetPosition().z();
+      G4AnalysisManager *mgr = G4AnalysisManager::Instance();
+      mgr->FillH1(0, z / cm);
       // std::cout << "Count incremented to: " << fReactionCount << std::endl;
   }
   else {
