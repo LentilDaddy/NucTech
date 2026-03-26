@@ -25,13 +25,13 @@
 // {}
 
 NucTechSteppingAction::NucTechSteppingAction()
-    : HitReactionCount(0)
+    : HitReactionCount(0), fV_hitPos()
 {}
 
 
 void NucTechSteppingAction::BeginOfEventAction() {
   // fV_hitEdep.clear();
-  // fV_hitPos.clear();
+  fV_hitPos.clear();
   // // fV_hitMomentum.clear();
   // // fV_hitTime.clear();
   // fV_hitPDG.clear();
@@ -50,13 +50,23 @@ void NucTechSteppingAction::EndOfEventAction() {
 
   G4AnalysisManager *mgr = G4AnalysisManager::Instance();
 
+
+  for (std::size_t i = 0; i < HitReactionCount; i++) {
+  auto position = fV_hitPos[i]; // Get the position of the first hit
+  G4float z = static_cast<G4float>(position.z() / cm);
+  mgr->FillNtupleFColumn(1, 0, position.z() / cm);
+  mgr->AddNtupleRow(1);
+  }
+
   // // Store the total nergy deposited in the event
   // const G4float Edep_event =
   //     std::accumulate(fV_hitEdep.begin(), fV_hitEdep.end(), 0.);
 
 // Fill Ntuple 1 (EnergySpectrum)
-  mgr->FillNtupleIColumn(1, 0, HitReactionCount); 
-  mgr->AddNtupleRow(1);
+  // mgr->FillNtupleIColumn(1, 0, HitReactionCount); 
+  // mgr->AddNtupleRow(1);
+
+
 
   // // Then record the individual hit energy and coordinates of this event
   // for (std::size_t i = 0; i < fV_hitEdep.size(); i++) {
@@ -233,9 +243,10 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
     // }
 
       HitReactionCount++;
-      G4double z = step->GetPostStepPoint()->GetPosition().z();
-      G4AnalysisManager *mgr = G4AnalysisManager::Instance();
-      mgr->FillH1(0, z / cm);
+      G4StepPoint *postStepPoint = step->GetPostStepPoint();
+      const G4ThreeVector hitPos = postStepPoint->GetPosition();
+      fV_hitPos.push_back(hitPos);
+
       // std::cout << "Count incremented to: " << fReactionCount << std::endl;
   }
   else {

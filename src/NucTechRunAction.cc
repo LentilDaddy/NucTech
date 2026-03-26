@@ -41,11 +41,27 @@ void NucTechRunAction::BeginOfRunAction(const G4Run* /*run*/)
   // // mgr->CreateNtupleFColumn("EventEdep"); //total energy deposited PER EVENT
   // // // mgr->CreateNtupleDColumn("EventEdepDetector2"); // Add this branch
   // // // mgr->CreateNtupleDColumn("FoilThickness");      // Add this branch
-  mgr->CreateNtupleIColumn("ReactionCount"); //total reaction count PER EVENT
+  mgr->CreateNtupleFColumn("ReactionZ"); 
   mgr->FinishNtuple();
   
-  // Create 1D histogram for reaction counts vs z
-  mgr->CreateH1("ReactionCounts", "Reaction Counts vs Z", 100, -50., 50., "cm");
+  // mgr->CreateNtuple("IndividualHits", "NucTech");
+  // // mgr->CreateNtupleDColumn("HitEdep");
+
+  // mgr->CreateNtupleFColumn("HitZ");
+  // // mgr->CreateNtupleFColumn("HitX"); //positions of each hit
+  // // mgr->CreateNtupleFColumn("HitY");
+  // // mgr->CreateNtupleFColumn("HitR");
+  // // mgr->CreateNtupleDColumn("HitPx");
+  // // mgr->CreateNtupleDColumn("HitPy");
+  // // mgr->CreateNtupleDColumn("HitPz");
+  // // mgr->CreateNtupleDColumn("HitTime"); // <-- Add this line
+  // // mgr->CreateNtupleIColumn("HitPDG"); // <-- Add this line for PDG code
+  // // mgr->CreateNtupleFColumn("HitKineticEnergy");
+  // // mgr->CreateNtupleIColumn("HitParentID"); // <-- Add this line for Parent ID
+  // // mgr->CreateNtupleIColumn("ReactionCount");
+  
+  
+  // mgr->FinishNtuple();
 
   if (IsMaster())
   {

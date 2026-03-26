@@ -18,6 +18,8 @@ build/*
 !build/submit.sh
 !build/init_hist.C
 !build/combine_hist.C
+!build/cost_reactions.C
+!build/plot_reactions.C
 
 
 # Allow Git to see the src directory itself
