@@ -25,7 +25,7 @@ NucTechPrimaryGeneratorAction::NucTechPrimaryGeneratorAction()
   G4cout << "--- Generator initializing for thickness: " << thickness << "mm ---" << G4endl;
 
   // 2. Open the ROOT file
-  TFile* inputFile = TFile::Open("30MeV_spectra.root");
+  TFile* inputFile = TFile::Open("50MeV_spectra.root");
 
   if (inputFile && !inputFile->IsZombie()) {
     fEnergyHist = static_cast<TH1D*>(inputFile->Get(histName));
