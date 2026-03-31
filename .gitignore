@@ -17,7 +17,7 @@ build/*
 !build/compare4.C
 !build/submit.sh
 !build/init_hist.C
-!build/combine_hist.C
+!build/combine_batch.C
 !build/cost_reactions.C
 !build/plot_reactions.C
 

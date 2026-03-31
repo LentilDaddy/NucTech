@@ -14,7 +14,7 @@ NucTechPrimaryGeneratorAction::NucTechPrimaryGeneratorAction()
 {
   // 1. Get thickness from Environment Variable
   // Default to 10 if the variable isn't set
-  G4String thickness = "15"; 
+  G4String thickness = "10"; 
   char* envThickness = std::getenv("RADIATOR_THICKNESS");
   
   if (envThickness) {
@@ -25,7 +25,7 @@ NucTechPrimaryGeneratorAction::NucTechPrimaryGeneratorAction()
   G4cout << "--- Generator initializing for thickness: " << thickness << "mm ---" << G4endl;
 
   // 2. Open the ROOT file
-  TFile* inputFile = TFile::Open("50MeV_spectra.root");
+  TFile* inputFile = TFile::Open("all_spectra.root");
 
   if (inputFile && !inputFile->IsZombie()) {
     fEnergyHist = static_cast<TH1D*>(inputFile->Get(histName));

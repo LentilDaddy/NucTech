@@ -41,7 +41,7 @@ void NucTechRunAction::BeginOfRunAction(const G4Run* /*run*/)
   // // mgr->CreateNtupleFColumn("EventEdep"); //total energy deposited PER EVENT
   // // // mgr->CreateNtupleDColumn("EventEdepDetector2"); // Add this branch
   // // // mgr->CreateNtupleDColumn("FoilThickness");      // Add this branch
-  mgr->CreateNtupleFColumn("ReactionZ"); 
+  mgr->CreateNtupleIColumn("ReactionCount"); //total reaction count PER EVENT
   mgr->FinishNtuple();
   
   // mgr->CreateNtuple("IndividualHits", "NucTech");
