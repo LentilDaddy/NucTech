@@ -13,14 +13,14 @@
 void cost_reactions() {
     // Define the materials and energies
     std::vector<std::string> materials = {"C3F8", "CF4", "HF", "SF6", "UF6"};
-    std::vector<double> energies = {20.0, 25.0, 30.0};
+    std::vector<double> energies = {20.0, 25.0, 30.0, 50.0};
     
     // Define distinct colors and marker styles for each material
     std::vector<int> colors = {kRed, kBlue, kGreen+2, kMagenta, kOrange+7};
     std::vector<int> markers = {kFullCircle, kFullSquare, kFullTriangleUp, kFullTriangleDown, kFullDiamond};
 
     // Create a canvas
-    TCanvas *c1 = new TCanvas("c1", "18F Reactions vs Beam Energy", 800, 600);
+    TCanvas *c1 = new TCanvas("c1", "18F Reactions vs Beam Energy", 2000, 1200);
     c1->SetGrid();
 
     // Create a MultiGraph and a Legend
@@ -31,7 +31,7 @@ void cost_reactions() {
     TLegend *leg = new TLegend(0.15, 0.65, 0.35, 0.85); // Adjust position as needed
     leg->SetBorderSize(1);
     leg->SetFillColor(0);
-    leg->SetTextSize(0.04);
+    leg->SetTextSize(0.05);
 
     // Loop over each material to create a separate TGraph
     for (size_t i = 0; i < materials.size(); ++i) {
@@ -65,15 +65,17 @@ void cost_reactions() {
             }
             
             // Extract counts (assuming it's a single bin histogram, we can take bin 1 or Integral)
-            double counts = h_final->GetBinContent(2);
+            double counts = h_final->Integral();
+            //double counts = h_final->GetBinContent(2);
             if (energies[j] == 20){
                 counts = 4.7e-3 * counts;
             }else if (energies[j] == 25){
                 counts = 5.4e-3 * counts * 20*20 / (25*25);
             }else if (energies[j] == 30){
                 counts = 6.3e-3 * counts * 20*20 / (30*30);
-            }
-            
+            }else if (energies[j] == 50){
+                counts = 2.0e-2 * counts * 20*20 / (50*50);
+            }            
             // Add the point to the graph
             graph->SetPoint(point_idx, energies[j], counts);
             point_idx++;
@@ -92,9 +94,21 @@ void cost_reactions() {
     // "A" draws axes, "P" draws markers
     mg->Draw("AP");
 
+    // Adjust X-axis
+    mg->GetXaxis()->SetTitleSize(0.05);      // Title size
+    mg->GetXaxis()->SetLabelSize(0.05);      // Label size
+    mg->GetXaxis()->SetTitleOffset(0.95);     // Title distance from axis
+    mg->GetXaxis()->SetLabelOffset(0.002);   // Label distance from axis
+
+    // Adjust Y-axis
+    mg->GetYaxis()->SetTitleSize(0.05);
+    mg->GetYaxis()->SetLabelSize(0.05);
+    mg->GetYaxis()->SetTitleOffset(0.95);     // Often needs more offset for vertical text
+    mg->GetYaxis()->SetLabelOffset(0.002);
+
     // Force the X-axis range from 19 to 31 MeV
     // Note: Axes properties in TMultiGraph can only be modified *after* calling Draw()
-    mg->GetXaxis()->SetLimits(19.0, 31.0);
+    mg->GetXaxis()->SetLimits(19.0, 51.0);
     
     // TMultiGraph automatically adjusts the Y-axis to fit the highest point.
     // However, it's often good practice to start the Y-axis at 0 for counts.

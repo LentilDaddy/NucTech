@@ -43,6 +43,7 @@ G4Element* elF = nist->FindOrBuildElement("F");  // Fluorine
 G4Element* elP = nist->FindOrBuildElement("P");  // Phosphorus
 G4Element* elC = nist->FindOrBuildElement("C");  // Carbon
 G4Element* elU = nist->FindOrBuildElement("U");  // Uranium
+G4Element* elH = nist->FindOrBuildElement("H");  // Hydrogen
 
 G4int ncomponents, natoms;
 G4String name;
@@ -51,6 +52,10 @@ G4double medium_density = 1.339*g/cm3; //keep the same because we will be changi
 G4Material* SF6 = new G4Material(name="SF6", medium_density, ncomponents=2);
 SF6->AddElement(elS, natoms=1);
 SF6->AddElement(elF, natoms=6);
+
+G4Material* HF = new G4Material(name="HF", medium_density, ncomponents=2);
+HF->AddElement(elH, natoms=1);
+HF->AddElement(elF, natoms=1);
 
 G4Material* PF5 = new G4Material(name="PF5", medium_density, ncomponents=2);
 PF5->AddElement(elP, natoms=1);

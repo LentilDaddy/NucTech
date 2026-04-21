@@ -20,18 +20,18 @@ void plot_reactions() {
     std::vector<int> markers = {kFullCircle, kFullSquare, kFullTriangleUp, kFullTriangleDown, kFullDiamond};
 
     // Create a canvas
-    TCanvas *c1 = new TCanvas("c1", "18F Reactions vs Beam Energy", 800, 600);
+    TCanvas *c1 = new TCanvas("c1", "18F Reactions vs Beam Energy", 2000, 1200);
     c1->SetGrid();
 
     // Create a MultiGraph and a Legend
     TMultiGraph *mg = new TMultiGraph();
-    // mg->SetTitle("^{19}F(#gamma, n)^{18}F Reactions vs Beam Energy;Beam Energy (MeV);^{19}F(#gamma, n)^{18}F Reactions");
-    mg->SetTitle("^{18}F Activity vs Beam Energy;Beam Energy (MeV);Activity (#frac{MBq}{mA#bullet h})");
+    mg->SetTitle("^{19}F(#gamma, n)^{18}F Reactions vs Beam Energy;Beam Energy (MeV);^{19}F(#gamma, n)^{18}F Reactions");
+    // mg->SetTitle("^{18}F Activity vs Beam Energy;Beam Energy (MeV);Activity (#frac{MBq}{mA#bullet h})");
     
     TLegend *leg = new TLegend(0.15, 0.65, 0.35, 0.85); // Adjust position as needed
     leg->SetBorderSize(1);
     leg->SetFillColor(0);
-    leg->SetTextSize(0.04);
+    leg->SetTextSize(0.05);
 
     // Loop over each material to create a separate TGraph
     for (size_t i = 0; i < materials.size(); ++i) {
@@ -67,15 +67,15 @@ void plot_reactions() {
             // Extract counts (assuming it's a single bin histogram, we can take bin 1 or Integral)
             // double counts = h_final->GetBinContent(2);
             double counts = h_final->Integral(); // Use Integral to get total counts in the histogram
-            if (energies[j] == 20){
-                counts = 4.7e-3 * counts;
-            }else if (energies[j] == 25){
-                counts = 5.4e-3 * counts;
-            }else if (energies[j] == 30){
-                counts = 6.3e-3 * counts;
-            }else if (energies[j] == 50){
-                counts = 2.0e-2 * counts;
-            }
+            // if (energies[j] == 20){
+            //     counts = 4.7e-3 * counts;
+            // }else if (energies[j] == 25){
+            //     counts = 5.4e-3 * counts;
+            // }else if (energies[j] == 30){
+            //     counts = 6.3e-3 * counts;
+            // }else if (energies[j] == 50){
+            //     counts = 2.0e-2 * counts;
+            // }
             
             // Add the point to the graph
             graph->SetPoint(point_idx, energies[j], counts);
@@ -94,6 +94,18 @@ void plot_reactions() {
     // Draw the multigraph
     // "A" draws axes, "P" draws markers
     mg->Draw("AP");
+
+    // Adjust X-axis
+    mg->GetXaxis()->SetTitleSize(0.05);      // Title size
+    mg->GetXaxis()->SetLabelSize(0.05);      // Label size
+    mg->GetXaxis()->SetTitleOffset(0.95);     // Title distance from axis
+    mg->GetXaxis()->SetLabelOffset(0.002);   // Label distance from axis
+
+    // Adjust Y-axis
+    mg->GetYaxis()->SetTitleSize(0.05);
+    mg->GetYaxis()->SetLabelSize(0.05);
+    mg->GetYaxis()->SetTitleOffset(1);     // Often needs more offset for vertical text
+    mg->GetYaxis()->SetLabelOffset(0.002);
 
     // Force the X-axis range from 19 to 31 MeV
     // Note: Axes properties in TMultiGraph can only be modified *after* calling Draw()
