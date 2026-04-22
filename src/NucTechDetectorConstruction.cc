@@ -48,7 +48,7 @@ G4Element* elH = nist->FindOrBuildElement("H");  // Hydrogen
 G4int ncomponents, natoms;
 G4String name;
 // define a material from elements.   case 1: chemical molecule
-G4double medium_density = 1.339*g/cm3; //keep the same because we will be changing pressure anyway.
+G4double medium_density = 1.68*g/cm3; //keep the same because we will be changing pressure anyway.
 G4Material* SF6 = new G4Material(name="SF6", medium_density, ncomponents=2);
 SF6->AddElement(elS, natoms=1);
 SF6->AddElement(elF, natoms=6);
@@ -74,9 +74,13 @@ G4Material* C3F8 = new G4Material(name="C3F8", medium_density, ncomponents=2);
 C3F8->AddElement(elC, natoms=3);
 C3F8->AddElement(elF, natoms=8);
 
+G4Material* C6F14 = new G4Material(name="C6F14", medium_density, ncomponents=2);
+C6F14->AddElement(elC, natoms=6);
+C6F14->AddElement(elF, natoms=14);
+
   //G4Material *foil = nist->FindOrBuildMaterial("G4_Au");
   G4Material *foil = nist->FindOrBuildMaterial("G4_Cu"); //swap target to tungsten
-  G4Material *medium = SF6;
+  G4Material *medium = C6F14;
   G4Material *Fe_Steel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
 
   /***** Experimental hall *****/

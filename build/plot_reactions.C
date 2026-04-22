@@ -12,12 +12,12 @@
 
 void plot_reactions() {
     // Define the materials and energies
-    std::vector<std::string> materials = {"C3F8", "CF4", "HF", "SF6", "UF6"};
+    std::vector<std::string> materials = {"C3F8", "CF4", "HF", "SF6", "UF6", "C6F14"};
     std::vector<double> energies = {20.0, 25.0, 30.0, 50.0};
     
     // Define distinct colors and marker styles for each material
-    std::vector<int> colors = {kRed, kBlue, kGreen+2, kMagenta, kOrange+7};
-    std::vector<int> markers = {kFullCircle, kFullSquare, kFullTriangleUp, kFullTriangleDown, kFullDiamond};
+    std::vector<int> colors = {kRed, kBlue, kGreen+2, kMagenta, kOrange+7, kCyan+2};
+    std::vector<int> markers = {kFullCircle, kFullSquare, kFullTriangleUp, kFullTriangleDown, kFullDiamond, kOpenCircle};
 
     // Create a canvas
     TCanvas *c1 = new TCanvas("c1", "18F Reactions vs Beam Energy", 2000, 1200);
@@ -67,15 +67,15 @@ void plot_reactions() {
             // Extract counts (assuming it's a single bin histogram, we can take bin 1 or Integral)
             // double counts = h_final->GetBinContent(2);
             double counts = h_final->Integral(); // Use Integral to get total counts in the histogram
-            // if (energies[j] == 20){
-            //     counts = 4.7e-3 * counts;
-            // }else if (energies[j] == 25){
-            //     counts = 5.4e-3 * counts;
-            // }else if (energies[j] == 30){
-            //     counts = 6.3e-3 * counts;
-            // }else if (energies[j] == 50){
-            //     counts = 2.0e-2 * counts;
-            // }
+            //  if (energies[j] == 20){
+            //      counts = 4.7e-3 * counts;
+            //  }else if (energies[j] == 25){
+            //      counts = 5.4e-3 * counts;
+            //  }else if (energies[j] == 30){
+            //      counts = 6.3e-3 * counts;
+            //  }else if (energies[j] == 50){
+            //      counts = 2.0e-2 * counts;
+            //  }
             
             // Add the point to the graph
             graph->SetPoint(point_idx, energies[j], counts);

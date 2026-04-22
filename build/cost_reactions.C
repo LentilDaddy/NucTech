@@ -12,12 +12,12 @@
 
 void cost_reactions() {
     // Define the materials and energies
-    std::vector<std::string> materials = {"C3F8", "CF4", "HF", "SF6", "UF6"};
+    std::vector<std::string> materials = {"C3F8", "CF4", "HF", "SF6", "UF6", "C6F14"};
     std::vector<double> energies = {20.0, 25.0, 30.0, 50.0};
     
     // Define distinct colors and marker styles for each material
-    std::vector<int> colors = {kRed, kBlue, kGreen+2, kMagenta, kOrange+7};
-    std::vector<int> markers = {kFullCircle, kFullSquare, kFullTriangleUp, kFullTriangleDown, kFullDiamond};
+    std::vector<int> colors = {kRed, kBlue, kGreen+2, kMagenta, kOrange+7, kCyan+2};
+    std::vector<int> markers = {kFullCircle, kFullSquare, kFullTriangleUp, kFullTriangleDown, kFullDiamond, kOpenCircle};
 
     // Create a canvas
     TCanvas *c1 = new TCanvas("c1", "18F Reactions vs Beam Energy", 2000, 1200);
