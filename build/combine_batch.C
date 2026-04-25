@@ -4,14 +4,14 @@ void combine_batch() {
     myChain->Add("out_*.root");
 
     // Create a temporary batch histogram in memory
-    TH1F *h_batch = new TH1F("h_batch", "Batch Histogram", 400, 0, 200);
+    TH1F *h_batch = new TH1F("h_batch", "Batch Histogram", 3, 0, 3);
     
     // Draw ReactionCount into h_batch. 
     // "goff" turns off graphics rendering, which is safer/faster for background scripts.
-    myChain->Draw("ReactionZ >> h_batch", "", "goff");
+    myChain->Draw("ReactionCount >> h_batch", "", "goff");
 
     // Open the main file in UPDATE mode
-    TFile *finalFile = TFile::Open("SF6.root", "UPDATE");
+    TFile *finalFile = TFile::Open("H2O_25MeV_VolumeA.root", "UPDATE");
     
     // Retrieve the existing final histogram
     TH1F *h_final = (TH1F*)finalFile->Get("h_final");

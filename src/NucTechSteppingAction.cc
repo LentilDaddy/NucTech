@@ -206,7 +206,7 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
   }
 
   bool hasNeutron = false;
-  bool hasFluorine18 = false;
+  bool hasOxygen15 = false;
 
   for (const auto* secondary : *secondaries) {
     G4int Z = secondary->GetDefinition()->GetAtomicNumber();
@@ -217,13 +217,13 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
         hasNeutron = true;
     }
     
-    // Check for 18F nucleus (Z=9, A=18)
-    if (Z == 9 && A == 18) {
-        hasFluorine18 = true;
+    // Check for 15O nucleus (Z=8, A=15)
+    if (Z == 8 && A == 15) {
+        hasOxygen15 = true;
     }
   }
   // If we have both products, the reaction occurred (implies target was 19F)
-  if (hasNeutron && hasFluorine18) {
+  if (hasNeutron && hasOxygen15) {
     // //print all particle types produced in the reaction
     // std::cout << "Photonuclear reaction particles A and Z:" << std::endl;
     // for (const auto* secondary : *secondaries) {
@@ -236,7 +236,7 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
       // std::cout << "Count incremented to: " << fReactionCount << std::endl;
   }
   else {
-    // std::cout << "Photonuclear reaction did not produce both neutron and 18F." << std::endl;
+    // std::cout << "Photonuclear reaction did not produce both neutron and 15O." << std::endl;
     // std::cout << "Count incremented to: " << fReactionCount << std::endl;
     return;
   }

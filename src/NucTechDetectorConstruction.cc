@@ -48,7 +48,7 @@ G4Element* elH = nist->FindOrBuildElement("H");  // Hydrogen
 G4int ncomponents, natoms;
 G4String name;
 // define a material from elements.   case 1: chemical molecule
-G4double medium_density = 1.68*g/cm3; //keep the same because we will be changing pressure anyway.
+G4double medium_density = 1.0*g/cm3; //keep the same because we will be changing pressure anyway.
 G4Material* SF6 = new G4Material(name="SF6", medium_density, ncomponents=2);
 SF6->AddElement(elS, natoms=1);
 SF6->AddElement(elF, natoms=6);
@@ -80,12 +80,12 @@ C6F14->AddElement(elF, natoms=14);
 
   //G4Material *foil = nist->FindOrBuildMaterial("G4_Au");
   G4Material *foil = nist->FindOrBuildMaterial("G4_Cu"); //swap target to tungsten
-  G4Material *medium = C6F14;
+  G4Material *medium = nist->FindOrBuildMaterial("G4_WATER"); //swap detector medium to water
   G4Material *Fe_Steel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
 
   /***** Experimental hall *****/
 
-  G4double worldHalfLength = 5 * m; //doubled this to ensure no overlap with detector
+  G4double worldHalfLength = 0.1 * m; //doubled this to ensure no overlap with detector
 
   G4VSolid *world =
       new G4Box("World", worldHalfLength, worldHalfLength, worldHalfLength);
@@ -98,12 +98,12 @@ C6F14->AddElement(elF, natoms=14);
 
   /***** Detector *****/
 
-  G4double det_radius = 9. * cm;
+  G4double det_radius = 1. * cm;
   // G4double dzFoilPart = 5. * mm; // foil thickness. 4mm of initial layer!
   G4double dzVacuum = 10. * cm;
   G4double dzFoil =10*mm;
   G4double dzSteel = 0.5*mm;
-  G4double det_halfDepth = 100. * cm;
+  G4double det_halfDepth = 1. * cm;
   // G4int nSlices = 200;
 
 
@@ -225,7 +225,7 @@ C6F14->AddElement(elF, natoms=14);
 
   /***** Step limit *****/
 
-  G4double maxStep = .1 * mm; //changed from 0.05
+  G4double maxStep = .01 * mm; //changed from 0.05
   fStepLimit = new G4UserLimits(maxStep);
   det_logical->SetUserLimits(fStepLimit); //assigned to detector 1
   // midLayer_log->SetUserLimits(fStepLimit); //assigned to detector 2 (the foil?)
