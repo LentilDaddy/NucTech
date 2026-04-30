@@ -11,7 +11,7 @@ void combine_batch() {
     myChain->Draw("ReactionCount >> h_batch", "", "goff");
 
     // Open the main file in UPDATE mode
-    TFile *finalFile = TFile::Open("H2O_25MeV_VolumeA.root", "UPDATE");
+    TFile *finalFile = TFile::Open("H2O_30MeV_VolumeA.root", "UPDATE");
     
     // Retrieve the existing final histogram
     TH1F *h_final = (TH1F*)finalFile->Get("h_final");
