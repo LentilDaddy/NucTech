@@ -13,6 +13,7 @@
 void plot_reactions() {
     // Define the materials and energies
     std::vector<std::string> materials = {"C3F8", "CF4", "HF", "SF6", "UF6", "C6F14"};
+    std::vector<std::string> densities = {"1.352", "1.603", "1.002", "1.339", "3.63", "1.68"};
     std::vector<double> energies = {20.0, 25.0, 30.0, 50.0};
     
     // Define distinct colors and marker styles for each material
@@ -23,12 +24,18 @@ void plot_reactions() {
     TCanvas *c1 = new TCanvas("c1", "18F Reactions vs Beam Energy", 2000, 1200);
     c1->SetGrid();
 
+    // Add these lines to adjust margins:
+    c1->SetLeftMargin(0.15);    // more space on left for y-axis labels
+    c1->SetRightMargin(0.05);
+    c1->SetTopMargin(0.08);
+    c1->SetBottomMargin(0.12);  // more space on bottom for x-axis labels
+
     // Create a MultiGraph and a Legend
     TMultiGraph *mg = new TMultiGraph();
     mg->SetTitle("^{19}F(#gamma, n)^{18}F Reactions vs Beam Energy;Beam Energy (MeV);^{19}F(#gamma, n)^{18}F Reactions");
     // mg->SetTitle("^{18}F Activity vs Beam Energy;Beam Energy (MeV);Activity (#frac{MBq}{mA#bullet h})");
     
-    TLegend *leg = new TLegend(0.15, 0.65, 0.35, 0.85); // Adjust position as needed
+    TLegend *leg = new TLegend(0.18, 0.5, 0.53, 0.87); // Adjust position as needed
     leg->SetBorderSize(1);
     leg->SetFillColor(0);
     leg->SetTextSize(0.05);
@@ -87,7 +94,8 @@ void plot_reactions() {
         // Add the graph to the multigraph and legend if it has points
         if (graph->GetN() > 0) {
             mg->Add(graph, "P"); // "P" means draw points only
-            leg->AddEntry(graph, materials[i].c_str(), "p");
+            // leg->AddEntry(graph, materials[i].c_str(), "p");
+            leg->AddEntry(graph, (materials[i] + ": " + densities[i] + " g/cm^3").c_str(), "p"); // label as material_density
         }
     }
 
@@ -104,8 +112,9 @@ void plot_reactions() {
     // Adjust Y-axis
     mg->GetYaxis()->SetTitleSize(0.05);
     mg->GetYaxis()->SetLabelSize(0.05);
-    mg->GetYaxis()->SetTitleOffset(1);     // Often needs more offset for vertical text
+    mg->GetYaxis()->SetTitleOffset(1.2);     // Often needs more offset for vertical text
     mg->GetYaxis()->SetLabelOffset(0.002);
+
 
     // Force the X-axis range from 19 to 31 MeV
     // Note: Axes properties in TMultiGraph can only be modified *after* calling Draw()
