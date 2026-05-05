@@ -1,0 +1,7 @@
+/gps/pos/type Point
+/gps/pos/centre 0. 0. -1. m
+/gps/direction 0. 0. 1.
+
+# Beam energy
+/gps/particle gamma
+/run/beamOn 100000

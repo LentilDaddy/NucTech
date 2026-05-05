@@ -18,7 +18,6 @@ for batch in {0..1}; do
   end=$(((batch + 1) * 100))
   
   for i in $(seq $start $end); do
-    # Using 'time' or 'nice' can also help manage resources on shared clusters
     ./nucTech run.mac out_$i.root &
   done
   wait

@@ -20,6 +20,7 @@ build/*
 !build/combine_batch.C
 !build/cost_reactions.C
 !build/plot_reactions.C
+!build/beam.mac
 
 
 # Allow Git to see the src directory itself
