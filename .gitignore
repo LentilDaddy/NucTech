@@ -22,6 +22,7 @@ build/*
 !build/cost_reactions.C
 !build/plot_reactions.C
 !build/beam.mac
+!build/30MeV_spectra.root
 
 
 # Allow Git to see the src directory itself
