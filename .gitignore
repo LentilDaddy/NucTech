@@ -57,3 +57,4 @@ include/*
 
 # Allow Git to see the CMakeLists.txt file
 !NucTech/CMakeLists.txt
+!NucTech/nucTech.cc
