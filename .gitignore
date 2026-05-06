@@ -32,13 +32,14 @@ build/*
 src/*
 
 # ...except the specific files you want to track
-!src/NucTechDetectorConstruction.cc
-!src/NucTechTechRunAction.cc
-!src/NucTechSteppingAction.cc
-!src/NucTechActionInitialization.cc
-!src/NucTechRunAction.cc
-!src/NucTechPrimaryGeneratorAction.cc
-!src/NucTechEventAction.cc
+# !src/NucTechDetectorConstruction.cc
+# !src/NucTechTechRunAction.cc
+# !src/NucTechSteppingAction.cc
+# !src/NucTechActionInitialization.cc
+# !src/NucTechRunAction.cc
+# !src/NucTechPrimaryGeneratorAction.cc
+# !src/NucTechEventAction.cc
+!src/*
 
 
 # Allow Git to see the include directory itself
@@ -48,13 +49,15 @@ src/*
 include/*
 
 # ...except the specific files you want to track
-!include/NucTechDetectorConstruction.hh
-!include/NucTechTechRunAction.hh
-!include/NucTechSteppingAction.hh
-!include/NucTechActionInitialization.hh
-!include/NucTechRunAction.hh
-!include/NucTechPrimaryGeneratorAction.hh
-!include/NucTechEventAction.hh
+# !include/NucTechDetectorConstruction.hh
+# !include/NucTechTechRunAction.hh
+# !include/NucTechSteppingAction.hh
+# !include/NucTechActionInitialization.hh
+# !include/NucTechRunAction.hh
+# !include/NucTechPrimaryGeneratorAction.hh
+# !include/NucTechEventAction.hh
+
+!include/*
 
 
 # Allow Git to see the CMakeLists.txt file
