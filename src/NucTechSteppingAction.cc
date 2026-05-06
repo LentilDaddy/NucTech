@@ -45,8 +45,8 @@ void NucTechSteppingAction::EndOfEventAction() {
   // if (fV_hitEdep.empty()) //why only for hitEdep?
   //   return;
 
-  if (HitReactionCount < 1)
-    return;
+  // if (HitReactionCount < 1)
+  //   return; //if no data, file does not get created!
 
   G4AnalysisManager *mgr = G4AnalysisManager::Instance();
 
@@ -186,10 +186,16 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
   if (!process) return;
   
   G4String processName = process->GetProcessName();
+
+  // G4cout << "Process: " << processName << G4endl;
+
+
   if (processName.find("photonNuclear") == std::string::npos && 
       processName.find("PhotoNuclear") == std::string::npos) { 
         return;//if BOTH are NOT found, return.
   }
+
+  G4cout << "Found photonuclear process!" << G4endl;
 
   //std::string::npos means NOT found
     
@@ -225,18 +231,18 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
   // If we have both products, the reaction occurred (implies target was 19F)
   if (hasNeutron && hasOxygen15) {
     // //print all particle types produced in the reaction
-    // std::cout << "Photonuclear reaction particles A and Z:" << std::endl;
-    // for (const auto* secondary : *secondaries) {
-    //     G4int Z = secondary->GetDefinition()->GetAtomicNumber();
-    //     G4int A = secondary->GetDefinition()->GetBaryonNumber();
-    //     std::cout << "Particle: A=" << A << ", Z=" << Z << std::endl;
-    // }
+    std::cout << "Photonuclear reaction particles A and Z:" << std::endl;
+    for (const auto* secondary : *secondaries) {
+        G4int Z = secondary->GetDefinition()->GetAtomicNumber();
+        G4int A = secondary->GetDefinition()->GetBaryonNumber();
+        std::cout << "Particle: A=" << A << ", Z=" << Z << std::endl;
+    }
 
       HitReactionCount++;
-      // std::cout << "Count incremented to: " << fReactionCount << std::endl;
+      std::cout << "Count incremented to: " << HitReactionCount << std::endl;
   }
   else {
-    // std::cout << "Photonuclear reaction did not produce both neutron and 15O." << std::endl;
+    std::cout << "Photonuclear reaction did not produce both neutron and 15O." << std::endl;
     // std::cout << "Count incremented to: " << fReactionCount << std::endl;
     return;
   }
