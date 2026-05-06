@@ -16,10 +16,13 @@ build/*
 !build/compare3.C
 !build/compare4.C
 !build/submit.sh
+!build/submit_viking.sh
 !build/init_hist.C
 !build/combine_batch.C
 !build/cost_reactions.C
 !build/plot_reactions.C
+!build/beam.mac
+!build/30MeV_spectra.root
 
 
 # Allow Git to see the src directory itself
@@ -55,4 +58,5 @@ include/*
 
 
 # Allow Git to see the CMakeLists.txt file
-!NucTech/CMakeLists.txt
+!CMakeLists.txt
+!nucTech.cc
