@@ -42,16 +42,9 @@ void NucTechSteppingAction::BeginOfEventAction() {
 }
 
 void NucTechSteppingAction::EndOfEventAction() {
-  // Check at least one phantom hit happened during the event
-  // if (fV_hitEdep.empty()) //why only for hitEdep?
-  //   return;
-
 
   G4AnalysisManager *mgr = G4AnalysisManager::Instance();
 
-  // // Store the total nergy deposited in the event
-  // const G4float Edep_event =
-  //     std::accumulate(fV_hitEdep.begin(), fV_hitEdep.end(), 0.);
 
   if (HitReactionCount < 1)
     return;
