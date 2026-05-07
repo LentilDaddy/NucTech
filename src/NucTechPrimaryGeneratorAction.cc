@@ -53,6 +53,7 @@ void NucTechPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   if (fEnergyHist) {
     // GetRandom() uses the histogram weights to pick a value
     G4double sampledEnergy = fEnergyHist->GetRandom() * MeV;
+    // G4double sampledEnergy = 25 * MeV; //temporary test
     
     // Force the GPS to use this specific energy for this event
     fGPS->GetCurrentSource()->GetEneDist()->SetMonoEnergy(sampledEnergy);

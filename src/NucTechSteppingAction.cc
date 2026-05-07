@@ -45,14 +45,16 @@ void NucTechSteppingAction::EndOfEventAction() {
   // if (fV_hitEdep.empty()) //why only for hitEdep?
   //   return;
 
-  // if (HitReactionCount < 1)
-  //   return; //if no data, file does not get created!
+
 
   G4AnalysisManager *mgr = G4AnalysisManager::Instance();
 
   // // Store the total nergy deposited in the event
   // const G4float Edep_event =
   //     std::accumulate(fV_hitEdep.begin(), fV_hitEdep.end(), 0.);
+
+  if (HitReactionCount < 1)
+    return; //if no data, file does not get created!
 
 // Fill Ntuple 1 (EnergySpectrum)
   mgr->FillNtupleIColumn(1, 0, HitReactionCount); 
@@ -242,7 +244,7 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
       std::cout << "Count incremented to: " << HitReactionCount << std::endl;
   }
   else {
-    std::cout << "Photonuclear reaction did not produce both neutron and 15O." << std::endl;
+    // std::cout << "Photonuclear reaction did not produce both neutron and 15O." << std::endl;
     // std::cout << "Count incremented to: " << fReactionCount << std::endl;
     return;
   }

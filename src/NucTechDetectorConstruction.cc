@@ -85,7 +85,7 @@ C6F14->AddElement(elF, natoms=14);
 
   /***** Experimental hall *****/
 
-  G4double worldHalfLength = 1.0 * m; //doubled this to ensure no overlap with detector
+  G4double worldHalfLength = 0.1 * m; //doubled this to ensure no overlap with detector
 
   G4VSolid *world =
       new G4Box("World", worldHalfLength, worldHalfLength, worldHalfLength);
@@ -98,12 +98,12 @@ C6F14->AddElement(elF, natoms=14);
 
   /***** Detector *****/
 
-  G4double det_radius = 10. * cm;
+  G4double det_radius = 1. * cm;
   // G4double dzFoilPart = 5. * mm; // foil thickness. 4mm of initial layer!
   G4double dzVacuum = 10. * cm;
   G4double dzFoil =10*mm;
   G4double dzSteel = 0.5*mm;
-  G4double det_halfDepth = 10. * cm;
+  G4double det_halfDepth = 1. * cm;
   // G4int nSlices = 200;
 
 
