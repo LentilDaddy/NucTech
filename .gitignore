@@ -16,6 +16,11 @@ build/*
 !build/compare3.C
 !build/compare4.C
 !build/submit.sh
+!build/submit_viking.sh
+!build/save_spectra_to_file.C
+!build/beam.mac
+!build/init_Photonhist.C
+!build/overlay_materials.C
 
 
 # Allow Git to see the src directory itself
@@ -25,13 +30,7 @@ build/*
 src/*
 
 # ...except the specific files you want to track
-!src/NucTechDetectorConstruction.cc
-!src/NucTechTechRunAction.cc
-!src/NucTechSteppingAction.cc
-!src/NucTechActionInitialization.cc
-!src/NucTechRunAction.cc
-!src/NucTechPrimaryGeneratorAction.cc
-!src/NucTechEventAction.cc
+!src/*
 
 
 # Allow Git to see the include directory itself
@@ -41,12 +40,6 @@ src/*
 include/*
 
 # ...except the specific files you want to track
-!include/NucTechDetectorConstruction.hh
-!include/NucTechTechRunAction.hh
-!include/NucTechSteppingAction.hh
-!include/NucTechActionInitialization.hh
-!include/NucTechRunAction.hh
-!include/NucTechPrimaryGeneratorAction.hh
-!include/NucTechEventAction.hh
+!include/*
 
 !CMakeLists.txt
