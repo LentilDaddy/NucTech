@@ -21,6 +21,7 @@ build/*
 !build/beam.mac
 !build/init_Photonhist.C
 !build/overlay_materials.C
+!build/old/*
 
 
 # Allow Git to see the src directory itself
@@ -43,3 +44,4 @@ include/*
 !include/*
 
 !CMakeLists.txt
+
