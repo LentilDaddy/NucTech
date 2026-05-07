@@ -38,6 +38,7 @@ void NucTechSteppingAction::BeginOfEventAction() {
   // fV_KineticEnergy.clear();
   // fV_hitParentID.clear();
   HitReactionCount = 0;
+  // std::cout << "[DEBUG] BeginOfEventAction: HitReactionCount reset to 0" << std::endl;
 }
 
 void NucTechSteppingAction::EndOfEventAction() {
@@ -45,14 +46,16 @@ void NucTechSteppingAction::EndOfEventAction() {
   // if (fV_hitEdep.empty()) //why only for hitEdep?
   //   return;
 
-  if (HitReactionCount < 1)
-    return;
 
   G4AnalysisManager *mgr = G4AnalysisManager::Instance();
 
   // // Store the total nergy deposited in the event
   // const G4float Edep_event =
   //     std::accumulate(fV_hitEdep.begin(), fV_hitEdep.end(), 0.);
+
+  if (HitReactionCount < 1)
+    return;
+
 
 // Fill Ntuple 1 (EnergySpectrum)
   mgr->FillNtupleIColumn(1, 0, HitReactionCount); 
@@ -191,6 +194,8 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
         return;//if BOTH are NOT found, return.
   }
 
+  std::cout << "photonuclear reaction found" << std::endl;
+
   //std::string::npos means NOT found
     
   // CHECK 1: Verify parent track is a gamma
@@ -225,15 +230,16 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
   // If we have both products, the reaction occurred (implies target was 19F)
   if (hasNeutron && hasFluorine18) {
     // //print all particle types produced in the reaction
-    // std::cout << "Photonuclear reaction particles A and Z:" << std::endl;
-    // for (const auto* secondary : *secondaries) {
-    //     G4int Z = secondary->GetDefinition()->GetAtomicNumber();
-    //     G4int A = secondary->GetDefinition()->GetBaryonNumber();
-    //     std::cout << "Particle: A=" << A << ", Z=" << Z << std::endl;
-    // }
+    std::cout << "Photonuclear reaction particles A and Z:" << std::endl;
+    for (const auto* secondary : *secondaries) {
+        G4int Z = secondary->GetDefinition()->GetAtomicNumber();
+        G4int A = secondary->GetDefinition()->GetBaryonNumber();
+        std::cout << "Particle: A=" << A << ", Z=" << Z << std::endl;
+    }
 
       HitReactionCount++;
-      // std::cout << "Count incremented to: " << fReactionCount << std::endl;
+      // std::cout << "Count incremented to: " << HitReactionCount << std::endl;
+      std::cout << "Count incremented " << std::endl;
   }
   else {
     // std::cout << "Photonuclear reaction did not produce both neutron and 18F." << std::endl;
