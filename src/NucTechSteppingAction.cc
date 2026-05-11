@@ -24,9 +24,99 @@
 //     : fV_hitEdep(), fV_hitPos(), fV_hitPDG(), fV_KineticEnergy(), fV_hitParentID(), HitReactionCount(0)
 // {}
 
+std::atomic<long long> NucTechSteppingAction::sTotalPhotonuclearSteps{0};
+std::atomic<long long> NucTechSteppingAction::sTotalTaggedReactions{0};
+std::atomic<long long> NucTechSteppingAction::sEventsWithPhotonuclear{0};
+std::atomic<long long> NucTechSteppingAction::sEventsWithTaggedReaction{0};
+std::atomic<long long> NucTechSteppingAction::sEventsWithAnyF18{0};
+std::atomic<long long> NucTechSteppingAction::sEventsWithPhotonuclearAndAnyF18{0};
+std::atomic<long long> NucTechSteppingAction::sChannelNO15{0};
+std::atomic<long long> NucTechSteppingAction::sChannelC12Alpha{0};
+std::atomic<long long> NucTechSteppingAction::sChannelPN15{0};
+std::atomic<long long> NucTechSteppingAction::sChannelThreeAlpha{0};
+std::atomic<long long> NucTechSteppingAction::sChannelOther{0};
+std::atomic<int> NucTechSteppingAction::sPrintedPhotonuclearEvents{0};
+
+namespace {
+constexpr int kMaxPhotonuclearEventPrints = 15;
+}
+
 NucTechSteppingAction::NucTechSteppingAction()
-    : HitReactionCount(0)
+    : HitReactionCount(0),
+  fPhotonuclearStepsThisEvent(0),
+  fHasO15ThisEvent(false)
 {}
+
+void NucTechSteppingAction::ResetDiagnostics()
+{
+  sTotalPhotonuclearSteps.store(0, std::memory_order_relaxed);
+  sTotalTaggedReactions.store(0, std::memory_order_relaxed);
+  sEventsWithPhotonuclear.store(0, std::memory_order_relaxed);
+  sEventsWithTaggedReaction.store(0, std::memory_order_relaxed);
+  sEventsWithAnyF18.store(0, std::memory_order_relaxed);
+  sEventsWithPhotonuclearAndAnyF18.store(0, std::memory_order_relaxed);
+  sChannelNO15.store(0, std::memory_order_relaxed);
+  sChannelC12Alpha.store(0, std::memory_order_relaxed);
+  sChannelPN15.store(0, std::memory_order_relaxed);
+  sChannelThreeAlpha.store(0, std::memory_order_relaxed);
+  sChannelOther.store(0, std::memory_order_relaxed);
+  sPrintedPhotonuclearEvents.store(0, std::memory_order_relaxed);
+}
+
+long long NucTechSteppingAction::GetTotalPhotonuclearSteps()
+{
+  return sTotalPhotonuclearSteps.load(std::memory_order_relaxed);
+}
+
+long long NucTechSteppingAction::GetTotalTaggedReactions()
+{
+  return sTotalTaggedReactions.load(std::memory_order_relaxed);
+}
+
+long long NucTechSteppingAction::GetEventsWithPhotonuclear()
+{
+  return sEventsWithPhotonuclear.load(std::memory_order_relaxed);
+}
+
+long long NucTechSteppingAction::GetEventsWithTaggedReaction()
+{
+  return sEventsWithTaggedReaction.load(std::memory_order_relaxed);
+}
+
+long long NucTechSteppingAction::GetEventsWithAnyF18()
+{
+  return sEventsWithAnyF18.load(std::memory_order_relaxed);
+}
+
+long long NucTechSteppingAction::GetEventsWithPhotonuclearAndAnyF18()
+{
+  return sEventsWithPhotonuclearAndAnyF18.load(std::memory_order_relaxed);
+}
+
+long long NucTechSteppingAction::GetChannelNO15()
+{
+  return sChannelNO15.load(std::memory_order_relaxed);
+}
+
+long long NucTechSteppingAction::GetChannelC12Alpha()
+{
+  return sChannelC12Alpha.load(std::memory_order_relaxed);
+}
+
+long long NucTechSteppingAction::GetChannelPN15()
+{
+  return sChannelPN15.load(std::memory_order_relaxed);
+}
+
+long long NucTechSteppingAction::GetChannelThreeAlpha()
+{
+  return sChannelThreeAlpha.load(std::memory_order_relaxed);
+}
+
+long long NucTechSteppingAction::GetChannelOther()
+{
+  return sChannelOther.load(std::memory_order_relaxed);
+}
 
 
 void NucTechSteppingAction::BeginOfEventAction() {
@@ -38,23 +128,45 @@ void NucTechSteppingAction::BeginOfEventAction() {
   // fV_KineticEnergy.clear();
   // fV_hitParentID.clear();
   HitReactionCount = 0;
+  fPhotonuclearStepsThisEvent = 0;
+  fHasO15ThisEvent = false;
 }
 
 void NucTechSteppingAction::EndOfEventAction() {
+  sTotalPhotonuclearSteps.fetch_add(fPhotonuclearStepsThisEvent, std::memory_order_relaxed);
+  sTotalTaggedReactions.fetch_add(HitReactionCount, std::memory_order_relaxed);
+
+  if (fPhotonuclearStepsThisEvent > 0)
+  {
+    sEventsWithPhotonuclear.fetch_add(1, std::memory_order_relaxed);
+  }
+
+  if (HitReactionCount > 0)
+  {
+    sEventsWithTaggedReaction.fetch_add(1, std::memory_order_relaxed);
+  }
+
+  if (fHasO15ThisEvent)
+  {
+    sEventsWithAnyF18.fetch_add(1, std::memory_order_relaxed);
+    if (fPhotonuclearStepsThisEvent > 0)
+    {
+      sEventsWithPhotonuclearAndAnyF18.fetch_add(1, std::memory_order_relaxed);
+    }
+  }
+
   // Check at least one phantom hit happened during the event
   // if (fV_hitEdep.empty()) //why only for hitEdep?
   //   return;
 
-
+  if (HitReactionCount < 1)
+    return;
 
   G4AnalysisManager *mgr = G4AnalysisManager::Instance();
 
   // // Store the total nergy deposited in the event
   // const G4float Edep_event =
   //     std::accumulate(fV_hitEdep.begin(), fV_hitEdep.end(), 0.);
-
-  if (HitReactionCount < 1)
-    return; //if no data, file does not get created!
 
 // Fill Ntuple 1 (EnergySpectrum)
   mgr->FillNtupleIColumn(1, 0, HitReactionCount); 
@@ -163,6 +275,14 @@ if (currentName != "Detector1"){
 
     // Store PDG code
   const G4Track* track = step->GetTrack();
+  if (track)
+  {
+    const G4ParticleDefinition* def = track->GetDefinition();
+    if (def && def->GetAtomicNumber() == 8 && def->GetBaryonNumber() == 15)
+    {
+      fHasO15ThisEvent = true;
+    }
+  }
   // const G4ParticleDefinition* pd = track->GetDefinition();
   // // int pdgCode = track->GetDefinition()->GetPDGEncoding();
   // int particleType = 2; // default: other
@@ -188,16 +308,12 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
   if (!process) return;
   
   G4String processName = process->GetProcessName();
-
-  // G4cout << "Process: " << processName << G4endl;
-
-
   if (processName.find("photonNuclear") == std::string::npos && 
       processName.find("PhotoNuclear") == std::string::npos) { 
         return;//if BOTH are NOT found, return.
   }
 
-  G4cout << "Found photonuclear process!" << G4endl;
+  ++fPhotonuclearStepsThisEvent;
 
   //std::string::npos means NOT found
     
@@ -213,8 +329,43 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
       return;
   }
 
+  if (sPrintedPhotonuclearEvents.load(std::memory_order_relaxed) < kMaxPhotonuclearEventPrints)
+  {
+    const int printIndex = sPrintedPhotonuclearEvents.fetch_add(1, std::memory_order_relaxed);
+    if (printIndex < kMaxPhotonuclearEventPrints)
+    {
+      G4int eventId = -1;
+      const G4Event* evt = G4RunManager::GetRunManager()->GetCurrentEvent();
+      if (evt) eventId = evt->GetEventID();
+
+      G4cout << "Photonuclear event dump " << (printIndex + 1)
+             << " | event=" << eventId
+             << " | process=" << processName
+             << " | nSecondaries=" << secondaries->size() << G4endl;
+
+      for (const auto* secondary : *secondaries)
+      {
+        if (!secondary) continue;
+        const G4ParticleDefinition* secDef = secondary->GetDefinition();
+        const G4VProcess* creator = secondary->GetCreatorProcess();
+        const G4String creatorName = creator ? creator->GetProcessName() : "none";
+        G4cout << "  sec=" << secDef->GetParticleName()
+               << " Z=" << secDef->GetAtomicNumber()
+               << " A=" << secDef->GetBaryonNumber()
+               << " creator=" << creatorName << G4endl;
+      }
+    }
+  }
+
   bool hasNeutron = false;
+  bool hasFluorine18 = false;
+  bool hasNitrogen15 = false;
+  bool hasOxygen18 = false;
   bool hasOxygen15 = false;
+  bool hasCarbon12 = false;
+  bool hasProton = false;
+  int gammaCount = 0;
+  int alphaCount = 0;
 
   for (const auto* secondary : *secondaries) {
     G4int Z = secondary->GetDefinition()->GetAtomicNumber();
@@ -224,34 +375,70 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
     if (secondary->GetDefinition() == G4Neutron::NeutronDefinition()) {
         hasNeutron = true;
     }
-    
-    // Check for 15O nucleus (Z=8, A=15)
-    if (Z == 8 && A == 15) {
-        hasOxygen15 = true;
-    }
-  }
-  // If we have both products, the reaction occurred (implies target was 19F)
-  if (hasNeutron && hasOxygen15) {
-    // //print all particle types produced in the reaction
-    std::cout << "Photonuclear reaction particles A and Z:" << std::endl;
-    for (const auto* secondary : *secondaries) {
-        G4int Z = secondary->GetDefinition()->GetAtomicNumber();
-        G4int A = secondary->GetDefinition()->GetBaryonNumber();
-        std::cout << "Particle: A=" << A << ", Z=" << Z << std::endl;
+
+    else if (secondary->GetDefinition()->GetParticleName() == "proton") {
+      hasProton = true;
     }
 
-      HitReactionCount++;
-      std::cout << "Count incremented to: " << HitReactionCount << std::endl;
-  }
-  else {
-    // std::cout << "Photonuclear reaction did not produce both neutron and 15O." << std::endl;
-    // std::cout << "Count incremented to: " << fReactionCount << std::endl;
-    std::cout << "Photonuclear reaction particles A and Z:" << std::endl;
-    for (const auto* secondary : *secondaries) {
-      G4int Z = secondary->GetDefinition()->GetAtomicNumber();
-      G4int A = secondary->GetDefinition()->GetBaryonNumber();
-      std::cout << "Particle: A=" << A << ", Z=" << Z << std::endl;
+    else if (secondary->GetDefinition()->GetParticleName() == "gamma") {
+      ++gammaCount;
     }
-    return;
+
+    else if (secondary->GetDefinition()->GetParticleName() == "alpha") {
+      ++alphaCount;
+    }
+    
+    // Check for 18F nucleus (Z=9, A=18)
+    if (Z == 9 && A == 18) {
+        hasFluorine18 = true;
+    }
+
+    else if (Z == 7 && A == 15) {
+      hasNitrogen15 = true;
+    }
+
+    else if (Z == 8 && A == 18) {
+      hasOxygen18 = true;
+    }
+
+    else if (Z == 8 && A == 15) {
+      hasOxygen15 = true;
+    }
+
+    else if (Z == 6 && A == 12) {
+      hasCarbon12 = true;
+    }
   }
-}
+
+    if (hasNeutron && hasOxygen15)
+    {
+      sChannelNO15.fetch_add(1, std::memory_order_relaxed);
+    }
+    else if (hasCarbon12 && alphaCount >= 1)
+    {
+      sChannelC12Alpha.fetch_add(1, std::memory_order_relaxed);
+    }
+    else if (hasProton && hasNitrogen15)
+    {
+      sChannelPN15.fetch_add(1, std::memory_order_relaxed);
+    }
+    else if (alphaCount >= 3)
+    {
+      sChannelThreeAlpha.fetch_add(1, std::memory_order_relaxed);
+  }
+
+    // std::cout << "Photonuclear reaction particles A and Z:" << std::endl;
+    // for (const auto* secondary : *secondaries) {
+    //     G4int Z = secondary->GetDefinition()->GetAtomicNumber();
+    //     G4int A = secondary->GetDefinition()->GetBaryonNumber();
+    //     std::cout << "Particle: A=" << A << ", Z=" << Z << std::endl;
+    // }
+
+      HitReactionCount++;
+      // std::cout << "Count incremented to: " << fReactionCount << std::endl;
+  }
+  // else {
+  //   // std::cout << "Photonuclear reaction did not produce both neutron and 15O." << std::endl;
+  //   // std::cout << "Count incremented to: " << fReactionCount << std::endl;
+  //   return;
+  // }
