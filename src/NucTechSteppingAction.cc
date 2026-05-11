@@ -246,6 +246,12 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
   else {
     // std::cout << "Photonuclear reaction did not produce both neutron and 15O." << std::endl;
     // std::cout << "Count incremented to: " << fReactionCount << std::endl;
+    std::cout << "Photonuclear reaction particles A and Z:" << std::endl;
+    for (const auto* secondary : *secondaries) {
+      G4int Z = secondary->GetDefinition()->GetAtomicNumber();
+      G4int A = secondary->GetDefinition()->GetBaryonNumber();
+      std::cout << "Particle: A=" << A << ", Z=" << Z << std::endl;
+    }
     return;
   }
 }
