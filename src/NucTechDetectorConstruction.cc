@@ -43,14 +43,19 @@ G4Element* elF = nist->FindOrBuildElement("F");  // Fluorine
 G4Element* elP = nist->FindOrBuildElement("P");  // Phosphorus
 G4Element* elC = nist->FindOrBuildElement("C");  // Carbon
 G4Element* elU = nist->FindOrBuildElement("U");  // Uranium
+G4Element* elH = nist->FindOrBuildElement("H");  // Hydrogen
 
 G4int ncomponents, natoms;
 G4String name;
 // define a material from elements.   case 1: chemical molecule
-G4double medium_density = 1.339*g/cm3; //keep the same because we will be changing pressure anyway.
+G4double medium_density = 1.0*g/cm3; //keep the same because we will be changing pressure anyway.
 G4Material* SF6 = new G4Material(name="SF6", medium_density, ncomponents=2);
 SF6->AddElement(elS, natoms=1);
 SF6->AddElement(elF, natoms=6);
+
+G4Material* HF = new G4Material(name="HF", medium_density, ncomponents=2);
+HF->AddElement(elH, natoms=1);
+HF->AddElement(elF, natoms=1);
 
 G4Material* PF5 = new G4Material(name="PF5", medium_density, ncomponents=2);
 PF5->AddElement(elP, natoms=1);
@@ -69,14 +74,18 @@ G4Material* C3F8 = new G4Material(name="C3F8", medium_density, ncomponents=2);
 C3F8->AddElement(elC, natoms=3);
 C3F8->AddElement(elF, natoms=8);
 
-  G4Material *foil = nist->FindOrBuildMaterial("G4_W");
-  // G4Material *foil = nist->FindOrBuildMaterial("G4_Cu"); //swap target to tungsten
-  G4Material *medium = SF6;
+G4Material* C6F14 = new G4Material(name="C6F14", medium_density, ncomponents=2);
+C6F14->AddElement(elC, natoms=6);
+C6F14->AddElement(elF, natoms=14);
+
+  //G4Material *foil = nist->FindOrBuildMaterial("G4_Au");
+  G4Material *foil = nist->FindOrBuildMaterial("G4_Cu"); //swap target to tungsten
+  G4Material *medium = nist->FindOrBuildMaterial("G4_WATER"); //swap detector medium to water
   G4Material *Fe_Steel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
 
   /***** Experimental hall *****/
 
-  G4double worldHalfLength = 5 * m; //doubled this to ensure no overlap with detector
+  G4double worldHalfLength = 0.1 * m; //doubled this to ensure no overlap with detector
 
   G4VSolid *world =
       new G4Box("World", worldHalfLength, worldHalfLength, worldHalfLength);
@@ -89,33 +98,33 @@ C3F8->AddElement(elF, natoms=8);
 
   /***** Detector *****/
 
-  G4double det_radius = 9. * cm;
+  G4double det_radius = 1. * cm;
   // G4double dzFoilPart = 5. * mm; // foil thickness. 4mm of initial layer!
   G4double dzVacuum = 10. * cm;
-  G4double dzFoil =6*mm;
+  G4double dzFoil =10*mm;
   G4double dzSteel = 0.5*mm;
-  G4double det_halfDepth = 100. * cm;
+  G4double det_halfDepth = 1. * cm;
   // G4int nSlices = 200;
 
 
-  // G4VSolid *det_solid =
-  //   new G4Tubs("Detector1", 0.*cm, det_radius, det_halfDepth, 0.*deg, 360.*deg); //i think this is just the dimensions
+  G4VSolid *det_solid =
+    new G4Tubs("Detector1", 0.*cm, det_radius, det_halfDepth, 0.*deg, 360.*deg); //i think this is just the dimensions
 
 
-  // G4LogicalVolume *det_logical =
-  //     new G4LogicalVolume(det_solid, medium, "Detector1");
+  G4LogicalVolume *det_logical =
+      new G4LogicalVolume(det_solid, medium, "Detector1");
 
-  //  G4double &det_PosZ = det_halfDepth; // place it so no overlap with foil
+   G4double &det_PosZ = det_halfDepth; // place it so no overlap with foil
 
-  // new G4PVPlacement(nullptr,                         // No rotation
-	// 	    G4ThreeVector(0., 0., det_PosZ), // Translation (so no overlap with foil)
-	// 	    // G4ThreeVector(0., 0., det_PosZ + dzFoil), // Translation (so no overlap with foil)
-  //                   det_logical,                     // Logical volume
-  //                   "Detector1",                     // Name
-  //                   world_logical,                   // Mother volume
-  //                   false,          // Not a parameterized volume
-  //                   0,              // Copy number
-  //                   checkOverlaps); // Overlap checking
+  new G4PVPlacement(nullptr,                         // No rotation
+		    G4ThreeVector(0., 0., det_PosZ), // Translation (so no overlap with foil)
+		    // G4ThreeVector(0., 0., det_PosZ + dzFoil), // Translation (so no overlap with foil)
+                    det_logical,                     // Logical volume
+                    "Detector1",                     // Name
+                    world_logical,                   // Mother volume
+                    false,          // Not a parameterized volume
+                    0,              // Copy number
+                    checkOverlaps); // Overlap checking
 
 
 
@@ -144,16 +153,16 @@ C3F8->AddElement(elF, natoms=8);
 //                 nSlices,              // number of slices (Detector1 half-depth × 2 / 1 mm)
 //                 1.0 * mm);         // slice thickness
 
-      /*Place the foil*/
-  new G4PVPlacement(nullptr,                   // no rotation
-		    G4ThreeVector(0., 0., dzFoil/2 ), // at detector start
-                    midLayer_log,              // its logical volume
-                    "Detector2",               // name
-                    world_logical,               // mother is your world volume
-                    false,                     // not parameterized
-                    0,                         // copy number
-                    checkOverlaps              // overlap checking
-  );
+  //     /*Place the foil*/
+  // new G4PVPlacement(nullptr,                   // no rotation
+	// 	    G4ThreeVector(0., 0., dzFoil/2 ), // at detector start
+  //                   midLayer_log,              // its logical volume
+  //                   "Detector2",               // name
+  //                   world_logical,               // mother is your world volume
+  //                   false,                     // not parameterized
+  //                   0,                         // copy number
+  //                   checkOverlaps              // overlap checking
+  // );
 
 
 
@@ -216,10 +225,10 @@ C3F8->AddElement(elF, natoms=8);
 
   /***** Step limit *****/
 
-  G4double maxStep = .1 * mm; //changed from 0.05
+  G4double maxStep = .01 * mm; //changed from 0.05
   fStepLimit = new G4UserLimits(maxStep);
-  // det_logical->SetUserLimits(fStepLimit); //assigned to detector 1
-  midLayer_log->SetUserLimits(fStepLimit); //assigned to detector 2 (the foil?)
+  det_logical->SetUserLimits(fStepLimit); //assigned to detector 1
+  // midLayer_log->SetUserLimits(fStepLimit); //assigned to detector 2 (the foil?)
   // sliceLogical->SetUserLimits(fStepLimit); //should this be applied to the slices?
 
   /***** Visualisation *****/
@@ -230,11 +239,11 @@ C3F8->AddElement(elF, natoms=8);
       new G4VisAttributes(G4Colour(173. / 255., 216. / 255., 230. / 255., .8));
   det_vis->SetDaughtersInvisible(false);
   det_vis->SetForceSolid(true);
-  // det_logical->SetVisAttributes(det_vis);
+  det_logical->SetVisAttributes(det_vis);
 
   G4VisAttributes *mixVis = new G4VisAttributes(G4Colour(1.0, 0.84, 0.0, 0.8));
   mixVis->SetForceSolid(true);
-  midLayer_log->SetVisAttributes(mixVis);
+  // midLayer_log->SetVisAttributes(mixVis);
 
   return world_physical;
 }

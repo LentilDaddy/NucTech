@@ -1,6 +1,6 @@
 void init_Photonhist() {
     // Create the ROOT file in RECREATE mode
-    TFile *f = new TFile("Tungsten_40MeV_spectra.root", "RECREATE");
+    TFile *f = new TFile("Tungsten_30MeV_spectra.root", "RECREATE");
     
     // Create the initial histogram
     // TH1F *h_final = new TH1F("h_final", "Final Histogram", 1, 0, 0.14);
