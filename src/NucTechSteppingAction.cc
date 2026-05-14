@@ -413,6 +413,7 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
     if (hasNeutron && hasOxygen15)
     {
       sChannelNO15.fetch_add(1, std::memory_order_relaxed);
+      HitReactionCount++;
     }
     else if (hasCarbon12 && alphaCount >= 1)
     {
@@ -426,6 +427,9 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
     {
       sChannelThreeAlpha.fetch_add(1, std::memory_order_relaxed);
   }
+else {
+  sChannelOther.fetch_add(1, std::memory_order_relaxed);
+}
 
     // std::cout << "Photonuclear reaction particles A and Z:" << std::endl;
     // for (const auto* secondary : *secondaries) {
@@ -434,11 +438,7 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
     //     std::cout << "Particle: A=" << A << ", Z=" << Z << std::endl;
     // }
 
-      HitReactionCount++;
+      // HitReactionCount++;
       // std::cout << "Count incremented to: " << fReactionCount << std::endl;
   }
-  // else {
-  //   // std::cout << "Photonuclear reaction did not produce both neutron and 15O." << std::endl;
-  //   // std::cout << "Count incremented to: " << fReactionCount << std::endl;
-  //   return;
-  // }
+

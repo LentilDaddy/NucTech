@@ -44,6 +44,7 @@ G4Element* elP = nist->FindOrBuildElement("P");  // Phosphorus
 G4Element* elC = nist->FindOrBuildElement("C");  // Carbon
 G4Element* elU = nist->FindOrBuildElement("U");  // Uranium
 G4Element* elH = nist->FindOrBuildElement("H");  // Hydrogen
+G4Element* elO = nist->FindOrBuildElement("O");  // Oxygen
 
 G4int ncomponents, natoms;
 G4String name;
@@ -52,6 +53,9 @@ G4double medium_density = 1.0*g/cm3; //keep the same because we will be changing
 G4Material* SF6 = new G4Material(name="SF6", medium_density, ncomponents=2);
 SF6->AddElement(elS, natoms=1);
 SF6->AddElement(elF, natoms=6);
+
+G4Material* O2 = new G4Material(name="O2", medium_density, ncomponents=1);
+O2->AddElement(elO, natoms=2);
 
 G4Material* HF = new G4Material(name="HF", medium_density, ncomponents=2);
 HF->AddElement(elH, natoms=1);
@@ -79,8 +83,9 @@ C6F14->AddElement(elC, natoms=6);
 C6F14->AddElement(elF, natoms=14);
 
   //G4Material *foil = nist->FindOrBuildMaterial("G4_Au");
-  G4Material *foil = nist->FindOrBuildMaterial("G4_Cu"); //swap target to tungsten
+  G4Material *foil = nist->FindOrBuildMaterial("G4_W"); //swap target to tungsten
   G4Material *medium = nist->FindOrBuildMaterial("G4_WATER"); //swap detector medium to water
+  // G4Material *medium = nist->FindOrBuildMaterial("O2"); //swap detector medium to water
   G4Material *Fe_Steel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
 
   /***** Experimental hall *****/
