@@ -130,7 +130,7 @@ G4String motherName = (depth > 1 && touchable->GetVolume(1))
 //     return; //maybe returning here is what was causing the boundary issue (current volume world, previous volume vacuumlayer)
 //     }
 
-    if (currentName != "Detector2"){
+    if (currentName != "Detector2" && currentName != "Detector1"){
     return; //maybe returning here is what was causing the boundary issue (current volume world, previous volume vacuumlayer)
     }
 

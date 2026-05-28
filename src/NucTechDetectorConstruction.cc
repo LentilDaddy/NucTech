@@ -80,7 +80,8 @@ C6F14->AddElement(elF, natoms=14);
 
   //G4Material *foil = nist->FindOrBuildMaterial("G4_Au");
   G4Material *foil = nist->FindOrBuildMaterial("G4_W"); //swap target to tungsten
-  G4Material *medium = nist->FindOrBuildMaterial("G4_WATER"); //swap detector medium to water
+  // G4Material *medium = nist->FindOrBuildMaterial("G4_WATER"); //swap detector medium to water
+  G4Material *medium = nist->FindOrBuildMaterial("vacuum"); //swap detector medium to water
   G4Material *Fe_Steel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
 
   /***** Experimental hall *****/
@@ -101,7 +102,7 @@ C6F14->AddElement(elF, natoms=14);
   G4double det_radius = 1. * cm;
   // G4double dzFoilPart = 5. * mm; // foil thickness. 4mm of initial layer!
   G4double dzVacuum = 10. * cm;
-  G4double dzFoil =10*mm;
+  G4double dzFoil =1.4*mm;
   G4double dzSteel = 0.5*mm;
   G4double det_halfDepth = 1. * cm;
   // G4int nSlices = 200;
@@ -116,15 +117,15 @@ C6F14->AddElement(elF, natoms=14);
 
    G4double &det_PosZ = det_halfDepth; // place it so no overlap with foil
 
-  // new G4PVPlacement(nullptr,                         // No rotation
-	// 	    G4ThreeVector(0., 0., det_PosZ), // Translation (so no overlap with foil)
-	// 	    // G4ThreeVector(0., 0., det_PosZ + dzFoil), // Translation (so no overlap with foil)
-  //                   det_logical,                     // Logical volume
-  //                   "Detector1",                     // Name
-  //                   world_logical,                   // Mother volume
-  //                   false,          // Not a parameterized volume
-  //                   0,              // Copy number
-  //                   checkOverlaps); // Overlap checking
+  new G4PVPlacement(nullptr,                         // No rotation
+		    G4ThreeVector(0., 0., det_PosZ), // Translation (so no overlap with foil)
+		    // G4ThreeVector(0., 0., det_PosZ + dzFoil), // Translation (so no overlap with foil)
+                    det_logical,                     // Logical volume
+                    "Detector1",                     // Name
+                    world_logical,                   // Mother volume
+                    false,          // Not a parameterized volume
+                    0,              // Copy number
+                    checkOverlaps); // Overlap checking
 
 
 
