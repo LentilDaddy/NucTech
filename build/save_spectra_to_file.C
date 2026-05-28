@@ -15,7 +15,7 @@ void save_spectra_to_file() {
     // 4. Loop through thicknesses 1mm to 30mm
 
     int bin = htemp->GetXaxis()->FindBin(0.14+0.01); // Find the bin corresponding to 1mm (0.1cm) thickness
-    TH1D *proj = htemp->ProjectionY(Form("proj_%dcm", i), bin, bin); //1cm after the tungsten
+    TH1D *proj = htemp->ProjectionY(Form("proj_%dcm", 1), bin, bin); //1cm after the tungsten
     if (proj->GetEntries() > 0) {
         // Save this specific 1D histogram into the file
         proj->Write();
