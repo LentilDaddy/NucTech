@@ -4,7 +4,7 @@ void init_Photonhist() {
     
     // Create the initial histogram
     // TH1F *h_final = new TH1F("h_final", "Final Histogram", 1, 0, 0.14);
-    TH2F *htemp = new TH2F("htemp", "Energy vs Thickness", 1, 0, 0.14, 100, 0, 50);
+    TH2F *htemp = new TH2F("htemp", "Energy vs Thickness", 1, 0.14, 1.14, 100, 0, 50);
     
     // Write the histogram to the file and close
     htemp->Write();
