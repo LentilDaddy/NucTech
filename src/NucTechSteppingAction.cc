@@ -233,7 +233,7 @@ G4String motherName = (depth > 1 && touchable->GetVolume(1))
 //     return;
 //     }
 
-if (currentName != "Detector1"){
+if (currentName != "Detector1" && currentName != "Detector2"){
     return;
     }
 

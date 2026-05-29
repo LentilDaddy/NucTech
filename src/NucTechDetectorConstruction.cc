@@ -90,7 +90,7 @@ C6F14->AddElement(elF, natoms=14);
 
   /***** Experimental hall *****/
 
-  G4double worldHalfLength = 0.1 * m; //doubled this to ensure no overlap with detector
+  G4double worldHalfLength = 1. * m; //doubled this to ensure no overlap with detector
 
   G4VSolid *world =
       new G4Box("World", worldHalfLength, worldHalfLength, worldHalfLength);
@@ -122,8 +122,8 @@ C6F14->AddElement(elF, natoms=14);
    G4double &det_PosZ = det_halfDepth; // place it so no overlap with foil
 
   new G4PVPlacement(nullptr,                         // No rotation
-		    G4ThreeVector(0., 0., det_PosZ), // Translation (so no overlap with foil)
-		    // G4ThreeVector(0., 0., det_PosZ + dzFoil), // Translation (so no overlap with foil)
+		    // G4ThreeVector(0., 0., det_PosZ), // Translation (so no overlap with foil)
+		    G4ThreeVector(0., 0., det_PosZ + dzFoil), // Translation (so no overlap with foil)
                     det_logical,                     // Logical volume
                     "Detector1",                     // Name
                     world_logical,                   // Mother volume
@@ -158,16 +158,16 @@ C6F14->AddElement(elF, natoms=14);
 //                 nSlices,              // number of slices (Detector1 half-depth × 2 / 1 mm)
 //                 1.0 * mm);         // slice thickness
 
-  //     /*Place the foil*/
-  // new G4PVPlacement(nullptr,                   // no rotation
-	// 	    G4ThreeVector(0., 0., dzFoil/2 ), // at detector start
-  //                   midLayer_log,              // its logical volume
-  //                   "Detector2",               // name
-  //                   world_logical,               // mother is your world volume
-  //                   false,                     // not parameterized
-  //                   0,                         // copy number
-  //                   checkOverlaps              // overlap checking
-  // );
+      /*Place the foil*/
+  new G4PVPlacement(nullptr,                   // no rotation
+		    G4ThreeVector(0., 0., dzFoil/2 ), // at detector start
+                    midLayer_log,              // its logical volume
+                    "Detector2",               // name
+                    world_logical,               // mother is your world volume
+                    false,                     // not parameterized
+                    0,                         // copy number
+                    checkOverlaps              // overlap checking
+  );
 
 
 
