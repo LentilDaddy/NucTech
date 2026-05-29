@@ -14,34 +14,34 @@ void save_spectra_to_file() {
 
     // 4. Loop through thicknesses 1mm to 30mm
 
-    int bin = htemp->GetXaxis()->FindBin(0.14+0.01); // Find the bin corresponding to 1mm (0.1cm) thickness
-    TH1D *proj = htemp->ProjectionY(Form("proj_%dcm", 1), bin, bin); //1cm after the tungsten
-    if (proj->GetEntries() > 0) {
-        // Save this specific 1D histogram into the file
-        proj->Write();
-    } 
+    // int bin = htemp->GetXaxis()->FindBin(0.14+0.01); // Find the bin corresponding to 1mm (0.1cm) thickness
+    // TH1D *proj = htemp->ProjectionY(Form("proj_%dcm", 1), bin, bin); //1cm after the tungsten
+    // if (proj->GetEntries() > 0) {
+    //     // Save this specific 1D histogram into the file
+    //     proj->Write();
+    // } 
         
 
-    // for (int i = 1; i <= 6; i++) {
-    //     if (i == 1) {
-    //         double thickness_cm = (double)i * (1/10.0) - 0.01; //to make sure the correct bin is selected
-    //         int bin = htemp->GetXaxis()->FindBin(thickness_cm);
+    for (int i = 1; i <= 6; i++) {
+        if (i == 1) {
+            double thickness_cm = (double)i - 0.01; //to make sure the correct bin is selected
+            int bin = htemp->GetXaxis()->FindBin(thickness_cm);
             
-    //         // Project the slice
-    //         TH1D *proj = htemp->ProjectionY(Form("proj_%dmm", i), bin, bin);
+            // Project the slice
+            TH1D *proj = htemp->ProjectionY(Form("proj_%dcm", i), bin, bin);
             
-    //         if (proj->GetEntries() > 0) {
-    //             // Save this specific 1D histogram into the file
-    //             proj->Write(); 
-    //             std::cout << "Saved projection for " << i << "mm to all_spectra.root" << std::endl;
-    //         }
-    //         // No delete proj here, outFile->Write() will handle the memory
-    //     }
-    //     else {
-    //         continue;
-    //     }
+            if (proj->GetEntries() > 0) {
+                // Save this specific 1D histogram into the file
+                proj->Write(); 
+                std::cout << "Saved projection for " << i << "mm to all_spectra.root" << std::endl;
+            }
+            // No delete proj here, outFile->Write() will handle the memory
+        }
+        else {
+            continue;
+        }
 
-    // }
+    }
 
     // 5. Cleanup
     outFile->Close();
