@@ -329,33 +329,33 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
       return;
   }
 
-  if (sPrintedPhotonuclearEvents.load(std::memory_order_relaxed) < kMaxPhotonuclearEventPrints)
-  {
-    const int printIndex = sPrintedPhotonuclearEvents.fetch_add(1, std::memory_order_relaxed);
-    if (printIndex < kMaxPhotonuclearEventPrints)
-    {
-      G4int eventId = -1;
-      const G4Event* evt = G4RunManager::GetRunManager()->GetCurrentEvent();
-      if (evt) eventId = evt->GetEventID();
+  // if (sPrintedPhotonuclearEvents.load(std::memory_order_relaxed) < kMaxPhotonuclearEventPrints)
+  // {
+  //   const int printIndex = sPrintedPhotonuclearEvents.fetch_add(1, std::memory_order_relaxed);
+  //   if (printIndex < kMaxPhotonuclearEventPrints)
+  //   {
+  //     G4int eventId = -1;
+  //     const G4Event* evt = G4RunManager::GetRunManager()->GetCurrentEvent();
+  //     if (evt) eventId = evt->GetEventID();
 
-      G4cout << "Photonuclear event dump " << (printIndex + 1)
-             << " | event=" << eventId
-             << " | process=" << processName
-             << " | nSecondaries=" << secondaries->size() << G4endl;
+  //     G4cout << "Photonuclear event dump " << (printIndex + 1)
+  //            << " | event=" << eventId
+  //            << " | process=" << processName
+  //            << " | nSecondaries=" << secondaries->size() << G4endl;
 
-      for (const auto* secondary : *secondaries)
-      {
-        if (!secondary) continue;
-        const G4ParticleDefinition* secDef = secondary->GetDefinition();
-        const G4VProcess* creator = secondary->GetCreatorProcess();
-        const G4String creatorName = creator ? creator->GetProcessName() : "none";
-        G4cout << "  sec=" << secDef->GetParticleName()
-               << " Z=" << secDef->GetAtomicNumber()
-               << " A=" << secDef->GetBaryonNumber()
-               << " creator=" << creatorName << G4endl;
-      }
-    }
-  }
+  //     for (const auto* secondary : *secondaries)
+  //     {
+  //       if (!secondary) continue;
+  //       const G4ParticleDefinition* secDef = secondary->GetDefinition();
+  //       const G4VProcess* creator = secondary->GetCreatorProcess();
+  //       const G4String creatorName = creator ? creator->GetProcessName() : "none";
+  //       G4cout << "  sec=" << secDef->GetParticleName()
+  //              << " Z=" << secDef->GetAtomicNumber()
+  //              << " A=" << secDef->GetBaryonNumber()
+  //              << " creator=" << creatorName << G4endl;
+  //     }
+  //   }
+  // }
 
   bool hasNeutron = false;
   bool hasFluorine18 = false;
@@ -410,26 +410,35 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
     }
   }
 
-    if (hasNeutron && hasOxygen15)
-    {
-      sChannelNO15.fetch_add(1, std::memory_order_relaxed);
-      HitReactionCount++;
-    }
-    else if (hasCarbon12 && alphaCount >= 1)
-    {
-      sChannelC12Alpha.fetch_add(1, std::memory_order_relaxed);
-    }
-    else if (hasProton && hasNitrogen15)
-    {
-      sChannelPN15.fetch_add(1, std::memory_order_relaxed);
-    }
-    else if (alphaCount >= 3)
-    {
-      sChannelThreeAlpha.fetch_add(1, std::memory_order_relaxed);
+  if (hasNeutron && hasFluorine18)
+  {
+    ++HitReactionCount;
+    return;
   }
-else {
-  sChannelOther.fetch_add(1, std::memory_order_relaxed);
-}
+  else{
+    return;
+  }
+
+//     if (hasNeutron && hasOxygen15)
+//     {
+//       sChannelNO15.fetch_add(1, std::memory_order_relaxed);
+//       HitReactionCount++;
+//     }
+//     else if (hasCarbon12 && alphaCount >= 1)
+//     {
+//       sChannelC12Alpha.fetch_add(1, std::memory_order_relaxed);
+//     }
+//     else if (hasProton && hasNitrogen15)
+//     {
+//       sChannelPN15.fetch_add(1, std::memory_order_relaxed);
+//     }
+//     else if (alphaCount >= 3)
+//     {
+//       sChannelThreeAlpha.fetch_add(1, std::memory_order_relaxed);
+//   }
+// else {
+//   sChannelOther.fetch_add(1, std::memory_order_relaxed);
+// }
 
     // std::cout << "Photonuclear reaction particles A and Z:" << std::endl;
     // for (const auto* secondary : *secondaries) {
