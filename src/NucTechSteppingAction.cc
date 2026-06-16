@@ -413,7 +413,7 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
   if (hasNeutron && hasFluorine18)
   {
     ++HitReactionCount;
-    return;
+    // return;
   }
   else{
     return;
