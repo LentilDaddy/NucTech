@@ -137,6 +137,8 @@ void NucTechSteppingAction::BeginOfEventAction() {
   HitReactionCount = 0;
   fPhotonuclearStepsThisEvent = 0;
   fHasF18ThisEvent = false;
+  fV_F18KineticEnergy.clear();
+  fFirstF18KineticEnergy = -1.0;
 }
 
 void NucTechSteppingAction::EndOfEventAction() {
@@ -176,7 +178,12 @@ void NucTechSteppingAction::EndOfEventAction() {
   //     std::accumulate(fV_hitEdep.begin(), fV_hitEdep.end(), 0.);
 
 // Fill Ntuple 1 (EnergySpectrum)
-  mgr->FillNtupleIColumn(1, 0, HitReactionCount); 
+  mgr->FillNtupleIColumn(1, 0, HitReactionCount);
+  if (fFirstF18KineticEnergy >= 0.0) {
+    mgr->FillNtupleDColumn(1, 1, fFirstF18KineticEnergy / MeV);
+  } else {
+    mgr->FillNtupleDColumn(1, 1, -1.0);
+  }
   mgr->AddNtupleRow(1);
 
   // // Then record the individual hit energy and coordinates of this event
@@ -397,6 +404,12 @@ void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
     // Check for 18F nucleus (Z=9, A=18)
     if (Z == 9 && A == 18) {
         hasFluorine18 = true;
+        const G4double ke = secondary->GetKineticEnergy();
+        fV_F18KineticEnergy.push_back(ke);
+        if (fFirstF18KineticEnergy < 0.0) {
+          fFirstF18KineticEnergy = ke;
+        }
+        G4AnalysisManager::Instance()->FillH1(0, ke / MeV);
     }
 
     else if (Z == 7 && A == 15) {

@@ -52,6 +52,8 @@ private:
   int HitReactionCount;
   int fPhotonuclearStepsThisEvent;
   bool fHasF18ThisEvent;
+  std::vector<G4double> fV_F18KineticEnergy;
+  G4double fFirstF18KineticEnergy;
 
   static std::atomic<long long> sTotalPhotonuclearSteps;
   static std::atomic<long long> sTotalTaggedReactions;

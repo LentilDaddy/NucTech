@@ -46,8 +46,11 @@ void NucTechRunAction::BeginOfRunAction(const G4Run* /*run*/)
   // // mgr->CreateNtupleFColumn("EventEdep"); //total energy deposited PER EVENT
   // // // mgr->CreateNtupleDColumn("EventEdepDetector2"); // Add this branch
   // // // mgr->CreateNtupleDColumn("FoilThickness");      // Add this branch
-  mgr->CreateNtupleIColumn("ReactionCount"); //total reaction count PER EVENT
+  mgr->CreateNtupleIColumn("ReactionCount"); // total reaction count PER EVENT
+  mgr->CreateNtupleDColumn("F18KineticEnergy_MeV"); // kinetic energy of first 18F in the event
   mgr->FinishNtuple();
+
+  mgr->CreateH1("F18KineticEnergy", "F18 kinetic energy per created ion;Energy [MeV];Counts", 200, 0., 20.0);
   
   // mgr->CreateNtuple("IndividualHits", "NucTech");
   // // mgr->CreateNtupleDColumn("HitEdep");
