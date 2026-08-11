@@ -39,10 +39,21 @@ G4Element* elU = nist->FindOrBuildElement("U");  // Uranium
 G4int ncomponents, natoms;
 G4String name;
 // define a material from elements.   case 1: chemical molecule
-G4double medium_density = 1.339*g/cm3; //keep the same because we will be changing pressure anyway.
+G4double medium_density = 1.1056*g/cm3; //keep the same because we will be changing pressure anyway.
 G4Material* SF6 = new G4Material(name="SF6", medium_density, ncomponents=2);
 SF6->AddElement(elS, natoms=1);
 SF6->AddElement(elF, natoms=6);
+
+//new material: heavy water containing 18O instead of 16O:
+
+// G4double heavy_water_density = 1.1056*g/cm3; //density of heavy water at 25C
+G4Material* HeavyWater = new G4Material(name="HeavyWater", heavy_water_density, ncomponents=2);
+G4Element* elH = nist->FindOrBuildElement("H");  // Hydrogen
+G4Isotope* isoO18 = new G4Isotope("O18", 8, 18, 17.99916*g/mole); // Oxygen-18 isotope
+G4Element* elO18 = new G4Element("Oxygen18", "O18", 1);
+elO18->AddIsotope(isoO18, 100.*perCent);
+HeavyWater->AddElement(elH, natoms=2);
+HeavyWater->AddElement(elO18, natoms=1);
 
 G4Material* PF5 = new G4Material(name="PF5", medium_density, ncomponents=2);
 PF5->AddElement(elP, natoms=1);
