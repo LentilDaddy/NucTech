@@ -1,8 +1,12 @@
 #include "NucTechSteppingAction.hh"
 
+#include <algorithm>
+
 #include "G4AnalysisManager.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4VProcess.hh"
+#include "G4Track.hh"
+#include "G4StepPoint.hh"
 
 #include "G4Run.hh"
 #include "G4RunManager.hh"
@@ -44,8 +48,10 @@ constexpr int kMaxPhotonuclearEventPrints = 15;
 
 NucTechSteppingAction::NucTechSteppingAction()
     : HitReactionCount(0),
-  fPhotonuclearStepsThisEvent(0),
-  fHasF18ThisEvent(false)
+      fPhotonuclearStepsThisEvent(0),
+      fHasF18ThisEvent(false),
+      fPrimaryEnteredTarget(false),
+      fPrimaryEntryTrackLength(0.)
 {}
 
 void NucTechSteppingAction::ResetDiagnostics()
@@ -137,6 +143,8 @@ void NucTechSteppingAction::BeginOfEventAction() {
   HitReactionCount = 0;
   fPhotonuclearStepsThisEvent = 0;
   fHasF18ThisEvent = false;
+  fPrimaryEnteredTarget = false;
+  fPrimaryEntryTrackLength = 0.;
   fV_F18KineticEnergy.clear();
   fFirstF18KineticEnergy = -1.0;
 }
@@ -220,101 +228,56 @@ void NucTechSteppingAction::EndOfEventAction() {
 }
 
 void NucTechSteppingAction::UserSteppingAction(const G4Step *step) {
+  G4StepPoint *preStepPoint = step->GetPreStepPoint();
+  if (!preStepPoint || !preStepPoint->GetPhysicalVolume())
+    return;
+
+  G4TouchableHandle touchable = preStepPoint->GetTouchableHandle();
+  if (!touchable)
+    return;
+
+  G4String currentName = touchable->GetVolume(0)->GetName();
+  if (currentName != "Detector1")
+    return;
+
+  G4Track *track = step->GetTrack();
+  if (!track || track->GetTrackID() != 1)
+    return;
+
+  if (track->GetDefinition()->GetPDGEncoding() != 2212)
+    return;
+
+  if (!fPrimaryEnteredTarget) {
+    fPrimaryEntryTrackLength = track->GetTrackLength() - step->GetStepLength();
+    fPrimaryEnteredTarget = true;
+  }
+
+  const G4double stepLength = step->GetStepLength();
+  if (stepLength <= 0.)
+    return;
+
   G4StepPoint *postStepPoint = step->GetPostStepPoint();
-  // G4StepPoint *preStepPoint = step->GetPreStepPoint();
+  const G4double deltaEnergy = preStepPoint->GetKineticEnergy() - postStepPoint->GetKineticEnergy();
+  const G4double stoppingPower = std::max(0.0, (deltaEnergy / MeV) / (stepLength / cm));
+  const G4double pathLength = (track->GetTrackLength() - fPrimaryEntryTrackLength) / cm;
 
-  // To only record the interactions inside the phantom
-  if (postStepPoint->GetPhysicalVolume() == nullptr)
-    return;
-  //auto volName = postStepPoint->GetPhysicalVolume()->GetName();
+  G4AnalysisManager *mgr = G4AnalysisManager::Instance();
+  mgr->FillNtupleDColumn(2, 0, pathLength);
+  mgr->FillNtupleDColumn(2, 1, stoppingPower);
+  mgr->FillH2(0, pathLength, stoppingPower);
+  mgr->AddNtupleRow(2);
 
-
-
-G4TouchableHandle touchable = postStepPoint->GetTouchableHandle();
-
-if (!postStepPoint->GetPhysicalVolume()) return; // extra safety
-
-G4int depth = touchable->GetHistoryDepth();
-G4String currentName = touchable->GetVolume(0)->GetName();
-G4String motherName = (depth > 1 && touchable->GetVolume(1))
-                        ? touchable->GetVolume(1)->GetName()
-                        : "";
-
-// if (currentName != "Detector1" &&
-//     currentName != "Detector2" &&
-//     motherName != "Detector1" && currentName != "vacuumLayer"
-//   && currentName != "stainlessSteel"){
-//     return;
-//     }
-
-if (currentName != "Detector1"){
-    return;
-    }
-
-    // if (currentName != "Detector1" &&
-    // currentName != "Detector2" &&
-    // motherName != "Detector1"){
-    // return;
-    // }
-
-
-  // if (postStepPoint->GetPhysicalVolume()->GetName() != "Detector1" &&
-  //     postStepPoint->GetPhysicalVolume()->GetName() != "Detector2")
-  //   return;
-
-
-
-  // // Store the energy deposited in the phantom
-  // const G4float Edep = step->GetTotalEnergyDeposit();
-
-  // if (Edep < 0.) { //changed from <= to < to include 0 energy deposits
-  //   return;
-  // }
-
-  // fV_hitEdep.push_back(Edep);
-
-  // // Store the hit position
-  // const G4ThreeVector hitPos = postStepPoint->GetPosition();
-  // fV_hitPos.push_back(hitPos);
-
-  // const G4ThreeVector hitMomentum = postStepPoint->GetMomentum();
-  // fV_hitMomentum.push_back(hitMomentum);
-
-    // Store the hit time
-  // const G4double hitTime = step->GetPostStepPoint()->GetGlobalTime();
-  // fV_hitTime.push_back(hitTime);
-
-  // const G4float kinEnergy = step->GetPostStepPoint()->GetKineticEnergy();
-  // fV_KineticEnergy.push_back(kinEnergy);
-
-    // Store PDG code
-  const G4Track* track = step->GetTrack();
-  if (track)
+  const G4Track* secondaryTrack = track;
+  if (secondaryTrack)
   {
-    const G4ParticleDefinition* def = track->GetDefinition();
+    const G4ParticleDefinition* def = secondaryTrack->GetDefinition();
     if (def && def->GetAtomicNumber() == 9 && def->GetBaryonNumber() == 18)
     {
       fHasF18ThisEvent = true;
     }
   }
-  // const G4ParticleDefinition* pd = track->GetDefinition();
-  // // int pdgCode = track->GetDefinition()->GetPDGEncoding();
-  // int particleType = 2; // default: other
-  // int ParentID = track->GetParentID();
-
-  // fV_hitPDG.push_back(pdgCode);
-
-  // if (pd == G4Electron::ElectronDefinition()) {
-  //   particleType = 0;
-  // } else if (pd == G4Gamma::GammaDefinition()) {
-  //   particleType = 1;
-  // }
-  // fV_hitPDG.push_back(particleType);
-  // fV_hitParentID.push_back(ParentID);
-
 
   CheckPhotonuclearReaction(step);
-
 }
 
 void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {

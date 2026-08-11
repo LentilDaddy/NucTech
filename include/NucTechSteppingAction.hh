@@ -52,6 +52,8 @@ private:
   int HitReactionCount;
   int fPhotonuclearStepsThisEvent;
   bool fHasF18ThisEvent;
+  bool fPrimaryEnteredTarget;
+  G4double fPrimaryEntryTrackLength;
   std::vector<G4double> fV_F18KineticEnergy;
   G4double fFirstF18KineticEnergy;
 

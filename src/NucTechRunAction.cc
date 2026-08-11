@@ -43,14 +43,20 @@ void NucTechRunAction::BeginOfRunAction(const G4Run* /*run*/)
 
   mgr->SetFirstNtupleId(1); //nTuple is a root tree. This part only defines the structure, it doesn't fill the variables.
   mgr->CreateNtuple("EnergySpectrum", "NucTech");
-  // // mgr->CreateNtupleFColumn("EventEdep"); //total energy deposited PER EVENT
-  // // // mgr->CreateNtupleDColumn("EventEdepDetector2"); // Add this branch
-  // // // mgr->CreateNtupleDColumn("FoilThickness");      // Add this branch
   mgr->CreateNtupleIColumn("ReactionCount"); // total reaction count PER EVENT
   mgr->CreateNtupleDColumn("F18KineticEnergy_MeV"); // kinetic energy of first 18F in the event
   mgr->FinishNtuple();
 
   mgr->CreateH1("F18KineticEnergy", "F18 kinetic energy per created ion;Energy [MeV];Counts", 200, 0., 20.0);
+
+  mgr->CreateNtuple("StoppingPower", "Primary proton stopping power vs path length");
+  mgr->CreateNtupleDColumn("PathLength_cm");
+  mgr->CreateNtupleDColumn("StoppingPower_MeV_per_cm");
+  mgr->FinishNtuple();
+
+  mgr->CreateH2("StoppingPower_vs_PathLength",
+                "Primary proton stopping power;path length [cm];stopping power [MeV/cm]",
+                200, 0., 100., 200, 0., 30.);
   
   // mgr->CreateNtuple("IndividualHits", "NucTech");
   // // mgr->CreateNtupleDColumn("HitEdep");

@@ -35,53 +35,19 @@ G4VPhysicalVolume *NucTechDetectorConstruction::Construct() {
   // Materials
   G4NistManager *nist = G4NistManager::Instance();
   G4Material *world_mat = nist->FindOrBuildMaterial("G4_Galactic");
-  G4Material *vacuum = nist->FindOrBuildMaterial("G4_Galactic");
 
-  
-G4Element* elS = nist->FindOrBuildElement("S");  // Sulfur
-G4Element* elF = nist->FindOrBuildElement("F");  // Fluorine
-G4Element* elP = nist->FindOrBuildElement("P");  // Phosphorus
-G4Element* elC = nist->FindOrBuildElement("C");  // Carbon
-G4Element* elU = nist->FindOrBuildElement("U");  // Uranium
-G4Element* elH = nist->FindOrBuildElement("H");  // Hydrogen
+  G4Element *elH = nist->FindOrBuildElement("H");  // Hydrogen
+  G4Isotope *isoO18 = new G4Isotope("O18", 8, 18, 17.99916 * g / mole); // Oxygen-18 isotope
+  G4Element *elO18 = new G4Element("Oxygen18", "O18", 1);
+  elO18->AddIsotope(isoO18, 100. * perCent);
 
-G4int ncomponents, natoms;
-G4String name;
-// define a material from elements.   case 1: chemical molecule
-G4double medium_density = 1.68*g/cm3; //keep the same because we will be changing pressure anyway.
-G4Material* SF6 = new G4Material(name="SF6", medium_density, ncomponents=2);
-SF6->AddElement(elS, natoms=1);
-SF6->AddElement(elF, natoms=6);
+  G4int ncomponents, natoms;
+  G4double heavy_water_density = 1.1056 * g / cm3;
+  G4Material *HeavyWater = new G4Material("HeavyWater", heavy_water_density, ncomponents = 2);
+  HeavyWater->AddElement(elH, natoms = 2);
+  HeavyWater->AddElement(elO18, natoms = 1);
 
-G4Material* HF = new G4Material(name="HF", medium_density, ncomponents=2);
-HF->AddElement(elH, natoms=1);
-HF->AddElement(elF, natoms=1);
-
-G4Material* PF5 = new G4Material(name="PF5", medium_density, ncomponents=2);
-PF5->AddElement(elP, natoms=1);
-PF5->AddElement(elF, natoms=5);
-
-G4Material* UF6 = new G4Material(name="UF6", medium_density, ncomponents=2);
-UF6->AddElement(elU, natoms=1);
-UF6->AddElement(elF, natoms=6);
-
-
-G4Material* CF4 = new G4Material(name="CF4", medium_density, ncomponents=2);
-CF4->AddElement(elC, natoms=1);
-CF4->AddElement(elF, natoms=4);
-
-G4Material* C3F8 = new G4Material(name="C3F8", medium_density, ncomponents=2);
-C3F8->AddElement(elC, natoms=3);
-C3F8->AddElement(elF, natoms=8);
-
-G4Material* C6F14 = new G4Material(name="C6F14", medium_density, ncomponents=2);
-C6F14->AddElement(elC, natoms=6);
-C6F14->AddElement(elF, natoms=14);
-
-  //G4Material *foil = nist->FindOrBuildMaterial("G4_Au");
-  G4Material *foil = nist->FindOrBuildMaterial("G4_Cu"); //swap target to tungsten
-  G4Material *medium = C6F14;
-  G4Material *Fe_Steel = nist->FindOrBuildMaterial("G4_STAINLESS-STEEL");
+  G4Material *medium = HeavyWater;
 
   /***** Experimental hall *****/
 
@@ -114,33 +80,16 @@ C6F14->AddElement(elF, natoms=14);
   G4LogicalVolume *det_logical =
       new G4LogicalVolume(det_solid, medium, "Detector1");
 
-   G4double &det_PosZ = det_halfDepth; // place it so no overlap with foil
+  G4double det_PosZ = det_halfDepth; // place it so no overlap with beam origin
 
   new G4PVPlacement(nullptr,                         // No rotation
-		    G4ThreeVector(0., 0., det_PosZ), // Translation (so no overlap with foil)
-		    // G4ThreeVector(0., 0., det_PosZ + dzFoil), // Translation (so no overlap with foil)
+                    G4ThreeVector(0., 0., det_PosZ), // Translation
                     det_logical,                     // Logical volume
-                    "Detector1",                     // Name
+                    "Detector1",                   // Name
                     world_logical,                   // Mother volume
                     false,          // Not a parameterized volume
                     0,              // Copy number
                     checkOverlaps); // Overlap checking
-
-
-
-  G4VSolid *midLayerSolid =
-    new G4Tubs("Detector2", 0.*cm, det_radius, dzFoil / 2, 0.*deg, 360.*deg);  
-
-  // Logical volume using the foil material
-  G4LogicalVolume *midLayer_log =
-      new G4LogicalVolume(midLayerSolid, foil, "Detector2");
-
-
-
-//   /***** Slices in detector *****/
-
-// G4double sliceHalfThickness = 0.5 * mm;
-// G4VSolid* sliceSolid = new G4Tubs("SliceSolid", 0.*cm, det_radius, sliceHalfThickness, 0.*deg, 360.*deg);
 
 // G4LogicalVolume* sliceLogical =
 //     new G4LogicalVolume(sliceSolid, medium, "SliceLogical");
