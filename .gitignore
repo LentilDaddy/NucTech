@@ -67,3 +67,6 @@ include/*
 !*.mac
 !RadioactiveDecay6.1.2/
 !PhotonEvaporation6.1/
+!18F_Reactions/
+!compare/
+!Oxygen15Tungsten1.4mm/
