@@ -30,7 +30,6 @@ void NucTechRunAction::BeginOfRunAction(const G4Run* /*run*/)
       G4cout << "Opening: " << mgr->GetFileName() << G4endl;
     }
   }
-  
   else
   {
     std::string errorMessage = "Could not open the output file: " + mgr->GetFileName();
@@ -41,41 +40,25 @@ void NucTechRunAction::BeginOfRunAction(const G4Run* /*run*/)
         errorMessage.c_str());
   }
 
-  mgr->SetFirstNtupleId(1); //nTuple is a root tree. This part only defines the structure, it doesn't fill the variables.
-  mgr->CreateNtuple("EnergySpectrum", "NucTech");
-  mgr->CreateNtupleIColumn("ReactionCount"); // total reaction count PER EVENT
-  mgr->CreateNtupleDColumn("F18KineticEnergy_MeV"); // kinetic energy of first 18F in the event
-  mgr->FinishNtuple();
+  // Set initial ID indexing
+  mgr->SetFirstNtupleId(1); 
+  mgr->SetFirstH1Id(0);
+  // mgr->SetFirstP1Id(0);
 
-  mgr->CreateH1("F18KineticEnergy", "F18 kinetic energy per created ion;Energy [MeV];Counts", 200, 0., 20.0);
+  // // --- Ntuple 1: EnergySpectrum ---
+  // mgr->CreateNtuple("EnergySpectrum", "NucTech");
+  // mgr->CreateNtupleIColumn("ReactionCount");        // Column 0
+  // mgr->CreateNtupleDColumn("F18KineticEnergy_MeV"); // Column 1
+  // mgr->FinishNtuple(); // <-- Closes Ntuple 1
 
+  // --- Ntuple 1: StoppingPower ---
   mgr->CreateNtuple("StoppingPower", "Primary proton stopping power vs path length");
-  mgr->CreateNtupleDColumn("PathLength_cm");
-  mgr->CreateNtupleDColumn("StoppingPower_MeV_per_cm");
-  mgr->FinishNtuple();
+  mgr->CreateNtupleDColumn("PathLength_cm");             // Column 0
+  mgr->CreateNtupleDColumn("StoppingPower_MeV_per_cm");  // Column 1
+  mgr->FinishNtuple(); // <-- FIXED: Added missing FinishNtuple() for Ntuple 1
 
-  mgr->CreateH2("StoppingPower_vs_PathLength",
-                "Primary proton stopping power;path length [cm];stopping power [MeV/cm]",
-                200, 0., 100., 200, 0., 30.);
-  
-  // mgr->CreateNtuple("IndividualHits", "NucTech");
-  // // mgr->CreateNtupleDColumn("HitEdep");
+  mgr->CreateH1("StoppingPowerProfile", "Mean Stopping Power vs Path Length;Path Length [cm];Stopping Power [MeV/cm]", 500, 0., 10.0);
 
-  // mgr->CreateNtupleFColumn("HitZ");
-  // // mgr->CreateNtupleFColumn("HitX"); //positions of each hit
-  // // mgr->CreateNtupleFColumn("HitY");
-  // // mgr->CreateNtupleFColumn("HitR");
-  // // mgr->CreateNtupleDColumn("HitPx");
-  // // mgr->CreateNtupleDColumn("HitPy");
-  // // mgr->CreateNtupleDColumn("HitPz");
-  // // mgr->CreateNtupleDColumn("HitTime"); // <-- Add this line
-  // // mgr->CreateNtupleIColumn("HitPDG"); // <-- Add this line for PDG code
-  // // mgr->CreateNtupleFColumn("HitKineticEnergy");
-  // // mgr->CreateNtupleIColumn("HitParentID"); // <-- Add this line for Parent ID
-  // // mgr->CreateNtupleIColumn("ReactionCount");
-  
-  
-  // mgr->FinishNtuple();
 
   if (IsMaster())
   {

@@ -4,25 +4,25 @@
 # Don't ignore this file
 !.gitignore
 
-# Allow Git to see the build directory itself
-!build/
+# # Allow Git to see the build directory itself
+# !build/
 
-# Inside build/, ignore everything...
-build/*
+# # Inside build/, ignore everything...
+# build/*
 
-# ...except the specific files you want to track
-!build/compare.C
-!build/compare2.C
-!build/compare3.C
-!build/compare4.C
-!build/submit.sh
-!build/submit_viking.sh
-!build/init_hist.C
-!build/combine_batch.C
-!build/cost_reactions.C
-!build/plot_reactions.C
-!build/beam.mac
-!build/30MeV_spectra.root
+# # ...except the specific files you want to track
+# !build/compare.C
+# !build/compare2.C
+# !build/compare3.C
+# !build/compare4.C
+# !build/submit.sh
+# !build/submit_viking.sh
+# !build/init_hist.C
+# !build/combine_batch.C
+# !build/cost_reactions.C
+# !build/plot_reactions.C
+# !build/beam.mac
+# !build/30MeV_spectra.root
 
 
 # Allow Git to see the src directory itself
@@ -63,3 +63,7 @@ include/*
 # Allow Git to see the CMakeLists.txt file
 !CMakeLists.txt
 !nucTech.cc
+
+!*.mac
+!RadioactiveDecay6.1.2/
+!PhotonEvaporation6.1/

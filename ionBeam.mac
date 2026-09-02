@@ -2,6 +2,8 @@
 /gps/pos/centre 0. 0. -1. m
 /gps/direction 0. 0. 1.
 
-# Beam energy
-/gps/particle gamma
-/run/beamOn 100000
+/gps/particle ion
+/gps/ion 6 12
+/gps/energy 4800 MeV
+
+/run/beamOn 1

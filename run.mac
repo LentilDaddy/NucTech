@@ -1,0 +1,11 @@
+/control/verbose 0
+
+/control/execute quiet.mac
+
+/run/numberOfThreads 1
+
+/run/setCut 1. um
+
+/run/initialize
+
+/control/execute beam.mac

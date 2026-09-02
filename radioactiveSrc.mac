@@ -1,0 +1,11 @@
+/gps/particle ion
+/gps/ion 89 225
+#/process/had/rdm/nucleusLimits 225 225 89 89
+
+# At rest
+/gps/energy 0. keV
+
+/gps/ang/type iso
+/gps/position 0. 0. 15. cm
+
+/run/beamOn 10

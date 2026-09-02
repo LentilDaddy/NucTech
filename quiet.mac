@@ -1,0 +1,12 @@
+# To activate a quiet mode at the start of a new simulation (less info are 
+# displayed in the terminal)
+
+/process/had/verbose 0
+/process/em/workerVerbose 0
+/process/em/verbose 0
+/process/had/verbose 0
+/process/eLoss/verbose 0
+/control/verbose 0
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0

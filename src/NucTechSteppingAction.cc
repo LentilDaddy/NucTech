@@ -181,103 +181,42 @@ void NucTechSteppingAction::EndOfEventAction() {
 
   G4AnalysisManager *mgr = G4AnalysisManager::Instance();
 
-  // // Store the total nergy deposited in the event
-  // const G4float Edep_event =
-  //     std::accumulate(fV_hitEdep.begin(), fV_hitEdep.end(), 0.);
-
-// Fill Ntuple 1 (EnergySpectrum)
-  mgr->FillNtupleIColumn(1, 0, HitReactionCount);
-  if (fFirstF18KineticEnergy >= 0.0) {
-    mgr->FillNtupleDColumn(1, 1, fFirstF18KineticEnergy / MeV);
-  } else {
-    mgr->FillNtupleDColumn(1, 1, -1.0);
-  }
-  mgr->AddNtupleRow(1);
-
-  // // Then record the individual hit energy and coordinates of this event
-  // for (std::size_t i = 0; i < fV_hitEdep.size(); i++) {
-  //   // auto energy = fV_hitEdep[i] / MeV;
-  //   auto position = fV_hitPos[i];
-  //   G4float z = static_cast<G4float>(position.z() / cm);
-  //   // G4float x = static_cast<G4float>(position.x() / cm);
-  //   // G4float y = static_cast<G4float>(position.y() / cm);
-  //   // G4float r = static_cast<G4float>(position.perp() / cm);
-
-  //   // auto time = fV_hitTime[i] / ns;
-  //   // auto kinEnergy = fV_KineticEnergy[i] / MeV;
-  //   // auto momentum = fV_hitMomentum[i];
-
-  //   // mgr->FillNtupleDColumn(2, 0, energy);
-  //   // mgr->FillNtupleDColumn(2, 1, position.x() / cm);
-  //   // mgr->FillNtupleDColumn(2, 2, position.y() / cm);
-  //   // mgr->FillNtupleFColumn(2, 0, position.z() / cm);
-  //   mgr->FillNtupleFColumn(2, 0, z); // Using ID 2
-  //   // mgr->FillNtupleFColumn(1, 1, x);
-  //   // mgr->FillNtupleFColumn(1, 2, y);
-  //   // mgr->FillNtupleFColumn(1, 1, r);
-  //   // mgr->FillNtupleDColumn(2, 2, momentum.x() / (MeV));
-  //   // mgr->FillNtupleDColumn(2, 3, momentum.y() / (MeV));
-  //   // mgr->FillNtupleDColumn(2, 2, momentum.z() / (MeV));
-  //   // mgr->FillNtupleDColumn(2, 3, time / ns);
-  //   // mgr->FillNtupleIColumn(1, 2, fV_hitPDG[i]); // Assuming column 5 is for PDG code
-  //   // mgr->FillNtupleFColumn(1, 3, kinEnergy);
-  //   // mgr->FillNtupleIColumn(1, 4, fV_hitParentID[i]); // Assuming column 6 is for Parent ID
-  //   // mgr->FillNtupleIColumn(1, 5, fReactionCount); //i think it is filling this with 0 values... 
-  //   mgr->AddNtupleRow(2);
-  // }
 }
 
 void NucTechSteppingAction::UserSteppingAction(const G4Step *step) {
+  G4Track *track = step->GetTrack();
+  
+  // 1. Primary Proton Filter
+  if (track->GetTrackID() != 1 || track->GetDefinition()->GetPDGEncoding() != 2212)
+    return;
+
   G4StepPoint *preStepPoint = step->GetPreStepPoint();
+  G4StepPoint *postStepPoint = step->GetPostStepPoint();
+
   if (!preStepPoint || !preStepPoint->GetPhysicalVolume())
     return;
 
-  G4TouchableHandle touchable = preStepPoint->GetTouchableHandle();
-  if (!touchable)
+  if (preStepPoint->GetPhysicalVolume()->GetName() != "Detector1")
     return;
-
-  G4String currentName = touchable->GetVolume(0)->GetName();
-  if (currentName != "Detector1")
-    return;
-
-  G4Track *track = step->GetTrack();
-  if (!track || track->GetTrackID() != 1)
-    return;
-
-  if (track->GetDefinition()->GetPDGEncoding() != 2212)
-    return;
-
-  if (!fPrimaryEnteredTarget) {
-    fPrimaryEntryTrackLength = track->GetTrackLength() - step->GetStepLength();
-    fPrimaryEnteredTarget = true;
-  }
 
   const G4double stepLength = step->GetStepLength();
   if (stepLength <= 0.)
     return;
 
-  G4StepPoint *postStepPoint = step->GetPostStepPoint();
-  const G4double deltaEnergy = preStepPoint->GetKineticEnergy() - postStepPoint->GetKineticEnergy();
-  const G4double stoppingPower = std::max(0.0, (deltaEnergy / MeV) / (stepLength / cm));
-  const G4double pathLength = (track->GetTrackLength() - fPrimaryEntryTrackLength) / cm;
+  const G4double deltaEnergy = (preStepPoint->GetKineticEnergy() - postStepPoint->GetKineticEnergy()) / MeV;
+  if (deltaEnergy <= 0.) return;
 
+  // 2. Compute path length along the local target Z-axis 
+  // (Assuming Detector1 is placed along Z, using local position avoids tracking errors)
+  // G4ThreePosition localPos = preStepPoint->GetTouchableHandle()->GetHistory()
+  //                               ->GetTopTransform().TransformPoint(preStepPoint->GetPosition());
+  
+  // Alternative: If particle enters target at z_entry, pathLength = (preStepPoint->GetPosition().z() - z_entry) / cm
+  G4double pathLength = (track->GetTrackLength() - stepLength / 2.0) / cm; 
+
+  // 3. Fill H1 with raw energy deposit deltaEnergy (NOT stopping power)
   G4AnalysisManager *mgr = G4AnalysisManager::Instance();
-  mgr->FillNtupleDColumn(2, 0, pathLength);
-  mgr->FillNtupleDColumn(2, 1, stoppingPower);
-  mgr->FillH2(0, pathLength, stoppingPower);
-  mgr->AddNtupleRow(2);
-
-  const G4Track* secondaryTrack = track;
-  if (secondaryTrack)
-  {
-    const G4ParticleDefinition* def = secondaryTrack->GetDefinition();
-    if (def && def->GetAtomicNumber() == 9 && def->GetBaryonNumber() == 18)
-    {
-      fHasF18ThisEvent = true;
-    }
-  }
-
-  CheckPhotonuclearReaction(step);
+  mgr->FillH1(0, pathLength, deltaEnergy); 
 }
 
 void NucTechSteppingAction::CheckPhotonuclearReaction(const G4Step* step) {
