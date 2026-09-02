@@ -70,3 +70,6 @@ include/*
 !18F_Reactions/
 !compare/
 !Oxygen15Tungsten1.4mm/
+!init_Photonhist.C
+!submit_PhotonSpectrum.sh
+!save_spectra_to_file.C
