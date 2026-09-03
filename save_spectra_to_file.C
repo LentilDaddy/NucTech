@@ -4,13 +4,13 @@ void save_spectra_to_file() {
     chain->Add("radiator_*.root");
 
     // 2. Create the 2D Histogram (Thickness in cm, Energy in MeV)
-    TH2F *htemp = new TH2F("htemp", "Energy vs Thickness", 1, 0.14, 1.14, 100, 0, 50);
+    TH2F *htemp = new TH2F("htemp", "Energy vs Thickness", 1, 0.225, 1.225, 500, 0, 50);
     
     std::cout << "Filling 2D histogram from chain..." << std::endl;
     chain->Draw("HitKineticEnergy:HitZ >> htemp", "HitPDG == 1", "goff");
 
     // 3. Create a new ROOT file to store the 1D projections
-    TFile *outFile = new TFile("Tungsten_30MeV_spectra.root", "RECREATE");
+    TFile *outFile = new TFile("Tungsten2.25mm_30MeV_spectra.root", "RECREATE");
 
     // 4. Loop through thicknesses 1mm to 30mm
 
