@@ -3,6 +3,5 @@
 /gps/direction 0. 0. 1.
 
 # Beam energy
-/gps/particle e-
-/gps/ene/mono 30 MeV
+/gps/particle gamma
 /run/beamOn 100000

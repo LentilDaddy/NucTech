@@ -12,13 +12,13 @@ export ROOT_TTREE_MAX_SIZE=500000000000
 root -l -b -q init_Photonhist.C
 
 # Loop through batches
-for batch in {0..1}; do
-  start=$((batch * 10 + 1))
-  end=$(((batch + 1) * 10))
+for batch in {0..9}; do
+  start=$((batch * 100 + 1))
+  end=$(((batch + 1) * 100))
   
   # Run simulations SEQUENTIALLY to avoid crashing the node
   for i in $(seq $start $end); do
-    ./build3/nucTech run.mac radiator_$i.root &
+    ./build_tungsten22MeV/nucTech run.mac radiator_$i.root &
   done
   wait
   

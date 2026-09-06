@@ -3,7 +3,11 @@
 
 #include "G4GeneralParticleSource.hh"
 #include "G4VUserPrimaryGeneratorAction.hh"
+#include "globals.hh"
+#include <memory>
 
+// Forward declaration of the ROOT class so Geant4 knows it exists
+class TH1D;
 class G4GeneralParticleSource;
 
 class NucTechPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
@@ -17,6 +21,9 @@ public:
 
 private:
   std::unique_ptr<G4GeneralParticleSource> fGPS;
+
+  // This is the pointer that will hold your energy spectrum
+  TH1D* fEnergyHist;
   
   static constexpr G4int ProgressBarLimit = 999;
   static constexpr G4int percentageFactor = 100;
