@@ -73,3 +73,7 @@ include/*
 !init_Photonhist.C
 !submit_PhotonSpectrum.sh
 !save_spectra_to_file.C
+!submit.sh
+!combine_batch.C
+!init_hist.C
+
