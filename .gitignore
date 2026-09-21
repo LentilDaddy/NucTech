@@ -76,4 +76,5 @@ include/*
 !submit.sh
 !combine_batch.C
 !init_hist.C
-
+!environment.def
+!sim_env.def

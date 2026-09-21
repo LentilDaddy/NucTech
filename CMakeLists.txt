@@ -2,7 +2,8 @@
 
 #----------------------------------------------------------------------------
 # Setup the project
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR) 
+#cmake_minimum_required(VERSION 2.8 FATAL_ERROR) 
+cmake_minimum_required(VERSION 3.5...3.30)
 project(NucTech)
 
 #----------------------------------------------------------------------------

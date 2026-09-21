@@ -1,6 +1,6 @@
 void init_hist() {
     // Create the ROOT file in RECREATE mode
-    TFile *f = new TFile("C6F14_50MeV_3mmW_70cmL_9cmR.root", "RECREATE");
+    TFile *f = new TFile("TESTUF6_50MeV_3mmW_70cmL_9cmR.root", "RECREATE");
     
     // Create the initial histogram
     TH1F *h_final = new TH1F("h_final", "Final Histogram", 3, 0, 3);

@@ -4,4 +4,4 @@
 
 # Beam energy
 /gps/particle gamma
-/run/beamOn 100000
+/run/beamOn 10000

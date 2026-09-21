@@ -1,0 +1,60 @@
+Bootstrap: docker
+From: condaforge/mambaforge:latest
+
+%post
+    export DEBIAN_FRONTEND=noninteractive
+
+    # geant4=11.3.0 automatically pulls all geant4-data-* subpackages as dependencies
+    conda install -y -c conda-forge --solver=libmamba \
+        geant4=11.3.0 \
+        root=6.32.02 \
+        python=3.11 \
+        cmake \
+        make \
+        ninja \
+        numpy \
+        scipy \
+        matplotlib \
+        gxx_linux-64 \
+        sysroot_linux-64
+
+    # Remove conflicting activation scripts that break Apptainer
+    rm -f /opt/conda/etc/conda/activate.d/geant4*.sh
+    rm -f /opt/conda/etc/conda/activate.d/geant4*.csh
+
+    conda clean --all -f -y
+
+%environment
+    export LC_ALL=C
+    export PATH=/opt/conda/bin:$PATH
+
+    # System headers for C/C++ JIT (Cling / ROOT)
+    export CONDA_BUILD_SYSROOT=/opt/conda/x86_64-conda-linux-gnu/sysroot
+    export C_INCLUDE_PATH=/opt/conda/x86_64-conda-linux-gnu/sysroot/usr/include:$C_INCLUDE_PATH
+    export CPLUS_INCLUDE_PATH=/opt/conda/x86_64-conda-linux-gnu/sysroot/usr/include:$CPLUS_INCLUDE_PATH
+
+    # Dynamically discover and export ALL Geant4 data variables regardless of case or version suffix
+    export G4DATA=/opt/conda/share/Geant4/data
+    if [ -d "$G4DATA" ]; then
+        for d in "$G4DATA"/*; do
+            if [ -d "$d" ]; then
+                base=$(basename "$d" | tr '[:upper:]' '[:lower:]')
+                case "$base" in
+                    *ensdfstate*)      export G4ENSDFSTATEDATA="$d" ;;
+                    *photonevaporation*) export G4LEVELGAMMADATA="$d" ;;
+                    *radioactivedecay*) export G4RADIOACTIVEDATA="$d" ;;
+                    *emlow*)           export G4LEDATA="$d" ;;
+                    *ndl*|*particlehp*) export G4NEUTRONHPDATA="$d" ;;
+                    *particles*|*particlexs*) export G4PARTICLEXSDATA="$d" ;;
+                    *pii*)             export G4PIIDATA="$d" ;;
+                    *realsurface*)     export G4REALSURFACEDATA="$d" ;;
+                    *said*)            export G4SAIDXSDATA="$d" ;;
+                    *abla*)            export G4ABLADATA="$d" ;;
+                    *incl*)            export G4INCLDATA="$d" ;;
+                esac
+            fi
+        done
+    fi
+
+%runscript
+    exec python "$@"

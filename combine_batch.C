@@ -11,7 +11,7 @@ void combine_batch() {
     myChain->Draw("ReactionCount >> h_batch", "", "goff");
 
     // Open the main file in UPDATE mode
-    TFile *finalFile = TFile::Open("C6F14_50MeV_3mmW_70cmL_9cmR.root", "UPDATE");
+    TFile *finalFile = TFile::Open("TESTUF6_50MeV_3mmW_70cmL_9cmR.root", "UPDATE");
     
     // Retrieve the existing final histogram
     TH1F *h_final = (TH1F*)finalFile->Get("h_final");
