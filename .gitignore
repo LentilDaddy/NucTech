@@ -78,3 +78,4 @@ include/*
 !init_hist.C
 !environment.def
 !sim_env.def
+!processSim.C
