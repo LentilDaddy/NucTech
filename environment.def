@@ -8,7 +8,7 @@ From: condaforge/mambaforge:latest
         geant4=11.3.0 \
         root=6.32.02 \
         python=3.11 \
-        cmake \
+        cmake=4.2.3 \
         make \
         ninja \
         numpy \
